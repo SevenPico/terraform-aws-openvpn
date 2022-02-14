@@ -11,7 +11,6 @@ variable "openvpn_vpc_public_subnet_ids" {}
 # Optional
 variable "openvpn_admin_password" { default = "changeme" }
 variable "openvpn_admin_username" { default = "administrator" }
-variable "openvpn_asg_unique_instance_hostnames" { default = true }
 variable "openvpn_client_network" { default = "127.27.0.0" }
 variable "openvpn_client_network_mask" { default = "20" }
 variable "openvpn_cloudwatch_log_retention_days" { default = 30 }
@@ -20,6 +19,7 @@ variable "openvpn_instance_type" { default = "t3.micro" }
 variable "openvpn_license_filepath" { default = null }
 variable "openvpn_max_count" { default = 1 }
 variable "openvpn_min_count" { default = 1 }
+variable "openvpn_security_group_id" { default = null }
 variable "openvpn_server_admin_ui_https_port" { default = 943 }
 variable "openvpn_server_client_ui_https_port" { default = 943 }
 variable "openvpn_server_cluster_port" { default = 945 }

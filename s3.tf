@@ -1,10 +1,10 @@
 #------------------------------------------------------------------------------
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
-module "ec2_openvpn_scripts_bucket" {
+module "ec2_asg_scripts_bucket" {
   source  = "registry.terraform.io/cloudposse/s3-bucket/aws"
   version = "0.47.0"
-  context = module.ec2_openvpn_scripts_bucket_meta.context
+  context = module.ec2_asg_scripts_bucket_meta.context
 
   acl                                    = "private"
   allow_encrypted_uploads_only           = false
@@ -62,20 +62,20 @@ module "ec2_openvpn_scripts_bucket" {
 }
 
 resource "aws_s3_bucket_object" "ec2_init_script_without_rds" {
-  bucket = module.ec2_openvpn_scripts_bucket.bucket_id
+  bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
-    hostname = module.asg_ec2_openvpn_dns_meta.id,
-    openvpn_secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.asg_ec2_openvpn[0].arn
+    hostname = module.ec2_asg_dns_meta.id,
+    openvpn_secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.ec2_asg[0].arn
     region = data.aws_region.current.name
   })
 }
 
 resource "aws_s3_bucket_object" "openvpn_init_script" {
-  bucket = module.ec2_openvpn_scripts_bucket.bucket_id
+  bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "openvpn-init.sh"
   content = templatefile("${path.module}/scripts/openvpn-init.sh.tftpl", {
-    hostname = module.asg_ec2_openvpn_dns_meta.id,
+    hostname = module.ec2_asg_dns_meta.id,
     webserver_name = var.openvpn_web_server_name,
     admin_ui_https_port = var.openvpn_server_admin_ui_https_port,
     client_ui_https_port = var.openvpn_server_client_ui_https_port,
@@ -86,7 +86,7 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
     vpc_private_cidr_block = var.openvpn_vpc_cidr_block
     vpn_network = var.openvpn_client_network,
     vpn_network_mask = var.openvpn_client_network_mask,
-    secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.asg_ec2_openvpn[0].arn
+    secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.ec2_asg[0].arn
     region = data.aws_region.current.name
     openvpn_admin_username = var.openvpn_admin_username
     openvpn_admin_password = var.openvpn_admin_password
@@ -95,7 +95,7 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
 
 resource "aws_s3_bucket_object" "openvpn_init_mysql_script" {
   count = var.rds_mysql_instance_address != null ? 1 : 0
-  bucket = module.ec2_openvpn_scripts_bucket.bucket_id
+  bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "openvpn-init-mysql.sh"
   content = templatefile("${path.module}/scripts/openvpn-init-mysql.sh.tftpl", {
     rds_host = var.rds_mysql_instance_address,
@@ -109,7 +109,7 @@ resource "aws_s3_bucket_object" "openvpn_init_mysql_script" {
 
 resource "aws_s3_bucket_object" "ssl_cert_sh" {
   count = var.ssl_certificate_secretsmanager_version_arn != null ? 1 : 0
-  bucket = module.ec2_openvpn_scripts_bucket.bucket_id
+  bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "ssl-cert.sh"
   content = templatefile("${path.module}/scripts/ssl-cert.sh.tftpl", {
     secretsmanager_secret_version_arn = var.ssl_certificate_secretsmanager_version_arn,

@@ -1,3 +1,82 @@
+module "openvpn_sg_meta" {
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.this.context
+  attributes = ["sg"]
+}
+
+module "openvpn_sg" {
+  source  = "registry.terraform.io/cloudposse/security-group/aws"
+  version = "0.4.2"
+  context = module.openvpn_sg_meta.context
+  enabled = var.openvpn_security_group_id == null
+
+  vpc_id = module.vpc.vpc_id
+
+  rules = [
+    {
+      key                      = 1
+      type                     = "ingress"
+      from_port                = var.openvpn_server_admin_ui_https_port
+      to_port                  = var.openvpn_server_admin_ui_https_port
+      protocol                 = "tcp"
+      cidr_blocks              = ["0.0.0.0/0"]
+      ipv6_cidr_blocks         = []
+      source_security_group_id = null
+      self                     = null
+      description              = "Allow access to VPN Admin UI from anywhere"
+    },
+    {
+      key                      = 2
+      type                     = "ingress"
+      from_port                = var.openvpn_server_daemon_udp_port
+      to_port                  = var.openvpn_server_daemon_udp_port
+      protocol                 = "udp"
+      cidr_blocks              = ["0.0.0.0/0"]
+      ipv6_cidr_blocks         = []
+      source_security_group_id = null
+      self                     = null
+      description              = "Allow access to VPN from anywhere"
+    },
+    {
+      key                      = 3
+      type                     = "ingress"
+      from_port                = var.openvpn_server_daemon_tcp_port
+      to_port                  = var.openvpn_server_daemon_tcp_port
+      protocol                 = "tcp"
+      cidr_blocks              = ["0.0.0.0/0"]
+      ipv6_cidr_blocks         = []
+      source_security_group_id = null
+      self                     = null
+      description              = "Allow access to VPN from anywhere"
+    },
+    {
+      key                      = 4
+      type                     = "egress"
+      from_port                = 443
+      to_port                  = 443
+      protocol                 = "tcp"
+      cidr_blocks              = ["0.0.0.0/0"]
+      ipv6_cidr_blocks         = []
+      source_security_group_id = null
+      self                     = null
+      description              = "Allow https egress on 443 everywhere"
+    },
+    {
+      key                      = 5
+      type                     = "egress"
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      cidr_blocks              = ["0.0.0.0/0"]
+      ipv6_cidr_blocks         = []
+      source_security_group_id = null
+      self                     = null
+      description              = "Allow https egress on 80 everywhere"
+    }
+  ]
+}
+
 module "openvpn" {
   source  = "../.."
   context = module.this.context
@@ -12,12 +91,12 @@ module "openvpn" {
   openvpn_vpc_public_subnet_ids     = module.vpc_subnets.public_subnet_ids
 
   # Optional
-  openvpn_asg_unique_instance_hostnames = var.openvpn_asg_unique_instance_hostnames
   openvpn_cloudwatch_log_retention_days = var.openvpn_cloudwatch_log_retention_days
   openvpn_desired_count                 = var.openvpn_desired_count
   openvpn_instance_type                 = var.openvpn_instance_type
   openvpn_max_count                     = var.openvpn_max_count
   openvpn_min_count                     = var.openvpn_min_count
+  openvpn_security_group_id             = module.openvpn_sg.id
   openvpn_server_admin_ui_https_port    = var.openvpn_server_admin_ui_https_port
   openvpn_server_client_ui_https_port   = var.openvpn_server_client_ui_https_port
   openvpn_server_cluster_port           = var.openvpn_server_cluster_port

@@ -5,13 +5,13 @@ locals {
   command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./ssl-cert.sh" : ""
   command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./openvpn-init-rds.sh": ""
 }
-resource "aws_ssm_document" "ec2_vpn_asg_initialization" {
-  count           = module.vpn_ec2_meta.enabled ? 1 : 0
-  name            = module.asg_ec2_openvpn_ssm_initialization_meta.id
+resource "aws_ssm_document" "ec2_asg_initialization" {
+  count           = module.ec2_meta.enabled ? 1 : 0
+  name            = module.ec2_asg_ssm_initialization_meta.id
   document_format = "JSON"
   document_type   = "Command"
 
-  tags    = module.asg_ec2_openvpn_ssm_initialization_meta.tags
+  tags    = module.ec2_asg_ssm_initialization_meta.tags
   content = <<DOC
 {
   "schemaVersion": "2.2",
@@ -20,7 +20,7 @@ resource "aws_ssm_document" "ec2_vpn_asg_initialization" {
     "Environment": {
       "description": "The Environment The Server is running in.",
       "type": "String",
-      "default": "${module.asg_ec2_openvpn_ssm_initialization_meta.environment}"
+      "default": "${module.ec2_asg_ssm_initialization_meta.environment}"
     }
   },
   "mainSteps": [
@@ -40,7 +40,7 @@ resource "aws_ssm_document" "ec2_vpn_asg_initialization" {
           "sudo apt-get install mariadb-client-core-10.1 -y -q",
           "cd /root",
           "mkdir -p ./scripts",
-          "sudo aws s3 sync s3://${module.ec2_openvpn_scripts_bucket.bucket_id} ./scripts/ --region ${data.aws_region.current.name} --delete --sse",
+          "sudo aws s3 sync s3://${module.ec2_asg_scripts_bucket.bucket_id} ./scripts/ --region ${data.aws_region.current.name} --delete --sse",
           "cd ./scripts",
           "sudo chmod o-rwx *.sh",
           "sudo chmod ug+rwx *.sh",
@@ -57,12 +57,12 @@ resource "aws_ssm_document" "ec2_vpn_asg_initialization" {
 DOC
 }
 
-resource "aws_ssm_association" "ec2_vpn_asg_initialization" {
-  count            = module.vpn_ec2_meta.enabled ? 1 : 0
-  association_name = module.asg_ec2_openvpn_ssm_initialization_meta.id
-  name             = aws_ssm_document.ec2_vpn_asg_initialization[0].name
+resource "aws_ssm_association" "ec2_asg_initialization" {
+  count            = module.ec2_meta.enabled ? 1 : 0
+  association_name = module.ec2_asg_ssm_initialization_meta.id
+  name             = aws_ssm_document.ec2_asg_initialization[0].name
   targets {
     key    = "tag:Name"
-    values = [module.vpn_ec2_meta.id]
+    values = [module.ec2_meta.id]
   }
 }
