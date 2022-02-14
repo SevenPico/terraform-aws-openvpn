@@ -1,5 +1,5 @@
 module "openvpn" {
-  source                            = "../.."
+  source  = "../.."
   context = module.this.context
 
   # Required

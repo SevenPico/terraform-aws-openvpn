@@ -1,8 +1,7 @@
-module "ec2_meta" {
+module "openvpn_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
   context = module.this.context
-  name    = "ec2"
 }
 
 module "dns_meta" {
@@ -26,7 +25,8 @@ module "dns_meta" {
 module "ec2_asg_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
-  context    = module.ec2_meta.context
+  context    = module.openvpn_meta.context
+  name       = "ec2"
   attributes = ["asg"]
 }
 
@@ -88,7 +88,7 @@ module "ec2_asg_secrets_meta" {
   attributes = ["configuration"]
 }
 
-module "asg_ec2_openvpn_secrets_kms_meta" {
+module "ec2_asg_secrets_kms_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
   context = module.ec2_asg_secrets_meta.context

@@ -6,7 +6,7 @@ locals {
   command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./openvpn-init-rds.sh": ""
 }
 resource "aws_ssm_document" "ec2_asg_initialization" {
-  count           = module.ec2_meta.enabled ? 1 : 0
+  count           = module.ec2_asg_meta.enabled ? 1 : 0
   name            = module.ec2_asg_ssm_initialization_meta.id
   document_format = "JSON"
   document_type   = "Command"
@@ -58,7 +58,7 @@ DOC
 }
 
 resource "aws_ssm_association" "ec2_asg_initialization" {
-  count            = module.ec2_meta.enabled ? 1 : 0
+  count            = module.ec2_asg_meta.enabled ? 1 : 0
   association_name = module.ec2_asg_ssm_initialization_meta.id
   name             = aws_ssm_document.ec2_asg_initialization[0].name
   targets {

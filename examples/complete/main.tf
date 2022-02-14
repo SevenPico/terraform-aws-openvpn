@@ -1,8 +1,8 @@
 module "openvpn_sg_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
-  attributes = ["sg"]
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.this.context
+  name    = "sg"
 }
 
 module "openvpn_sg" {
@@ -111,7 +111,7 @@ module "openvpn" {
   openvpn_license_filepath              = var.openvpn_license_filepath
 
   rds_mysql_instance_address                       = module.rds.instance_address
-  rds_secretsmanager_version_arn                    = data.aws_secretsmanager_secret_version.rds[0].arn
+  rds_secretsmanager_version_arn                   = data.aws_secretsmanager_secret_version.rds[0].arn
   rds_secretsmanager_kms_key_arn                   = aws_kms_key.rds[0].arn
   rds_secretsmanager_secret_admin_password_keyname = var.rds_secretsmanager_secret_admin_password_keyname
   rds_secretsmanager_secret_admin_username_keyname = var.rds_secretsmanager_secret_admin_username_keyname
