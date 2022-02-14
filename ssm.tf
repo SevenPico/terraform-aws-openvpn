@@ -63,6 +63,6 @@ resource "aws_ssm_association" "ec2_asg_initialization" {
   name             = aws_ssm_document.ec2_asg_initialization[0].name
   targets {
     key    = "tag:Name"
-    values = [module.ec2_meta.id]
+    values = [module.ec2_asg_meta.id]
   }
 }
