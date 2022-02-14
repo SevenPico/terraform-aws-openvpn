@@ -1,0 +1,61 @@
+#!/bin/bash
+
+if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
+then
+   echo "Initializing OpenVPN_AS."
+   sudo ovpn-init --ec2 --host=${hostname} --no_reroute_gw --local_auth --batch
+
+   cd /usr/local/openvpn_as/scripts
+   ./sacli --key 'cs.web_server_name' --value '${webserver_name}' ConfigPut
+   ./sacli --key 'admin_ui.https.ip_address' --value 'all' ConfigPut
+   ./sacli --key 'admin_ui.https.port' --value '${admin_ui_https_port}' ConfigPut
+   ./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
+   ./sacli --key 'cs.https.port' --value '${client_ui_https_port}' ConfigPut
+   ./sacli --key 'cs.priv_key' --value_file '/etc/openvpn/ssl/server.key' ConfigPut
+   ./sacli --key 'cs.cert' --value_file '/etc/openvpn/ssl/server.crt' ConfigPut
+   ./sacli --key 'cs.ca_bundle' --value_file '/etc/openvpn/ssl/chain.crt' ConfigPut
+   ./sacli --key 'ssl_api.local_addr' --value 'all' ConfigPut
+   ./sacli --key 'ssl_api.local_port' --value '${cluster_port}' ConfigPut
+
+   # SET UP NETWORKING
+   ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+   ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+   ./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+   ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${vpn_network_mask}' ConfigPut
+   ./sacli --key 'vpn.daemon.0.client.network' --value '${vpn_network}' ConfigPut
+   ./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+   ./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+   ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
+   ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+   ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
+   ./sacli --key 'vpn.server.routing.private_network.0' --value '${vpc_private_cidr_block}' ConfigPut
+   ./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+   ./sacli start
+
+   # Create admin user
+   ./sacli --user '${openvpn_admin_username}' --key "type" --value "user_connect" UserPropPut
+   ./sacli --user '${openvpn_admin_username}' --key "prop_superuser" --value "true" UserPropPut
+   ./sacli --user '${openvpn_admin_username}' --key "type" --value "user_compile" UserPropPut
+   ./sacli --user '${openvpn_admin_username}' --new_pass '${openvpn_admin_password}' SetLocalPassword
+   ./sacli start
+
+   ./sacli --key 'host.name' --value '${hostname}' ConfigPut
+   ./sacli start
+
+else
+   echo "Skipping OpenVPN_AS Initialization."
+fi
+
+LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.openvpn_license')
+if [ ! -z "$LICENSE" ]
+then
+   echo "Activating OpenVPN_AS License."
+   cd /usr/local/openvpn_as/scripts
+   ./liman Activate $LICENSE
+else
+   echo "Skipping OpenVPN_AS License Activation."
+fi
+
+
+
+

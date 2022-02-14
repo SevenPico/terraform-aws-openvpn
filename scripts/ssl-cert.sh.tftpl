@@ -1,0 +1,7 @@
+#!/bin/bash
+mkdir -p /etc/openvpn/ssl
+
+aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_keyname}'             > /etc/openvpn/ssl/server.crt
+aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_bundle_keyname}'      > /etc/openvpn/ssl/chain.crt
+aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_private_key_keyname}' > /etc/openvpn/ssl/server.key
+service openvpnas restart
