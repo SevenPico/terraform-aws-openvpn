@@ -5,7 +5,7 @@ locals {
   secrets_arns_a = [var.ssl_certificate_secretsmanager_version_arn]
   secrets_arns_b = [var.rds_secretsmanager_version_arn]
   secrets_arns   = compact(concat(
-    ["arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${module.ec2_meta.id}*"],
+    ["arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${module.ec2_asg_meta.id}*"],
     local.secrets_arns_a,
     local.secrets_arns_b
   ))
