@@ -107,7 +107,7 @@ resource "aws_iam_role_policy_attachment" "ec2_asg_ssm_management" {
 }
 
 resource "aws_iam_instance_profile" "ec2_asg_instance_profile" {
-  name = "${module.ec2_meta.id}-instance-profile"
+  name = "${module.ec2_asg_meta.id}-instance-profile"
   role = module.ec2_asg_role.name
 }
 
