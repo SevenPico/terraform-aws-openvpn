@@ -11,9 +11,6 @@ then
    ./sacli --key 'admin_ui.https.port' --value '${admin_ui_https_port}' ConfigPut
    ./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
    ./sacli --key 'cs.https.port' --value '${client_ui_https_port}' ConfigPut
-   ./sacli --key 'cs.priv_key' --value_file '/etc/openvpn/ssl/server.key' ConfigPut
-   ./sacli --key 'cs.cert' --value_file '/etc/openvpn/ssl/server.crt' ConfigPut
-   ./sacli --key 'cs.ca_bundle' --value_file '/etc/openvpn/ssl/chain.crt' ConfigPut
    ./sacli --key 'ssl_api.local_addr' --value 'all' ConfigPut
    ./sacli --key 'ssl_api.local_port' --value '${cluster_port}' ConfigPut
 
