@@ -2,8 +2,8 @@
 # EC2 VPN SSM Document for VPN Initialization
 #------------------------------------------------------------------------------
 locals {
-  command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./ssl-cert.sh" : ""
-  command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./openvpn-init-rds.sh": ""
+  command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./openvpn-init-rds.sh": ""
+  command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./ssl-cert.sh" : ""
 }
 resource "aws_ssm_document" "ec2_asg_initialization" {
   count           = module.ec2_asg_meta.enabled ? 1 : 0
