@@ -50,17 +50,19 @@ module "ec2_asg_role_meta" {
 
 
 module "ec2_asg_lifecycle_role_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.ec2_asg_meta.context
-  attributes = ["lifecycle", "role"]
+  source          = "registry.terraform.io/cloudposse/label/null"
+  version         = "0.25.0"
+  context         = module.ec2_asg_meta.context
+  attributes      = ["lifecycle", "role"]
+  id_length_limit = 63
 }
 
 module "ec2_asg_lifecycle_policy_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.ec2_asg_meta.context
-  attributes = ["lifecycle", "policy"]
+  source          = "registry.terraform.io/cloudposse/label/null"
+  version         = "0.25.0"
+  context         = module.ec2_asg_meta.context
+  attributes      = ["lifecycle", "policy"]
+  id_length_limit = 63
 }
 
 #module "ec2_openvpn_asg_sns_role_meta" {
