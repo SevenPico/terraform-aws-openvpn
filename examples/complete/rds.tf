@@ -21,7 +21,7 @@ module "rds_dns_meta" {
   version = "0.25.0"
   context = module.dns_meta.context
 
-  name                = "${module.rds_meta.stage}-${module.rds_meta.name}"
+  name = "${module.rds_meta.stage}-${module.rds_meta.name}"
 }
 
 
@@ -89,9 +89,9 @@ module "rds" {
   engine                       = "mysql"
   engine_version               = "8.0.23"
   instance_class               = "db.t2.small"
-  security_group_ids = []
-  subnet_ids = module.vpc_subnets.private_subnet_ids
-  vpc_id     = module.vpc.vpc_id
+  security_group_ids           = []
+  subnet_ids                   = module.vpc_subnets.private_subnet_ids
+  vpc_id                       = module.vpc.vpc_id
 
   # Optional
   allow_major_version_upgrade           = false
@@ -134,7 +134,7 @@ module "rds" {
 }
 
 resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_backend" {
-  count = module.rds_meta.enabled ? 1 : 0
+  count                    = module.rds_meta.enabled ? 1 : 0
   security_group_id        = module.rds.security_group_id
   type                     = "ingress"
   from_port                = var.rds_port
@@ -146,7 +146,7 @@ resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_back
 }
 
 resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backend" {
-  count = module.rds_meta.enabled ? 1 : 0
+  count                    = module.rds_meta.enabled ? 1 : 0
   security_group_id        = module.openvpn.ec2_security_group_id
   type                     = "egress"
   from_port                = var.rds_port

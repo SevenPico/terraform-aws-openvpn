@@ -49,12 +49,12 @@ resource "aws_route53_zone" "private" {
   vpc {
     vpc_id = module.vpc.vpc_id
   }
-  tags = module.rds_dns_meta.tags
+  tags = module.dns_meta.tags
 }
 
 data "aws_route53_zone" "public" {
   private_zone = false
-  name         = module.rds_dns_meta.id
+  name         = module.dns_meta.id
 }
 
 
