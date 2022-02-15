@@ -8,7 +8,7 @@ module "ssl_certificate_meta" {
 
 module "ssl_certificate" {
   source  = "app.terraform.io/SevenPico/ssl-certificate/aws"
-  version = "0.0.10"
+  version = "0.0.1"
   context = module.ssl_certificate_meta.context
 
   ssl_certificate_common_name        = var.common_name
