@@ -22,7 +22,7 @@ resource "aws_secretsmanager_secret" "ec2_asg" {
   name_prefix = "${module.ec2_asg_secrets_meta.id}-"
   tags        = module.ec2_asg_secrets_meta.tags
   kms_key_id  = module.ec2_asg_kms_key.key_id
-  description = "Environment Variables for the ${title(module.ec2_asg_meta.id_full)}"
+  description = "Environment Variables for the ${module.ec2_asg_meta.id_full}"
   lifecycle {
     ignore_changes  = [name, description, tags]
     prevent_destroy = false
