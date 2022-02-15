@@ -43,7 +43,7 @@ else
    echo "Skipping OpenVPN_AS Initialization."
 fi
 
-LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.openvpn_license')
+LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.OPENVPN_LICENSE')
 if [ ! -z "$LICENSE" ]
 then
    echo "Activating OpenVPN_AS License."
