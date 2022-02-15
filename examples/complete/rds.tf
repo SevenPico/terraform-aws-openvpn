@@ -133,26 +133,26 @@ module "rds" {
   storage_type                          = "gp2"
 }
 
-resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_backend" {
-  count                    = module.rds_meta.enabled ? 1 : 0
-  security_group_id        = module.rds.security_group_id
-  type                     = "ingress"
-  from_port                = var.rds_port
-  to_port                  = var.rds_port
-  protocol                 = "tcp"
-  source_security_group_id = module.openvpn.ec2_security_group_id
-  self                     = null
-  description              = "Allow connections from ${module.this.id}"
-}
-
-resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backend" {
-  count                    = module.rds_meta.enabled ? 1 : 0
-  security_group_id        = module.openvpn.ec2_security_group_id
-  type                     = "egress"
-  from_port                = var.rds_port
-  to_port                  = var.rds_port
-  protocol                 = "tcp"
-  source_security_group_id = module.rds.security_group_id
-  self                     = null
-  description              = "Allow connections to ${module.rds_meta.id}"
-}
+#resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_backend" {
+#  count                    = module.rds_meta.enabled ? 1 : 0
+#  security_group_id        = module.rds.security_group_id
+#  type                     = "ingress"
+#  from_port                = var.rds_port
+#  to_port                  = var.rds_port
+#  protocol                 = "tcp"
+#  source_security_group_id = module.openvpn.ec2_security_group_id
+#  self                     = null
+#  description              = "Allow connections from ${module.this.id}"
+#}
+#
+#resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backend" {
+#  count                    = module.rds_meta.enabled ? 1 : 0
+#  security_group_id        = module.openvpn.ec2_security_group_id
+#  type                     = "egress"
+#  from_port                = var.rds_port
+#  to_port                  = var.rds_port
+#  protocol                 = "tcp"
+#  source_security_group_id = module.rds.security_group_id
+#  self                     = null
+#  description              = "Allow connections to ${module.rds_meta.id}"
+#}
