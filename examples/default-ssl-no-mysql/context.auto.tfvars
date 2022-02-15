@@ -1,7 +1,7 @@
 enabled             = true
-namespace           = "sevenpico"
+namespace           = "spi"
 environment         = "test"
-stage               = "openvpn-default"
+stage               = "vpn-defaults"
 #name                = ""
 #delimiter           = var.delimiter
 #attributes          = var.attributes
