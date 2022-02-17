@@ -47,8 +47,8 @@ resource "aws_ssm_document" "ec2_asg_initialization" {
           "sudo chmod ug+rwx *.sh",
 
           "sudo ./init.sh",
-          "${local.command_load_ssl}",
           "sudo ./openvpn-init.sh",
+          "${local.command_load_ssl}",
           "${local.command_init_rds}"
         ]
       }
