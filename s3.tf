@@ -95,7 +95,7 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
 }
 
 resource "aws_s3_bucket_object" "openvpn_init_mysql_script" {
-  count = length(var.rds_mysql_instance_address) > 0 ? 1 : 0
+  count = var.rds_mysql_instance_address != null ? 1 : 0
   bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "openvpn-init-mysql.sh"
   content = templatefile("${path.module}/scripts/openvpn-init-mysql.sh.tftpl", {
