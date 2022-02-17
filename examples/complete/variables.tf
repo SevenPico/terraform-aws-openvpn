@@ -8,10 +8,11 @@
 #variable "openvpn_vpc_public_subnet_ids" {}
 
 # Optional
+variable "openvpn_client_pool_network" { default = "172.27.0.0" }
+variable "openvpn_client_pool_network_mask" { default = "20" }
+variable "openvpn_group_pool_cidr_block" { default = "172.27.16.0/20" }
 variable "openvpn_admin_password" { default = "changeme" }
 variable "openvpn_admin_username" { default = "administrator" }
-variable "openvpn_client_network" { default = "127.27.0.0" }
-variable "openvpn_client_network_mask" { default = "20" }
 variable "openvpn_cloudwatch_log_retention_days" { default = 30 }
 variable "openvpn_desired_count" { default = 1 }
 variable "openvpn_instance_type" { default = "t3.micro" }

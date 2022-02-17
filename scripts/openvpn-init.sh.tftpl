@@ -18,10 +18,11 @@ then
    ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
    ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
    ./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
-   ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${vpn_network_mask}' ConfigPut
-   ./sacli --key 'vpn.daemon.0.client.network' --value '${vpn_network}' ConfigPut
+   ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${vpn_client_pool_network_mask}' ConfigPut
+   ./sacli --key 'vpn.daemon.0.client.network' --value '${vpn_client_pool_network}' ConfigPut
    ./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
    ./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+   ./sacli --key 'vpn.server.group_pool.0' --value '${vpn_group_pool_cidr_block}' ConfigPut
    ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
    ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
    ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut

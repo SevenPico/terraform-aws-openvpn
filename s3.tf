@@ -84,8 +84,9 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
     daemon_tcp_port = var.openvpn_server_daemon_tcp_port,
     dhcp_option_domain = var.openvpn_server_dhcp_option_domain,
     vpc_private_cidr_block = var.openvpn_vpc_cidr_block
-    vpn_network = var.openvpn_client_network,
-    vpn_network_mask = var.openvpn_client_network_mask,
+    vpn_client_pool_network = var.openvpn_client_pool_network,
+    vpn_client_pool_network_mask = var.openvpn_client_pool_network_mask,
+    vpn_group_pool_cidr_block = var.openvpn_group_pool_cidr_block
     secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.ec2_asg[0].arn
     region = data.aws_region.current.name
     openvpn_admin_username = var.openvpn_admin_username
@@ -94,7 +95,7 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
 }
 
 resource "aws_s3_bucket_object" "openvpn_init_mysql_script" {
-  count = var.rds_mysql_instance_address != null ? 1 : 0
+  count = length(var.rds_mysql_instance_address) > 0 ? 1 : 0
   bucket = module.ec2_asg_scripts_bucket.bucket_id
   key    = "openvpn-init-mysql.sh"
   content = templatefile("${path.module}/scripts/openvpn-init-mysql.sh.tftpl", {

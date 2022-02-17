@@ -45,7 +45,7 @@ module "dns_meta" {
 }
 
 resource "aws_route53_zone" "private" {
-  name = module.rds_dns_meta.id
+  name = module.dns_meta.id
   vpc {
     vpc_id = module.vpc.vpc_id
   }

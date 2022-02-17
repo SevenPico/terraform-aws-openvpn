@@ -2,7 +2,7 @@
 # EC2 VPN SSM Document for VPN Initialization
 #------------------------------------------------------------------------------
 locals {
-  command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./openvpn-init-rds.sh": ""
+  command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./openvpn-init-mysql.sh": ""
   command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./ssl-cert.sh" : ""
 }
 resource "aws_ssm_document" "ec2_asg_initialization" {
@@ -30,6 +30,7 @@ resource "aws_ssm_document" "ec2_asg_initialization" {
       "inputs": {
         "runCommand": [
           "#!/bin/bash",
+          "DEBIAN_FRONTEND=noninteractive",
           "sudo rm /var/lib/dpkg/lock > /dev/null 2>&1",
           "sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1",
           "sudo apt-get update -y -q",
