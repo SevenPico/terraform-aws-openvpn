@@ -44,19 +44,6 @@ module "dns_meta" {
   label_order         = ["name", "namespace"]
 }
 
-resource "aws_route53_zone" "private" {
-  name = module.dns_meta.id
-  vpc {
-    vpc_id = module.vpc.vpc_id
-  }
-  tags = module.dns_meta.tags
-}
-
-data "aws_route53_zone" "public" {
-  private_zone = false
-  name         = module.dns_meta.id
-}
-
 
 #------------------------------------------------------------------------------
 # Subnets
@@ -98,3 +85,4 @@ module "vpc_subnets" {
   subnet_type_tag_value_format         = "%s"
   vpc_default_route_table_id           = ""
 }
+d

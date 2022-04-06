@@ -35,6 +35,7 @@ variable "rds_secretsmanager_secret_admin_password_keyname" { default = "ADMIN_P
 variable "rds_secretsmanager_secret_admin_username_keyname" { default = "ADMIN_USERNAME" }
 variable "rds_secretsmanager_secret_port_keyname" { default = "PORT" }
 variable "rds_security_group_id" { default = null }
+
 variable "ssl_certificate_secretsmanager_version_arn" {default = null}
 variable "ssl_certificate_secretsmanager_kms_key_arn" {default = null}
 variable "ssl_certificate_secretsmanager_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }

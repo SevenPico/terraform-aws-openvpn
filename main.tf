@@ -10,7 +10,7 @@ USERDATA
 
 module "ec2_asg" {
   source  = "registry.terraform.io/cloudposse/ec2-autoscale-group/aws"
-  version = "0.29.0"
+  version = "0.30.0"
   context = module.ec2_asg_meta.context
 
   instance_type    = var.openvpn_instance_type

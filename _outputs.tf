@@ -9,3 +9,7 @@ output "ec2_role_arn" {
 output "ec2_role_name" {
   value = module.ec2_asg_role.name
 }
+
+output "autoscaling_group_arn" {
+  value = module.ec2_asg.autoscaling_group_arn
+}
