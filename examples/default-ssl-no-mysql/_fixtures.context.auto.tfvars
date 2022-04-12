@@ -1,4 +1,4 @@
-enabled             = true
+enabled             = false
 namespace           = "spi"
 environment         = "test"
 stage               = "vpn-defaults"

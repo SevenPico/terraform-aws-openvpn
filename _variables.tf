@@ -1,5 +1,9 @@
 # Required
-variable "openvpn_asg_ami_image_id" { description = "This module was built using ami-06e31403ada2e8ff4. Other images may work as well." }
+variable "openvpn_asg_ami_image_id" {
+  type = string
+  default = "ami-037ff6453f0855c46"
+  description = "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
+}
 #variable "openvpn_private_hosted_zone_id" {}
 variable "openvpn_public_hosted_zone_id" {}
 variable "openvpn_server_dhcp_option_domain" {}
@@ -11,6 +15,7 @@ variable "openvpn_vpc_public_subnet_ids" {}
 # Optional
 variable "openvpn_client_pool_network" { default = "172.27.0.0" }
 variable "openvpn_client_pool_network_mask" { default = "20" }
+variable "openvpn_create_sns_topic" {default = false}
 variable "openvpn_group_pool_cidr_block" { default = "172.27.16.0/20" }
 variable "openvpn_admin_password" { default = "changeme" }
 variable "openvpn_admin_username" { default = "administrator" }

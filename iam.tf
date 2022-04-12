@@ -1,17 +1,50 @@
+module "ec2_autoscale_group_role_meta" {
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.ec2_autoscale_group_meta.context
+  attributes = ["role"]
+}
+
+
+module "ec2_autoscale_group_lifecycle_role_meta" {
+  source          = "registry.terraform.io/cloudposse/label/null"
+  version         = "0.25.0"
+  context         = module.ec2_autoscale_group_meta.context
+  attributes      = ["lifecycle", "role"]
+  id_length_limit = 63
+}
+
+module "ec2_autoscale_group_lifecycle_policy_meta" {
+  source          = "registry.terraform.io/cloudposse/label/null"
+  version         = "0.25.0"
+  context         = module.ec2_autoscale_group_meta.context
+  attributes      = ["lifecycle", "policy"]
+  id_length_limit = 63
+}
+
+module "ec2_autoscale_group_sns_role_meta" {
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.ec2_autoscale_group_sns_meta.context
+  attributes = ["role"]
+}
+
+
 #------------------------------------------------------------------------------
 # EC2 VPN ASG IAM
 #------------------------------------------------------------------------------
 locals {
   secrets_arns_a = [var.ssl_certificate_secretsmanager_version_arn]
   secrets_arns_b = [var.rds_secretsmanager_version_arn]
-  secrets_arns   = compact(concat(
-    ["arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${module.ec2_asg_meta.id}*"],
+  secrets_arns = compact(concat(
+    ["arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${module.ec2_autoscale_group_meta.id}*"],
     local.secrets_arns_a,
     local.secrets_arns_b
   ))
 }
-data "aws_iam_policy_document" "ec2_asg_policy" {
-  count   = module.ec2_asg_meta.enabled ? 1 : 0
+
+data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
+  count   = module.ec2_autoscale_group_meta.enabled ? 1 : 0
   version = "2012-10-17"
   statement {
     actions = [
@@ -25,7 +58,7 @@ data "aws_iam_policy_document" "ec2_asg_policy" {
     resources = compact([
       var.ssl_certificate_secretsmanager_kms_key_arn,
       var.rds_secretsmanager_kms_key_arn,
-      module.ec2_asg_kms_key.key_arn
+      module.ec2_autoscale_group_secrets_kms_key.key_arn
     ])
   }
 
@@ -48,8 +81,8 @@ data "aws_iam_policy_document" "ec2_asg_policy" {
     ]
     effect = "Allow"
     resources = [
-      "arn:aws:s3:::${module.ec2_asg_scripts_bucket.bucket_id}",
-      "arn:aws:s3:::${module.ec2_asg_scripts_bucket.bucket_id}/*"
+      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}",
+      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}/*"
     ]
   }
   statement {
@@ -63,7 +96,7 @@ data "aws_iam_policy_document" "ec2_asg_policy" {
     actions = [
       "secretsmanager:GetSecretValue",
     ]
-    effect = "Allow"
+    effect    = "Allow"
     resources = local.secrets_arns
   }
   statement {
@@ -79,10 +112,10 @@ data "aws_iam_policy_document" "ec2_asg_policy" {
   }
 }
 
-module "ec2_asg_role" {
+module "ec2_autoscale_group_role" {
   source  = "registry.terraform.io/cloudposse/iam-role/aws"
   version = "0.13.0"
-  context = module.ec2_asg_role_meta.context
+  context = module.ec2_autoscale_group_role_meta.context
 
   policy_description    = "VPN Server Permissions"
   role_description      = "IAM role with permissions to perform actions required by the VPN Server"
@@ -90,7 +123,7 @@ module "ec2_asg_role" {
   max_session_duration  = 3600
   policy_document_count = 1
   policy_documents = [
-    data.aws_iam_policy_document.ec2_asg_policy[0].json
+    join("", data.aws_iam_policy_document.ec2_autoscale_group_policy.*.json)
   ]
   principals = {
     Service : [
@@ -101,21 +134,24 @@ module "ec2_asg_role" {
   use_fullname = true
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_asg_ssm_management" {
+resource "aws_iam_role_policy_attachment" "ec2_autoscale_group_ssm_management" {
+  count      = module.ec2_autoscale_group_role_meta.enabled ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  role       = module.ec2_asg_role.name
+  role       = module.ec2_autoscale_group_role.name
 }
 
-resource "aws_iam_instance_profile" "ec2_asg_instance_profile" {
-  name = "${module.ec2_asg_meta.id}-instance-profile"
-  role = module.ec2_asg_role.name
+resource "aws_iam_instance_profile" "ec2_autoscale_group_instance_profile" {
+  count = module.ec2_autoscale_group_role_meta.enabled ? 1 : 0
+  name  = "${module.ec2_autoscale_group_meta.id}-instance-profile"
+  role  = module.ec2_autoscale_group_role.name
 }
 
 
 #------------------------------------------------------------------------------
 # EC2 VPN ASG Lifecycle IAM
 #------------------------------------------------------------------------------
-data "aws_iam_policy_document" "ec2_asg_iam_lifecycle" {
+data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_assume_role" {
+  count = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -130,12 +166,14 @@ data "aws_iam_policy_document" "ec2_asg_iam_lifecycle" {
   }
 }
 
-resource "aws_iam_role" "ec2_asg_iam_lifecycle" {
-  name               = module.ec2_asg_lifecycle_role_meta.id
-  assume_role_policy = data.aws_iam_policy_document.ec2_asg_iam_lifecycle.json
+resource "aws_iam_role" "ec2_autoscale_group_lifecycle_role" {
+  count              = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
+  name               = module.ec2_autoscale_group_lifecycle_role_meta.id
+  assume_role_policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_assume_role[0].json
 }
 
-data "aws_iam_policy_document" "ec2_openvpn_asg_iam_lifecycle_policy" {
+data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_policy" {
+  count = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -145,31 +183,53 @@ data "aws_iam_policy_document" "ec2_openvpn_asg_iam_lifecycle_policy" {
       "autoscaling:CompleteLifecycleAction"
     ]
     resources = [
-      module.ec2_asg.autoscaling_group_arn
+      module.ec2_autoscale_group.autoscaling_group_arn
     ]
   }
-  #  statement {
-  #    effect    = "Allow"
-  #    actions   = [
-  #      "sns:Publish"
-  #    ]
-  #    resources = [
-  #      aws_sns_topic.ec2_openvpn_asg[0].arn
-  #    ]
-  #  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sns:Publish"
+    ]
+    resources = [
+      aws_sns_topic.ec2_autoscale_group[0].arn
+    ]
+  }
 }
 
-resource "aws_iam_role_policy" "ec2_asg_iam_lifecycle_policy" {
-  name   = module.ec2_asg_lifecycle_policy_meta.id
-  role   = aws_iam_role.ec2_asg_iam_lifecycle.id
-  policy = data.aws_iam_policy_document.ec2_openvpn_asg_iam_lifecycle_policy.json
+resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_policy" {
+  count  = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
+  name   = module.ec2_autoscale_group_lifecycle_policy_meta.id
+  role   = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id
+  policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_policy[0].json
 }
 
 
 #------------------------------------------------------------------------------
 # EC2 VPN SNS IAM
 #------------------------------------------------------------------------------
-data "aws_iam_policy_document" "ec2_asg_iam_sns" {
+data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_sns_policy" {
+  count = module.ec2_autoscale_group_lifecycle_role_meta.enabled && module.ec2_autoscale_group_sns_meta.enabled ? 1 : 0
+  statement {
+    effect = "Allow"
+    actions = [
+      "sns:Publish"
+    ]
+    resources = [
+      aws_sns_topic.ec2_autoscale_group[0].arn
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_sns_policy" {
+  count  = module.ec2_autoscale_group_lifecycle_role_meta.enabled && module.ec2_autoscale_group_sns_meta.enabled ? 1 : 0
+  name   = module.ec2_autoscale_group_lifecycle_policy_meta.id
+  role   = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id
+  policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_sns_policy[0].json
+}
+
+data "aws_iam_policy_document" "ec2_autoscale_group_sns_assume_role" {
+  count = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -184,27 +244,30 @@ data "aws_iam_policy_document" "ec2_asg_iam_sns" {
   }
 }
 
-#resource "aws_iam_role" "ec2_openvpn_asg_iam_sns" {
-#  name               = module.sns.id
-#  assume_role_policy = data.aws_iam_policy_document.ec2_openvpn_asg_iam_sns.json
-#}
-#
-#data "aws_iam_policy_document" "ec2_openvpn_asg_iam_sns_policy" {
-#  statement {
-#    effect    = "Allow"
-#    actions   = [
-#      "logs:CreateLogGroup",
-#      "logs:CreateLogStream",
-#      "logs:PutLogEvents",
-#      "logs:PutMetricFilter",
-#      "logs:PutRetentionPolicy"
-#    ]
-#    resources = ["*"]
-#  }
-#}
-#
-#resource "aws_iam_role_policy" "ec2_openvpn_asg_iam_sns_policy" {
-#  name   = module.ec2_openvpn_asg_sns_policy_meta.id
-#  role   = aws_iam_role.ec2_openvpn_asg_iam_sns.id
-#  policy = data.aws_iam_policy_document.ec2_openvpn_asg_iam_sns_policy.json
-#}
+resource "aws_iam_role" "ec2_autoscale_group_sns" {
+  count              = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
+  name               = module.ec2_autoscale_group_sns_role_meta.id
+  assume_role_policy = data.aws_iam_policy_document.ec2_autoscale_group_sns_assume_role[0].json
+}
+
+data "aws_iam_policy_document" "ec2_autoscale_group_sns_policy" {
+  count = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:PutMetricFilter",
+      "logs:PutRetentionPolicy"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "ec2_openvpn_asg_iam_sns_policy" {
+  count  = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
+  name   = "${module.ec2_autoscale_group_sns_role_meta.id}-policy"
+  role   = aws_iam_role.ec2_autoscale_group_sns[0].id
+  policy = data.aws_iam_policy_document.ec2_autoscale_group_sns_policy[0].json
+}

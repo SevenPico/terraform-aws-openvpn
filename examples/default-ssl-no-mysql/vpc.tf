@@ -30,20 +30,6 @@ module "vpc" {
   ipv6_enabled                                    = true
 }
 
-module "dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
-
-  namespace           = var.common_name
-  stage               = null
-  name                = null
-  attributes          = []
-  delimiter           = "."
-  regex_replace_chars = "/[^a-zA-Z0-9-.]/"
-  label_order         = ["name", "namespace"]
-}
-
 
 #------------------------------------------------------------------------------
 # Subnets
@@ -85,4 +71,3 @@ module "vpc_subnets" {
   subnet_type_tag_value_format         = "%s"
   vpc_default_route_table_id           = ""
 }
-d

@@ -1,3 +1,26 @@
+module "ec2_autoscale_group_meta" {
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.this.context
+  attributes = ["ec2", "asg"]
+}
+
+module "ec2_autoscale_group_dns_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.dns_meta.context
+  name    = "vpn"
+}
+
+module "ec2_autoscale_group_sg_meta" {
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.ec2_autoscale_group_meta.context
+  attributes = ["sg"]
+  enabled    = module.ec2_autoscale_group_meta.enabled && var.openvpn_security_group_id == null
+}
+
+
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
@@ -8,10 +31,10 @@ echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
 USERDATA
 }
 
-module "ec2_asg" {
+module "ec2_autoscale_group" {
   source  = "registry.terraform.io/cloudposse/ec2-autoscale-group/aws"
-  version = "0.30.0"
-  context = module.ec2_asg_meta.context
+  version = "0.30.1"
+  context = module.ec2_autoscale_group_meta.context
 
   instance_type    = var.openvpn_instance_type
   max_size         = var.openvpn_max_count
@@ -52,7 +75,7 @@ module "ec2_asg" {
   force_delete                         = false
   health_check_grace_period            = 300
   health_check_type                    = "EC2"
-  iam_instance_profile_name            = aws_iam_instance_profile.ec2_asg_instance_profile.name
+  iam_instance_profile_name            = join("", aws_iam_instance_profile.ec2_autoscale_group_instance_profile.*.name)
   image_id                             = var.openvpn_asg_ami_image_id
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
@@ -78,7 +101,7 @@ module "ec2_asg" {
   scale_up_cooldown_seconds            = 300
   scale_up_policy_type                 = "SimpleScaling"
   scale_up_scaling_adjustment          = 1
-  security_group_ids                   = var.openvpn_security_group_id == null ? [module.ec2_asg_sg.id] : var.openvpn_security_group_id
+  security_group_ids                   = var.openvpn_security_group_id == null ? [module.ec2_autoscale_group_sg.id] : var.openvpn_security_group_id
   service_linked_role_arn              = ""
   suspended_processes                  = []
   tag_specifications_resource_types = [
@@ -96,11 +119,10 @@ module "ec2_asg" {
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Security Group
 #------------------------------------------------------------------------------
-module "ec2_asg_sg" {
-  source  = "registry.terraform.io/cloudposse/security-group/aws"
-  version = "0.4.2"
-  context = module.ec2_asg_sg_meta.context
-  enabled = var.openvpn_security_group_id == null
+module "ec2_autoscale_group_sg" {
+  source  = "app.terraform.io/SevenPico/security-group/aws"
+  version = "0.4.3"
+  context = module.ec2_autoscale_group_sg_meta.context
 
   vpc_id = var.openvpn_vpc_id
   rules = [

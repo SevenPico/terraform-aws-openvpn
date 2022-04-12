@@ -82,7 +82,6 @@ module "autoscaled_ec2_openvpn" {
   context = module.this.context
 
   # Required
-  openvpn_asg_ami_image_id          = "ami-06e31403ada2e8ff4"
   openvpn_public_hosted_zone_id     = data.aws_route53_zone.public[0].id
   openvpn_server_dhcp_option_domain = aws_route53_zone.private[0].name
   openvpn_vpc_cidr_block            = module.vpc.vpc_cidr_block
@@ -91,6 +90,7 @@ module "autoscaled_ec2_openvpn" {
   openvpn_vpc_public_subnet_ids     = module.vpc_subnets.public_subnet_ids
 
   # Optional
+  openvpn_asg_ami_image_id              = "ami-037ff6453f0855c46"
   openvpn_group_pool_cidr_block         = var.openvpn_group_pool_cidr_block
   openvpn_cloudwatch_log_retention_days = var.openvpn_cloudwatch_log_retention_days
   openvpn_desired_count                 = var.openvpn_desired_count
@@ -107,8 +107,8 @@ module "autoscaled_ec2_openvpn" {
   openvpn_web_server_name               = var.openvpn_web_server_name
   openvpn_admin_password                = var.openvpn_admin_password
   openvpn_admin_username                = var.openvpn_admin_username
-  openvpn_client_pool_network                = var.openvpn_client_pool_network
-  openvpn_client_pool_network_mask           = var.openvpn_client_pool_network_mask
+  openvpn_client_pool_network           = var.openvpn_client_pool_network
+  openvpn_client_pool_network_mask      = var.openvpn_client_pool_network_mask
   openvpn_license_filepath              = var.openvpn_license_filepath
 
   rds_mysql_instance_address                       = module.rds.instance_address
