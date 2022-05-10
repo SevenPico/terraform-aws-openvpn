@@ -34,10 +34,12 @@ module "ec2_autoscale_group_sns_role_meta" {
 # EC2 VPN ASG IAM
 #------------------------------------------------------------------------------
 locals {
-  secrets_arns_a = [var.ssl_certificate_secretsmanager_version_arn]
-  secrets_arns_b = [var.rds_secretsmanager_version_arn]
+  secrets_arns_a = [one(data.aws_secretsmanager_secret.ssl.*.arn)]
+  secrets_arns_b = [var.rds_secret_arn]
+  current_region = length(data.aws_region.current) > 0 ? one(data.aws_region.current[*].name) : ""
+  current_account_id = length(data.aws_caller_identity.current) > 0 ?one(data.aws_caller_identity.current[*].account_id) : ""
   secrets_arns = compact(concat(
-    ["arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${module.ec2_autoscale_group_meta.id}*"],
+    ["arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.ec2_autoscale_group_meta.id}*"],
     local.secrets_arns_a,
     local.secrets_arns_b
   ))
@@ -48,16 +50,14 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
   version = "2012-10-17"
   statement {
     actions = [
-      "kms:Encrypt",
       "kms:Decrypt",
-      "kms:ReEncrypt*",
       "kms:GenerateDataKey*",
       "kms:DescribeKey"
     ]
     effect = "Allow"
     resources = compact([
-      var.ssl_certificate_secretsmanager_kms_key_arn,
-      var.rds_secretsmanager_kms_key_arn,
+      var.ssl_secret_kms_key_arn,
+      var.rds_secret_kms_key_arn,
       module.ec2_autoscale_group_secrets_kms_key.key_arn
     ])
   }
@@ -186,15 +186,15 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_policy" {
       module.ec2_autoscale_group.autoscaling_group_arn
     ]
   }
-  statement {
-    effect = "Allow"
-    actions = [
-      "sns:Publish"
-    ]
-    resources = [
-      aws_sns_topic.ec2_autoscale_group[0].arn
-    ]
-  }
+#  statement {
+#    effect = "Allow"
+#    actions = [
+#      "sns:Publish"
+#    ]
+#    resources = [
+#      aws_sns_topic.ec2_autoscale_group[0].arn
+#    ]
+#  }
 }
 
 resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_policy" {

@@ -6,7 +6,6 @@ module "rds_meta" {
   version = "0.25.0"
   context = module.this.context
   name    = "rds"
-  enabled = var.rds_use_mysql_backend
 }
 
 module "rds_secrets_meta" {
@@ -107,13 +106,13 @@ module "rds" {
   db_options                            = []
   db_parameter                          = []
   deletion_protection                   = false
-  dns_zone_id                           = aws_route53_zone.private[0].id
+  dns_zone_id                           = one(aws_route53_zone.private[*].id)
   enabled_cloudwatch_logs_exports       = []
   final_snapshot_identifier             = ""
   host_name                             = module.rds_dns_meta.id
   iam_database_authentication_enabled   = false
   iops                                  = 0
-  kms_key_arn                           = module.rds_meta.enabled ? aws_kms_key.rds[0].arn : ""
+  kms_key_arn                           = one(aws_kms_key.rds[*].arn)
   license_model                         = ""
   maintenance_window                    = "Mon:00:00-Mon:03:00"
   major_engine_version                  = "8.0"
@@ -140,14 +139,14 @@ resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_back
   from_port                = var.rds_port
   to_port                  = var.rds_port
   protocol                 = "tcp"
-  source_security_group_id = module.autoscaled_ec2_openvpn.ec2_security_group_id
+  source_security_group_id = module.openvpn.security_group_id
   self                     = null
   description              = "Allow connections from ${module.this.id}"
 }
 
 resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backend" {
   count                    = module.rds_meta.enabled ? 1 : 0
-  security_group_id        = module.autoscaled_ec2_openvpn.ec2_security_group_id
+  security_group_id        = module.openvpn.security_group_id
   type                     = "egress"
   from_port                = var.rds_port
   to_port                  = var.rds_port

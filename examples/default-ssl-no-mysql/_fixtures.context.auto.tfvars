@@ -1,7 +1,7 @@
 enabled             = false
 namespace           = "spi"
 environment         = "test"
-stage               = "vpn-defaults"
+stage               = "openvpn"
 #name                = ""
 #delimiter           = var.delimiter
 #attributes          = var.attributes

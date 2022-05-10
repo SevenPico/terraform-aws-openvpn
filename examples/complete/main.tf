@@ -1,126 +1,74 @@
-#module "openvpn_sg_meta" {
-#  source  = "registry.terraform.io/cloudposse/label/null"
-#  version = "0.25.0"
-#  context = module.this.context
-#  name    = "sg"
-#}
-#
-#module "openvpn_sg" {
-#  source  = "registry.terraform.io/cloudposse/security-group/aws"
-#  version = "0.4.2"
-#  context = module.openvpn_sg_meta.context
-#  enabled = var.openvpn_security_group_id == null
-#
-#  vpc_id = module.vpc.vpc_id
-#
-#  rules = [
-#    {
-#      key                      = 1
-#      type                     = "ingress"
-#      from_port                = var.openvpn_server_admin_ui_https_port
-#      to_port                  = var.openvpn_server_admin_ui_https_port
-#      protocol                 = "tcp"
-#      cidr_blocks              = ["0.0.0.0/0"]
-#      ipv6_cidr_blocks         = []
-#      source_security_group_id = null
-#      self                     = null
-#      description              = "Allow access to VPN Admin UI from anywhere"
-#    },
-#    {
-#      key                      = 2
-#      type                     = "ingress"
-#      from_port                = var.openvpn_server_daemon_udp_port
-#      to_port                  = var.openvpn_server_daemon_udp_port
-#      protocol                 = "udp"
-#      cidr_blocks              = ["0.0.0.0/0"]
-#      ipv6_cidr_blocks         = []
-#      source_security_group_id = null
-#      self                     = null
-#      description              = "Allow access to VPN from anywhere"
-#    },
-#    {
-#      key                      = 3
-#      type                     = "ingress"
-#      from_port                = var.openvpn_server_daemon_tcp_port
-#      to_port                  = var.openvpn_server_daemon_tcp_port
-#      protocol                 = "tcp"
-#      cidr_blocks              = ["0.0.0.0/0"]
-#      ipv6_cidr_blocks         = []
-#      source_security_group_id = null
-#      self                     = null
-#      description              = "Allow access to VPN from anywhere"
-#    },
-#    {
-#      key                      = 4
-#      type                     = "egress"
-#      from_port                = 443
-#      to_port                  = 443
-#      protocol                 = "tcp"
-#      cidr_blocks              = ["0.0.0.0/0"]
-#      ipv6_cidr_blocks         = []
-#      source_security_group_id = null
-#      self                     = null
-#      description              = "Allow https egress on 443 everywhere"
-#    },
-#    {
-#      key                      = 5
-#      type                     = "egress"
-#      from_port                = 80
-#      to_port                  = 80
-#      protocol                 = "tcp"
-#      cidr_blocks              = ["0.0.0.0/0"]
-#      ipv6_cidr_blocks         = []
-#      source_security_group_id = null
-#      self                     = null
-#      description              = "Allow https egress on 80 everywhere"
-#    }
-#  ]
-#}
-
-module "autoscaled_ec2_openvpn" {
+module "openvpn" {
   source  = "../.."
   context = module.this.context
 
   # Required
-  openvpn_public_hosted_zone_id     = data.aws_route53_zone.public[0].id
-  openvpn_server_dhcp_option_domain = aws_route53_zone.private[0].name
-  openvpn_vpc_cidr_block            = module.vpc.vpc_cidr_block
-  openvpn_vpc_id                    = module.vpc.vpc_id
-  openvpn_vpc_private_subnet_ids    = module.vpc_subnets.private_subnet_ids
-  openvpn_vpc_public_subnet_ids     = module.vpc_subnets.public_subnet_ids
+  openvpn_dhcp_option_domain = var.common_name
+  private_hosted_zone_id     = join("", aws_route53_zone.private[*].id)
+  private_subnet_ids         = module.vpc_subnets.private_subnet_ids
+  public_hosted_zone_id      = join("", data.aws_route53_zone.public[*].id)
+  public_subnet_ids          = module.vpc_subnets.public_subnet_ids
+  vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
+  vpc_id                     = module.vpc.vpc_id
 
   # Optional
-  openvpn_asg_ami_image_id              = "ami-037ff6453f0855c46"
-  openvpn_group_pool_cidr_block         = var.openvpn_group_pool_cidr_block
-  openvpn_cloudwatch_log_retention_days = var.openvpn_cloudwatch_log_retention_days
-  openvpn_desired_count                 = var.openvpn_desired_count
-  openvpn_instance_type                 = var.openvpn_instance_type
-  openvpn_max_count                     = var.openvpn_max_count
-  openvpn_min_count                     = var.openvpn_min_count
-  openvpn_security_group_id             = var.openvpn_security_group_id
-  openvpn_server_admin_ui_https_port    = var.openvpn_server_admin_ui_https_port
-  openvpn_server_client_ui_https_port   = var.openvpn_server_client_ui_https_port
-  openvpn_server_cluster_port           = var.openvpn_server_cluster_port
-  openvpn_server_daemon_tcp_port        = var.openvpn_server_daemon_tcp_port
-  openvpn_server_daemon_udp_port        = var.openvpn_server_daemon_udp_port
-  openvpn_timezone                      = var.openvpn_timezone
-  openvpn_web_server_name               = var.openvpn_web_server_name
-  openvpn_admin_password                = var.openvpn_admin_password
-  openvpn_admin_username                = var.openvpn_admin_username
-  openvpn_client_pool_network           = var.openvpn_client_pool_network
-  openvpn_client_pool_network_mask      = var.openvpn_client_pool_network_mask
-  openvpn_license_filepath              = var.openvpn_license_filepath
+  ami_id                          = var.ami_id
+  autoscale_desired_count         = var.autoscale_desired_count
+  autoscale_instance_type         = var.autoscale_instance_type
+  autoscale_max_count             = var.autoscale_max_count
+  autoscale_min_count             = var.autoscale_min_count
+  cloudwatch_logs_expiration_days = var.cloudwatch_logs_expiration_days
+  create_autoscale_sns_topic      = var.create_autoscale_sns_topic
+  openvpn_daemon_ingress_blocks    = var.openvpn_daemon_ingress_blocks
+  openvpn_daemon_nlb_target_groups = var.openvpn_daemon_nlb_target_groups
+  openvpn_groups                   = var.openvpn_groups
+  openvpn_hostname = "vpn"
+  openvpn_ui_alb_https_port        = var.openvpn_ui_alb_https_port
+  openvpn_ui_alb_security_group_id = null //module.alb.security_group_id
+  openvpn_ui_alb_target_groups     = [] //[module.alb.default_target_group_arn]
+  openvpn_ui_ingress_blocks        = var.openvpn_ui_ingress_blocks
+  openvpn_users                    = var.openvpn_users
 
-  rds_mysql_instance_address                       = module.rds.instance_address
-  rds_secretsmanager_version_arn                   = data.aws_secretsmanager_secret_version.rds[0].arn
-  rds_secretsmanager_kms_key_arn                   = aws_kms_key.rds[0].arn
-  rds_secretsmanager_secret_admin_password_keyname = var.rds_secretsmanager_secret_admin_password_keyname
-  rds_secretsmanager_secret_admin_username_keyname = var.rds_secretsmanager_secret_admin_username_keyname
-  rds_secretsmanager_secret_port_keyname           = var.rds_secretsmanager_secret_port_keyname
+  openvpn_cluster_port     = var.openvpn_cluster_port
+  openvpn_daemon_tcp_port  = var.openvpn_daemon_tcp_port
+  openvpn_daemon_udp_port  = var.openvpn_daemon_udp_port
+  openvpn_license_filepath = var.openvpn_license_filepath
+  openvpn_timezone         = var.openvpn_timezone
+  openvpn_ui_https_port    = var.openvpn_ui_https_port
+  openvpn_web_server_name  = var.openvpn_web_server_name
 
-  ssl_certificate_secretsmanager_version_arn                            = module.ssl_certificate.secretsmanager_arn
-  ssl_certificate_secretsmanager_kms_key_arn                            = module.ssl_certificate.kms_key_arn
-  ssl_certificate_secretsmanager_secret_certificate_bundle_keyname      = var.ssl_certificate_secretsmanager_secret_certificate_bundle_keyname
-  ssl_certificate_secretsmanager_secret_certificate_keyname             = var.ssl_certificate_secretsmanager_secret_certificate_keyname
-  ssl_certificate_secretsmanager_secret_certificate_private_key_keyname = var.ssl_certificate_secretsmanager_secret_certificate_private_key_keyname
+  openvpn_client_cidr_blocks           = var.openvpn_client_cidr_blocks
+  openvpn_client_dhcp_network          = var.openvpn_client_dhcp_network
+  openvpn_client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask
+  openvpn_client_group_dhcp_cidr_block = var.openvpn_client_group_dhcp_cidr_block
+  openvpn_client_static_network        = var.openvpn_client_static_network
+  openvpn_client_static_network_mask   = var.openvpn_client_static_network_mask
+
+  logs_storage_bucket_id                              = var.logs_storage_bucket_id
+  logs_storage_abort_incomplete_multipart_upload_days = var.logs_storage_abort_incomplete_multipart_upload_days
+  logs_storage_enable_glacier_transition              = var.logs_storage_enable_glacier_transition
+  logs_storage_enable_noncurrent_version_expiration   = var.logs_storage_enable_noncurrent_version_expiration
+  logs_storage_expiration_days                        = var.logs_storage_expiration_days
+  logs_storage_force_destroy                          = var.logs_storage_force_destroy
+  logs_storage_glacier_transition_days                = var.logs_storage_glacier_transition_days
+  logs_storage_lifecycle_rule_enabled                 = var.logs_storage_lifecycle_rule_enabled
+  logs_storage_noncurrent_version_expiration_days     = var.logs_storage_noncurrent_version_expiration_days
+  logs_storage_noncurrent_version_transition_days     = var.logs_storage_noncurrent_version_transition_days
+  logs_storage_standard_transition_days               = var.logs_storage_standard_transition_days
+  logs_storage_versioning_enabled                     = var.logs_storage_versioning_enabled
+  logs_storage_versioning_mfa_delete_enabled          = var.logs_storage_versioning_mfa_delete_enabled
+
+  rds_mysql_instance_address        = module.rds.instance_address
+  rds_secret_admin_password_keyname = var.rds_secret_admin_password_keyname
+  rds_secret_admin_username_keyname = var.rds_secret_admin_username_keyname
+  rds_secret_arn                    = join("", aws_secretsmanager_secret.rds[*].arn)
+  rds_secret_kms_key_arn            = join("", aws_kms_key.rds[*].arn)
+  rds_secret_port_keyname           = var.rds_secret_port_keyname
+  rds_security_group_id             = module.rds.security_group_id
+
+  ssl_secret_arn                             = module.ssl_certificate.secretsmanager_arn
+  ssl_secret_certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname
+  ssl_secret_certificate_keyname             = var.ssl_secret_certificate_keyname
+  ssl_secret_certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
+  ssl_secret_kms_key_arn                     = module.ssl_certificate.kms_key_arn
 }

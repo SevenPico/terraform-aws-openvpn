@@ -5,19 +5,18 @@ module "ec2_autoscale_group_meta" {
   attributes = ["ec2", "asg"]
 }
 
-module "ec2_autoscale_group_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
-  name    = "vpn"
-}
+#module "ec2_autoscale_group_dns_meta" {
+#  source  = "registry.terraform.io/cloudposse/label/null"
+#  version = "0.25.0"
+#  context = module.dns_meta.context
+#  name    = var.openvpn_hostname
+#}
 
 module "ec2_autoscale_group_sg_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.ec2_autoscale_group_meta.context
-  attributes = ["sg"]
-  enabled    = module.ec2_autoscale_group_meta.enabled && var.openvpn_security_group_id == null
+  enabled    = module.ec2_autoscale_group_meta.enabled
 }
 
 
@@ -29,6 +28,9 @@ locals {
 #!/bin/bash
 echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
 USERDATA
+
+  ui_alb_enabled = length(var.openvpn_ui_alb_target_groups) > 0
+  daemon_nlb_enabled = length(var.openvpn_daemon_nlb_target_groups) > 0
 }
 
 module "ec2_autoscale_group" {
@@ -36,11 +38,11 @@ module "ec2_autoscale_group" {
   version = "0.30.1"
   context = module.ec2_autoscale_group_meta.context
 
-  instance_type    = var.openvpn_instance_type
-  max_size         = var.openvpn_max_count
-  min_size         = var.openvpn_min_count
-  desired_capacity = var.openvpn_desired_count
-  subnet_ids       = var.openvpn_vpc_public_subnet_ids
+  instance_type    = var.autoscale_instance_type
+  max_size         = var.autoscale_max_count
+  min_size         = var.autoscale_min_count
+  desired_capacity = var.autoscale_desired_count
+  subnet_ids       = var.public_subnet_ids
 
   associate_public_ip_address             = true
   autoscaling_policies_enabled            = false
@@ -76,7 +78,7 @@ module "ec2_autoscale_group" {
   health_check_grace_period            = 300
   health_check_type                    = "EC2"
   iam_instance_profile_name            = join("", aws_iam_instance_profile.ec2_autoscale_group_instance_profile.*.name)
-  image_id                             = var.openvpn_asg_ami_image_id
+  image_id                             = var.ami_id
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
   instance_refresh                     = null
@@ -101,14 +103,14 @@ module "ec2_autoscale_group" {
   scale_up_cooldown_seconds            = 300
   scale_up_policy_type                 = "SimpleScaling"
   scale_up_scaling_adjustment          = 1
-  security_group_ids                   = var.openvpn_security_group_id == null ? [module.ec2_autoscale_group_sg.id] : var.openvpn_security_group_id
+  security_group_ids                   = [module.ec2_autoscale_group_sg.id]
   service_linked_role_arn              = ""
   suspended_processes                  = []
   tag_specifications_resource_types = [
     "instance",
     "volume"
   ]
-  target_group_arns         = []
+  target_group_arns         = var.openvpn_ui_alb_target_groups
   termination_policies      = ["Default"]
   user_data_base64          = var.rds_mysql_instance_address != null ? base64encode(local.ec2_asg_userdata_mysql) : null
   wait_for_capacity_timeout = "10m"
@@ -124,44 +126,8 @@ module "ec2_autoscale_group_sg" {
   version = "0.4.3"
   context = module.ec2_autoscale_group_sg_meta.context
 
-  vpc_id = var.openvpn_vpc_id
+  vpc_id = var.vpc_id
   rules = [
-    {
-      key                      = 1
-      type                     = "ingress"
-      from_port                = var.openvpn_server_admin_ui_https_port
-      to_port                  = var.openvpn_server_admin_ui_https_port
-      protocol                 = "tcp"
-      cidr_blocks              = ["0.0.0.0/0"]
-      ipv6_cidr_blocks         = []
-      source_security_group_id = null
-      self                     = null
-      description              = "Allow access to VPN Admin UI from anywhere"
-    },
-    {
-      key                      = 2
-      type                     = "ingress"
-      from_port                = var.openvpn_server_daemon_udp_port
-      to_port                  = var.openvpn_server_daemon_udp_port
-      protocol                 = "udp"
-      cidr_blocks              = ["0.0.0.0/0"]
-      ipv6_cidr_blocks         = []
-      source_security_group_id = null
-      self                     = null
-      description              = "Allow access to VPN from anywhere"
-    },
-    {
-      key                      = 3
-      type                     = "ingress"
-      from_port                = var.openvpn_server_daemon_tcp_port
-      to_port                  = var.openvpn_server_daemon_tcp_port
-      protocol                 = "tcp"
-      cidr_blocks              = ["0.0.0.0/0"]
-      ipv6_cidr_blocks         = []
-      source_security_group_id = null
-      self                     = null
-      description              = "Allow access to VPN from anywhere"
-    },
     {
       key                      = 4
       type                     = "egress"
@@ -187,6 +153,72 @@ module "ec2_autoscale_group_sg" {
       description              = "Allow https egress on 80 everywhere"
     }
   ]
+}
+
+resource "aws_security_group_rule" "ui_port" {
+  count             = (module.ec2_autoscale_group_sg_meta.enabled && ! local.ui_alb_enabled) ? 1 : 0
+  from_port         = var.openvpn_ui_https_port
+  protocol          = "tcp"
+  security_group_id = module.ec2_autoscale_group_sg.id
+  to_port           = var.openvpn_ui_https_port
+  type              = "ingress"
+  cidr_blocks       = var.openvpn_ui_ingress_blocks
+  description       = "Allow access to OpenVPN Web UI from anywhere"
+}
+
+resource "aws_security_group_rule" "admin_ui_port_alb" {
+  count                    = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? length(var.openvpn_ui_alb_target_groups) : 0
+  from_port                = var.openvpn_ui_https_port
+  protocol                 = "tcp"
+  security_group_id        = module.ec2_autoscale_group_sg.id
+  to_port                  = var.openvpn_ui_https_port
+  type                     = "ingress"
+  source_security_group_id = var.openvpn_ui_alb_security_group_id
+  description              = "Allow access to OpenVPN Web UI from ALB"
+}
+
+resource "aws_security_group_rule" "daemon_tcp_port" {
+  count             = module.ec2_autoscale_group_sg_meta.enabled && !local.ui_alb_enabled ? 1 : 0
+  from_port         = var.openvpn_daemon_tcp_port
+  protocol          = "tcp"
+  security_group_id = module.ec2_autoscale_group_sg.id
+  to_port           = var.openvpn_daemon_tcp_port
+  type              = "ingress"
+  cidr_blocks       = var.openvpn_daemon_ingress_blocks
+  description       = "Allow access to OpenVPN TCP Daemon"
+}
+
+resource "aws_security_group_rule" "daemon_tcp_port_nlb" {
+  count             = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? 1 : 0
+  from_port         = var.openvpn_daemon_tcp_port
+  protocol          = "tcp"
+  security_group_id = module.ec2_autoscale_group_sg.id
+  to_port           = var.openvpn_daemon_tcp_port
+  type              = "ingress"
+  cidr_blocks       = var.openvpn_daemon_ingress_blocks
+  description       = "Allow access to OpenVPN TCP Daemon"
+}
+
+resource "aws_security_group_rule" "daemon_udp" {
+  count             = module.ec2_autoscale_group_sg_meta.enabled && !local.ui_alb_enabled ? 1 : 0
+  from_port         = var.openvpn_daemon_udp_port
+  protocol          = "udp"
+  security_group_id = module.ec2_autoscale_group_sg.id
+  to_port           = var.openvpn_daemon_udp_port
+  type              = "ingress"
+  cidr_blocks       = var.openvpn_daemon_ingress_blocks
+  description       = "Allow access to OpenVPN UDP Daemon"
+}
+
+resource "aws_security_group_rule" "daemon_udp_nlb" {
+  count             = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? 1 : 0
+  from_port         = var.openvpn_daemon_udp_port
+  protocol          = "udp"
+  security_group_id = module.ec2_autoscale_group_sg.id
+  to_port           = var.openvpn_daemon_udp_port
+  type              = "ingress"
+  cidr_blocks       = var.openvpn_daemon_ingress_blocks
+  description       = "Allow access to OpenVPN UDP Daemon"
 }
 
 

@@ -1,48 +1,153 @@
-# Required
-variable "openvpn_asg_ami_image_id" {
+#variable "load_balancer_enabled" { default = false }
+#variable "load_balancer_acm_arn" { default = null }
+variable "openvpn_hostname" {
   type = string
-  default = "ami-037ff6453f0855c46"
-  description = "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
+  default = ""
 }
-#variable "openvpn_private_hosted_zone_id" {}
-variable "openvpn_public_hosted_zone_id" {}
-variable "openvpn_server_dhcp_option_domain" {}
-variable "openvpn_vpc_cidr_block" {}
-variable "openvpn_vpc_id" {}
-variable "openvpn_vpc_private_subnet_ids" {}
-variable "openvpn_vpc_public_subnet_ids" {}
+variable "openvpn_ui_alb_target_groups" {
+  type = list(string)
+  default = []
+}
+variable "openvpn_ui_alb_https_port" {
+  type = number
+  default = 443
+}
+variable "openvpn_ui_alb_security_group_id" {
+  type = string
+  default = ""
+}
+variable "openvpn_daemon_nlb_target_groups" {
+  type = list(string)
+  default = []
+}
+variable "openvpn_ui_ingress_blocks" {
+  type = list(string)
+  default = ["0.0.0.0/0"]
+}
+variable "openvpn_daemon_ingress_blocks" {
+  type = list(string)
+  default = ["0.0.0.0/0"]
+}
+
+# Required
+variable "openvpn_dhcp_option_domain" {}
+variable "private_hosted_zone_id" {}
+variable "private_subnet_ids" { type = list(string) }
+#variable "public_hosted_zone_id" {}
+variable "public_subnet_ids" { type = list(string) }
+variable "vpc_cidr_blocks" { type = list(string) }
+variable "vpc_id" { type = string }
 
 # Optional
-variable "openvpn_client_pool_network" { default = "172.27.0.0" }
-variable "openvpn_client_pool_network_mask" { default = "20" }
-variable "openvpn_create_sns_topic" {default = false}
-variable "openvpn_group_pool_cidr_block" { default = "172.27.16.0/20" }
-variable "openvpn_admin_password" { default = "changeme" }
-variable "openvpn_admin_username" { default = "administrator" }
-variable "openvpn_cloudwatch_log_retention_days" { default = 30 }
-variable "openvpn_desired_count" { default = 1 }
-variable "openvpn_instance_type" { default = "t3.micro" }
+variable "ami_id" { default = "ami-037ff6453f0855c46" } # "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
+variable "autoscale_desired_count" { default = 1 }
+variable "autoscale_instance_type" { default = "t3.micro" }
+variable "autoscale_max_count" { default = 1 }
+variable "autoscale_min_count" { default = 1 }
+variable "create_autoscale_sns_topic" { default = false }
+
+variable "openvpn_cluster_port" { default = 945 }
+variable "openvpn_daemon_tcp_port" { default = 443 }
+variable "openvpn_daemon_udp_port" { default = 1194 }
 variable "openvpn_license_filepath" { default = null }
-variable "openvpn_max_count" { default = 1 }
-variable "openvpn_min_count" { default = 1 }
-variable "openvpn_security_group_id" { default = null }
-variable "openvpn_server_admin_ui_https_port" { default = 943 }
-variable "openvpn_server_client_ui_https_port" { default = 943 }
-variable "openvpn_server_cluster_port" { default = 945 }
-variable "openvpn_server_daemon_tcp_port" { default = 443 }
-variable "openvpn_server_daemon_udp_port" { default = 1194 }
 variable "openvpn_timezone" { default = "America/Chicago" }
+variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
+
+variable "openvpn_client_cidr_blocks" { default = ["172.27.0.0/16"] }
+variable "openvpn_client_dhcp_network" { default = "172.27.0.0" }
+variable "openvpn_client_dhcp_network_mask" { default = "20" }
+variable "openvpn_client_group_dhcp_cidr_block" { default = "172.27.16.0/20" }
+variable "openvpn_client_static_network" { default = "172.27.32.0" }
+variable "openvpn_client_static_network_mask" { default = "20" }
+
+variable "openvpn_groups" {
+  type = list(object({
+    name            = string
+    c2s_dest_s      = bool
+    c2s_dest_v      = bool
+    group_declare   = bool
+    group_subnets-0 = string
+    prop_autologin  = bool
+    prop_deny       = bool
+    prop_superuser  = bool
+    type            = string
+  }))
+  default = [
+    {
+      name            = "Admin Users"
+      c2s_dest_s      = false
+      c2s_dest_v      = false
+      group_declare   = true
+      group_subnets-0 = ""
+      prop_autologin  = true
+      prop_deny       = false
+      prop_superuser  = true
+      type            = "group"
+    },
+    {
+      name            = "Organization Users"
+      c2s_dest_s      = false
+      c2s_dest_v      = false
+      group_declare   = true
+      group_subnets-0 = ""
+      prop_autologin  = false
+      prop_deny       = false
+      prop_superuser  = false
+      type            = "group"
+    }
+  ]
+}
+variable "openvpn_users" {
+  type = list(object({
+    name           = string
+    access_from-0  = string
+    access_from-1  = string
+    conn_ip        = string
+    conn_group     = string
+    prop_superuser = bool
+    prop_superuser = bool
+    type           = string
+  }))
+  default = [
+    {
+      name           = "openvpn"
+      access_from-0  = "+ALL_S2C_SUBNETS"
+      access_from-1  = "+ALL_VPN_CLIENTS"
+      conn_ip        = ""
+      conn_group     = "Admin Users"
+      prop_superuser = true
+      prop_autologin = false
+      type           = "user_compile"
+    }
+  ]
+}
+
 variable "rds_mysql_instance_address" { default = null }
-variable "rds_secretsmanager_version_arn" {default = null}
-variable "rds_secretsmanager_kms_key_arn" {default = null}
-variable "rds_secretsmanager_secret_admin_password_keyname" { default = "ADMIN_PASSWORD" }
-variable "rds_secretsmanager_secret_admin_username_keyname" { default = "ADMIN_USERNAME" }
-variable "rds_secretsmanager_secret_port_keyname" { default = "PORT" }
+variable "rds_secret_arn" { default = null }
+variable "rds_secret_kms_key_arn" { default = null }
+variable "rds_secret_admin_password_keyname" { default = "ADMIN_PASSWORD" }
+variable "rds_secret_admin_username_keyname" { default = "ADMIN_USERNAME" }
+variable "rds_secret_port_keyname" { default = "PORT" }
 variable "rds_security_group_id" { default = null }
 
-variable "ssl_certificate_secretsmanager_version_arn" {default = null}
-variable "ssl_certificate_secretsmanager_kms_key_arn" {default = null}
-variable "ssl_certificate_secretsmanager_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }
-variable "ssl_certificate_secretsmanager_secret_certificate_keyname" { default = "CERTIFICATE" }
-variable "ssl_certificate_secretsmanager_secret_certificate_private_key_keyname" { default = "CERTIFICATE_PRIVATE_KEY" }
+variable "ssl_secret_arn" { default = null }
+variable "ssl_secret_kms_key_arn" { default = null }
+variable "ssl_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }
+variable "ssl_secret_certificate_keyname" { default = "CERTIFICATE" }
+variable "ssl_secret_certificate_private_key_keyname" { default = "CERTIFICATE_PRIVATE_KEY" }
+
+variable "cloudwatch_logs_expiration_days" { default = 90 }
+variable "logs_storage_bucket_id" { default = null }
+variable "logs_storage_versioning_enabled" { default = true }
+variable "logs_storage_versioning_mfa_delete_enabled" { default = false }
+variable "logs_storage_lifecycle_rule_enabled" { default = true }
+variable "logs_storage_force_destroy" { default = true }
+variable "logs_storage_enable_noncurrent_version_expiration" { default = true }
+variable "logs_storage_noncurrent_version_expiration_days" { default = 90 }
+variable "logs_storage_noncurrent_version_transition_days" { default = 30 }
+variable "logs_storage_standard_transition_days" { default = 30 }
+variable "logs_storage_glacier_transition_days" { default = 60 }
+variable "logs_storage_enable_glacier_transition" { default = true }
+variable "logs_storage_expiration_days" { default = 90 }
+variable "logs_storage_abort_incomplete_multipart_upload_days" { default = 5 }

@@ -14,7 +14,7 @@ module "dns_meta" {
 
 resource "aws_route53_zone" "private" {
   count = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
-  name = module.dns_meta.id
+  name  = module.dns_meta.id
   vpc {
     vpc_id = module.vpc.vpc_id
   }
@@ -22,7 +22,7 @@ resource "aws_route53_zone" "private" {
 }
 
 data "aws_route53_zone" "public" {
-  count = module.dns_meta.enabled ? 1 : 0
+  count        = module.dns_meta.enabled ? 1 : 0
   private_zone = false
   name         = module.dns_meta.id
 }

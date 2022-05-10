@@ -17,7 +17,7 @@ module "ec2_autoscale_group_ssm_ssl_certificate_refresh_meta" {
 #------------------------------------------------------------------------------
 locals {
   command_init_rds = var.rds_mysql_instance_address != null ? "sudo ./openvpn-init-mysql.sh": ""
-  command_load_ssl =  var.ssl_certificate_secretsmanager_version_arn != null ? "sudo ./ssl-cert.sh" : ""
+  command_load_ssl =  var.ssl_secret_arn != null ? "sudo ./ssl-cert.sh" : ""
 }
 resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
   count           = module.ec2_autoscale_group_meta.enabled ? 1 : 0
@@ -55,7 +55,7 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
           "sudo apt-get install mariadb-client-core-10.1 -y -q",
           "cd /root",
           "mkdir -p ./scripts",
-          "sudo aws s3 sync s3://${module.ec2_autoscale_group_scripts_bucket.bucket_id} ./scripts/ --region ${data.aws_region.current.name} --delete --sse",
+          "sudo aws s3 sync s3://${module.ec2_autoscale_group_scripts_bucket.bucket_id} ./scripts/ --region ${data.aws_region.current[0].name} --delete --sse",
           "cd ./scripts",
           "sudo chmod o-rwx *.sh",
           "sudo chmod ug+rwx *.sh",

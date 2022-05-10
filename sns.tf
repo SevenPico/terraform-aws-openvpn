@@ -3,7 +3,7 @@ module "ec2_autoscale_group_sns_meta" {
   version    = "0.25.0"
   context    = module.ec2_autoscale_group_meta.context
   attributes = ["sns"]
-  enabled    = var.openvpn_create_sns_topic && module.ec2_autoscale_group_meta.enabled
+  enabled    = var.create_autoscale_sns_topic && module.ec2_autoscale_group_meta.enabled
 }
 
 

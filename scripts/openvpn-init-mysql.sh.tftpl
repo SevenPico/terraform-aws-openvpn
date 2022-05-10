@@ -1,9 +1,18 @@
+#    rds_host                              = var.rds_mysql_instance_address,
+#    rds_secret_arn = var.rds_secret_arn
+#    rds_admin_username_key                = var.rds_secret_admin_username_keyname
+#    rds_admin_password_key                = var.rds_secret_admin_password_keyname
+#    rds_port_key                          = var.rds_secret_port_keyname
+#    region                                = length(data.aws_region.current) > 0 ? one(data.aws_region.current[*].name) : ""
+
+
+
 #!/bin/bash
 RDS_HOST=${rds_host}
 
-RDS_USER=$(aws secretsmanager get-secret-value --secret-id ${rds_secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_username_key}')
-RDS_PASSWORD=$(aws secretsmanager get-secret-value --secret-id ${rds_secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_password_key}')
-RDS_PORT=$(aws secretsmanager get-secret-value --secret-id ${rds_secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_port_key}')
+RDS_USER=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_username_key}')
+RDS_PASSWORD=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_password_key}')
+RDS_PORT=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_port_key}')
 
 echo "[client]" > /etc/.my.cnf
 echo "user=$RDS_USER" >> /etc/.my.cnf
