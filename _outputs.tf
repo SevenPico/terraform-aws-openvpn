@@ -34,6 +34,10 @@ output "autoscaling_role_arn" {
   value = module.ec2_autoscale_group_role.arn
 }
 
+output "autoscaling_role_name" {
+  value = module.ec2_autoscale_group_role.name
+}
+
 output "autoscaling_lifecycle_role_arn" {
   value = join("", aws_iam_role.ec2_autoscale_group_lifecycle_role.*.arn)
 }
