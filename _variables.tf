@@ -1,5 +1,4 @@
-#variable "load_balancer_enabled" { default = false }
-#variable "load_balancer_acm_arn" { default = null }
+
 variable "openvpn_hostname" {
   type = string
   default = ""
@@ -28,13 +27,17 @@ variable "openvpn_daemon_ingress_blocks" {
   type = list(string)
   default = ["0.0.0.0/0"]
 }
+variable "openvpn_config_scripts" {
+  type = list(string)
+  default = ["init.sh", "openvpn-init.sh"]
+}
 
 # Required
 variable "openvpn_dhcp_option_domain" {}
-variable "private_hosted_zone_id" {}
-variable "private_subnet_ids" { type = list(string) }
+#variable "private_hosted_zone_id" {}
+#variable "private_subnet_ids" { type = list(string) }
 #variable "public_hosted_zone_id" {}
-variable "public_subnet_ids" { type = list(string) }
+variable "subnet_ids" { type = list(string) }
 variable "vpc_cidr_blocks" { type = list(string) }
 variable "vpc_id" { type = string }
 
@@ -122,20 +125,6 @@ variable "openvpn_users" {
     }
   ]
 }
-
-variable "rds_mysql_instance_address" { default = null }
-variable "rds_secret_arn" { default = null }
-variable "rds_secret_kms_key_arn" { default = null }
-variable "rds_secret_admin_password_keyname" { default = "ADMIN_PASSWORD" }
-variable "rds_secret_admin_username_keyname" { default = "ADMIN_USERNAME" }
-variable "rds_secret_port_keyname" { default = "PORT" }
-variable "rds_security_group_id" { default = null }
-
-variable "ssl_secret_arn" { default = null }
-variable "ssl_secret_kms_key_arn" { default = null }
-variable "ssl_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }
-variable "ssl_secret_certificate_keyname" { default = "CERTIFICATE" }
-variable "ssl_secret_certificate_private_key_keyname" { default = "CERTIFICATE_PRIVATE_KEY" }
 
 variable "cloudwatch_logs_expiration_days" { default = 90 }
 variable "logs_storage_bucket_id" { default = null }

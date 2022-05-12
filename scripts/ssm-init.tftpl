@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "2.2",
+  "description": "Bootstraps the OpenVPN Marketplace AMI",
+  "parameters": {
+    "Environment": {
+      "description": "The Environment The Server is running in.",
+      "type": "String",
+      "default": "${environment}"
+    }
+  },
+  "mainSteps": [
+    {
+      "action": "aws:runShellScript",
+      "name": "VpnInitializion",
+      "inputs": {
+        "runCommand": [
+          "#!/bin/bash",
+          "DEBIAN_FRONTEND=noninteractive",
+          "sudo rm /var/lib/dpkg/lock > /dev/null 2>&1",
+          "sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1",
+          "sudo apt-get update -y -q",
+          "sudo apt-get install ntp -y -q",
+          "sudo apt-get install jq -y -q",
+          "sudo apt-get install awscli -y -q",
+          "sudo apt-get install libmariadb3 -y -q",
+          "sudo apt-get install mariadb-client-core-10.1 -y -q",
+          "cd /root",
+          "mkdir -p ./scripts",
+          "sudo aws s3 sync s3://${scripts_bucket_id} ./scripts/ --region ${region} --delete --sse",
+          "cd ./scripts",
+          "sudo chmod o-rwx *.sh",
+          "sudo chmod ug+rwx *.sh",
+          %{ for cmd in config_cmds }
+          "sudo ./${cmd}",
+          %{ endfor ~}
+          "echo"
+        ]
+      }
+    }
+  ]
+}

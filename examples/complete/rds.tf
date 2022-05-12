@@ -78,6 +78,8 @@ module "rds" {
   source  = "registry.terraform.io/cloudposse/rds/aws"
   version = "0.38.4"
   context = module.rds_meta.context
+  enabled = module.rds_meta.enabled
+  depends_on = [aws_route53_zone.private]
 
   #Required
   allocated_storage            = 100
@@ -89,7 +91,7 @@ module "rds" {
   engine_version               = "8.0.23"
   instance_class               = "db.t2.small"
   security_group_ids           = []
-  subnet_ids                   = module.vpc_subnets.private_subnet_ids
+  subnet_ids                   = module.vpc_subnets_meta.enabled ? module.vpc_subnets.private_subnet_ids : []
   vpc_id                       = module.vpc.vpc_id
 
   # Optional
@@ -106,7 +108,7 @@ module "rds" {
   db_options                            = []
   db_parameter                          = []
   deletion_protection                   = false
-  dns_zone_id                           = one(aws_route53_zone.private[*].id)
+  dns_zone_id                           = join("", aws_route53_zone.private[*].id)
   enabled_cloudwatch_logs_exports       = []
   final_snapshot_identifier             = ""
   host_name                             = module.rds_dns_meta.id

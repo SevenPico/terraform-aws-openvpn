@@ -42,7 +42,7 @@ module "ec2_autoscale_group" {
   max_size         = var.autoscale_max_count
   min_size         = var.autoscale_min_count
   desired_capacity = var.autoscale_desired_count
-  subnet_ids       = var.public_subnet_ids
+  subnet_ids       = var.subnet_ids
 
   associate_public_ip_address             = true
   autoscaling_policies_enabled            = false
@@ -112,7 +112,7 @@ module "ec2_autoscale_group" {
   ]
   target_group_arns         = var.openvpn_ui_alb_target_groups
   termination_policies      = ["Default"]
-  user_data_base64          = var.rds_mysql_instance_address != null ? base64encode(local.ec2_asg_userdata_mysql) : null
+  user_data_base64          = base64encode(local.ec2_asg_userdata_mysql)
   wait_for_capacity_timeout = "10m"
   wait_for_elb_capacity     = 0
   warm_pool                 = null

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
-then
+#if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
+#then
    echo "Initializing OpenVPN_AS."
    sudo ovpn-init --ec2 --host=${hostname} --no_reroute_gw --local_auth --batch
 
@@ -45,9 +45,9 @@ then
    ./sacli --key 'host.name' --value '${hostname}' ConfigPut
    ./sacli start
 
-else
-   echo "Skipping OpenVPN_AS Initialization."
-fi
+#else
+#   echo "Skipping OpenVPN_AS Initialization."
+#fi
 
 LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.OPENVPN_LICENSE')
 if [ ! -z "$LICENSE" ]

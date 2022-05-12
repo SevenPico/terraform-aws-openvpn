@@ -69,7 +69,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   versioning_enabled        = true
 }
 
-resource "aws_s3_bucket_object" "ec2_init_script_without_rds" {
+resource "aws_s3_object" "ec2_init_script" {
   count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "init.sh"
@@ -80,7 +80,7 @@ resource "aws_s3_bucket_object" "ec2_init_script_without_rds" {
   })
 }
 
-resource "aws_s3_bucket_object" "openvpn_init_script" {
+resource "aws_s3_object" "openvpn_init_script" {
   count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "openvpn-init.sh"
@@ -103,47 +103,6 @@ resource "aws_s3_bucket_object" "openvpn_init_script" {
     region                       = data.aws_region.current[0].name,
     openvpn_client_cidr_blocks   = join(" ", var.openvpn_client_cidr_blocks),
     vpc_cidr_blocks              = join(" ", var.vpc_cidr_blocks)
-  })
-}
-
-resource "aws_s3_bucket_object" "openvpn_init_mysql_script" {
-  #count = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.rds_mysql_instance_address != null ? 1 : 0
-    count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "openvpn-init-mysql.sh"
-  content = templatefile("${path.module}/scripts/openvpn-init-mysql.sh.tftpl", {
-    rds_host               = var.rds_mysql_instance_address,
-    rds_secret_arn         = var.rds_secret_arn
-    rds_admin_username_key = var.rds_secret_admin_username_keyname
-    rds_admin_password_key = var.rds_secret_admin_password_keyname
-    rds_port_key           = var.rds_secret_port_keyname
-    region                 = length(data.aws_region.current) > 0 ? one(data.aws_region.current[*].name) : ""
-  })
-}
-
-data "aws_secretsmanager_secret" "ssl" {
-  count = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.ssl_secret_arn != null ? 1 : 0
-  #  count = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
-  arn = var.ssl_secret_arn
-}
-
-data "aws_secretsmanager_secret_version" "ssl_version" {
-  count = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.ssl_secret_arn != null ? 1 : 0
-  #  count         = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
-  secret_id     = data.aws_secretsmanager_secret.ssl[0].id
-  version_stage = "AWSCURRENT"
-}
-
-resource "aws_s3_bucket_object" "ssl_cert_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.ssl_secret_arn != null ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "ssl-cert.sh"
-  content = templatefile("${path.module}/scripts/ssl-cert.sh.tftpl", {
-    secretsmanager_secret_version_arn = data.aws_secretsmanager_secret_version.ssl_version[0].arn,
-    region                            = data.aws_region.current[0].name,
-    certificate_keyname               = var.ssl_secret_certificate_keyname
-    certificate_bundle_keyname        = var.ssl_secret_certificate_bundle_keyname
-    certificate_private_key_keyname   = var.ssl_secret_certificate_private_key_keyname
   })
 }
 

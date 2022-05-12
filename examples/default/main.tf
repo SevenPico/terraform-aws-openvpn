@@ -7,7 +7,7 @@ module "openvpn" {
   private_hosted_zone_id     = var.private_hosted_zone_id
   private_subnet_ids         = var.private_subnet_ids
   public_hosted_zone_id      = var.public_hosted_zone_id
-  public_subnet_ids          = var.public_subnet_ids
+  subnet_ids          = var.public_subnet_ids
   vpc_cidr_blocks            = var.vpc_cidr_blocks
   vpc_id                     = var.vpc_id
 
