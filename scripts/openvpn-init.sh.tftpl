@@ -1,53 +1,55 @@
 #!/bin/bash
 
-#if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
-#then
+if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
+then
    echo "Initializing OpenVPN_AS."
    sudo ovpn-init --ec2 --host=${hostname} --no_reroute_gw --local_auth --batch
+else
+   echo "Skipping OpenVPN_AS Initialization."
+fi
 
-   cd /usr/local/openvpn_as/scripts
-   ./sacli --key 'cs.web_server_name' --value '${webserver_name}' ConfigPut
-   ./sacli --key 'admin_ui.https.ip_address' --value 'all' ConfigPut
-   ./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
-   ./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
-   ./sacli --key 'cs.https.port' --value '${ui_https_port}' ConfigPut
-   ./sacli --key 'cs.tls_version_min' --value '1.2' ConfigPut
-   ./sacli --key 'ssl_api.local_addr' --value 'all' ConfigPut
-   ./sacli --key 'ssl_api.local_port' --value '${cluster_port}' ConfigPut
+echo "Configuring OpenVPN_AS Network Settings."
+cd /usr/local/openvpn_as/scripts
+./sacli --key 'cs.web_server_name' --value '${webserver_name}' ConfigPut
+./sacli --key 'admin_ui.https.ip_address' --value 'all' ConfigPut
+./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
+./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
+./sacli --key 'cs.https.port' --value '${ui_https_port}' ConfigPut
+./sacli --key 'cs.tls_version_min' --value '1.2' ConfigPut
+./sacli --key 'ssl_api.local_addr' --value 'all' ConfigPut
+./sacli --key 'ssl_api.local_port' --value '${cluster_port}' ConfigPut
 
-   # SET UP NETWORKING
-   ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
-   ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
-   ./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
-   ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
-   ./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
-   ./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
-   ./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
-   ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
-   ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
-   ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
-   ./sacli --key 'vpn.server.group_pool.0' --value '${client_group_dhcp_cidr_block}' ConfigPut
-   ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
-   ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
-   COUNTER=0
-   for block in '${vpc_cidr_blocks}'; do
-       ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
-       COUNTER=$[$COUNTER +1]
-   done
-   for block in '${openvpn_client_cidr_blocks}'; do
-       ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
-       COUNTER=$[$COUNTER +1]
-   done
-   ./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
-   ./sacli start
+echo "Configuring OpenVPN_AS VPN Settings."
+./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
+./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
+./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
+./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
+./sacli --key 'vpn.server.group_pool.0' --value '${client_group_dhcp_cidr_block}' ConfigPut
+./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
+./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
+COUNTER=0
+for block in '${vpc_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+for block in '${openvpn_client_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+./sacli start
+
+echo "Setting hostname."
+./sacli --key 'host.name' --value '${hostname}' ConfigPut
+./sacli start
 
 
-   ./sacli --key 'host.name' --value '${hostname}' ConfigPut
-   ./sacli start
-
-#else
-#   echo "Skipping OpenVPN_AS Initialization."
-#fi
 
 LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.OPENVPN_LICENSE')
 if [ ! -z "$LICENSE" ]
