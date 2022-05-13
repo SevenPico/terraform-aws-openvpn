@@ -44,7 +44,9 @@ data "aws_iam_policy_document" "rds_secrets_access" {
       "secretsmanager:GetSecretValue",
     ]
     effect = "Allow"
-    resources = data.aws_iam_role.ec2_role.*.arn
+    resources = [
+      var.rds_secret_arn
+    ]
   }
 }
 

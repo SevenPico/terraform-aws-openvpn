@@ -54,7 +54,9 @@ data "aws_iam_policy_document" "ssl_access" {
       "secretsmanager:GetSecretValue",
     ]
     effect    = "Allow"
-    resources = data.aws_iam_role.ec2_role.*.arn
+    resources = [
+      var.ssl_secret_arn
+    ]
   }
 }
 
