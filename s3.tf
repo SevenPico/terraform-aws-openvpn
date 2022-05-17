@@ -69,40 +69,29 @@ module "ec2_autoscale_group_scripts_bucket" {
   versioning_enabled        = true
 }
 
-resource "aws_s3_object" "ec2_init_script" {
+resource "aws_s3_object" "init_sh" {
   count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
-    hostname                                  = var.openvpn_hostname //module.ec2_autoscale_group_dns_meta.id,
-    openvpn_secretsmanager_secret_version_arn = join("", data.aws_secretsmanager_secret_version.ec2_autoscale_group.*.arn)
-    region                                    = data.aws_region.current[0].name
+    hostname   = var.openvpn_hostname
+    secret_arn = join("", aws_secretsmanager_secret.ec2_autoscale_group[*].arn)
+    region     = data.aws_region.current[0].name
   })
 }
 
-resource "aws_s3_object" "openvpn_init_script" {
+resource "aws_s3_object" "openvpn_sh" {
   count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "openvpn-init.sh"
-  content = templatefile("${path.module}/scripts/openvpn-init.sh.tftpl", {
-    hostname                     = var.openvpn_hostname //module.ec2_autoscale_group_dns_meta.id,
-    webserver_name               = var.openvpn_web_server_name,
-    cluster_port                 = var.openvpn_cluster_port,
-    users                        = var.openvpn_users,
-    groups                       = var.openvpn_groups,
-    ui_https_port                = var.openvpn_ui_https_port,
-    daemon_udp_port              = var.openvpn_daemon_udp_port,
-    daemon_tcp_port              = var.openvpn_daemon_tcp_port,
-    client_dhcp_network          = var.openvpn_client_dhcp_network,
-    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
-    client_group_dhcp_cidr_block = var.openvpn_client_group_dhcp_cidr_block,
-    client_static_network        = var.openvpn_client_static_network,
-    client_static_network_mask   = var.openvpn_client_static_network_mask,
-    dhcp_option_domain           = var.openvpn_dhcp_option_domain,
-    secret_arn                   = join("", data.aws_secretsmanager_secret_version.ec2_autoscale_group.*.arn),
-    region                       = data.aws_region.current[0].name,
-    openvpn_client_cidr_blocks   = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks              = join(" ", var.vpc_cidr_blocks)
+  key    = "openvpn.sh"
+  content = templatefile("${path.module}/scripts/openvpn.sh.tftpl", {
+    hostname                   = var.openvpn_hostname
+    webserver_name             = var.openvpn_web_server_name,
+    ui_https_port              = var.openvpn_ui_https_port,
+    daemon_udp_port            = var.openvpn_daemon_udp_port,
+    daemon_tcp_port            = var.openvpn_daemon_tcp_port,
+    dhcp_option_domain         = var.openvpn_dhcp_option_domain,
+    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
+    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
   })
 }
-

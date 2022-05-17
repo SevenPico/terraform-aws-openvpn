@@ -1,6 +1,7 @@
 variable "bucket_id" { type = string }
 variable "script_name" { type = string }
 variable "ec2_role_name" { type = string }
+
 variable "ssl_secret_arn" { type = string }
 variable "ssl_secret_kms_key_arn" { type = string }
 variable "ssl_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }

@@ -123,7 +123,7 @@ module "alb_dns_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
   context = module.dns_meta.context
-  name    = "openvpn"
+  name    = "${module.openvpn_dns_meta.name}-ui"
 }
 
 resource "aws_route53_record" "alb" {

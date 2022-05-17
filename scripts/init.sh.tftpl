@@ -6,6 +6,6 @@ sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
 sudo hostnamectl set-hostname ${hostname}
 sudo hostname ${hostname}
 
-TIMEZONE=$(aws secretsmanager get-secret-value --secret-id ${openvpn_secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.TIMEZONE')
+TIMEZONE=$(aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.TIMEZONE')
 sudo ln -fs /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 sudo dpkg-reconfigure --frontend noninteractive tzdata

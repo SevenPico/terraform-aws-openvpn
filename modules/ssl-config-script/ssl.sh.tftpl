@@ -2,9 +2,9 @@
 SSL_DIR=/etc/openvpn/ssl
 mkdir -p $SSL_DIR
 
-aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_keyname}'             > $SSL_DIR/server.crt
-aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_bundle_keyname}'      > $SSL_DIR/chain.crt
-aws secretsmanager get-secret-value --secret-id ${secretsmanager_secret_version_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_private_key_keyname}' > $SSL_DIR/server.key
+aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_keyname}'             > $SSL_DIR/server.crt
+aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_bundle_keyname}'      > $SSL_DIR/chain.crt
+aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${certificate_private_key_keyname}' > $SSL_DIR/server.key
 
 cd /usr/local/openvpn_as/scripts
 ./sacli --key "cs.priv_key" --value_file "$SSL_DIR/server.key" ConfigPut

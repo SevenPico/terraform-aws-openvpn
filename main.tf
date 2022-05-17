@@ -24,11 +24,6 @@ module "ec2_autoscale_group_sg_meta" {
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 locals {
-  ec2_asg_userdata_mysql = <<-USERDATA
-#!/bin/bash
-echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
-USERDATA
-
   ui_alb_enabled = length(var.openvpn_ui_alb_target_groups) > 0
   daemon_nlb_enabled = length(var.openvpn_daemon_nlb_target_groups) > 0
 }
@@ -110,9 +105,9 @@ module "ec2_autoscale_group" {
     "instance",
     "volume"
   ]
-  target_group_arns         = var.openvpn_ui_alb_target_groups
+  target_group_arns         = concat(var.openvpn_ui_alb_target_groups, var.openvpn_daemon_nlb_target_groups)
   termination_policies      = ["Default"]
-  user_data_base64          = base64encode(local.ec2_asg_userdata_mysql)
+  user_data_base64          = base64encode(var.ec2_user_data)
   wait_for_capacity_timeout = "10m"
   wait_for_elb_capacity     = 0
   warm_pool                 = null

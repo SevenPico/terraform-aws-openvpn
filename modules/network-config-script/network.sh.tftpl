@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "Configuring OpenVPN_AS VPN Settings."
+./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
+./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
+./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+./sacli --key 'vpn.server.group_pool.0' --value '${client_group_dhcp_cidr_block}' ConfigPut
+./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
+./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
+

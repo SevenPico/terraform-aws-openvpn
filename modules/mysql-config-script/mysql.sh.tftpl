@@ -1,6 +1,14 @@
 #!/bin/bash
 RDS_HOST=${rds_host}
+DEBIAN_FRONTEND=noninteractive
 
+sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
+sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
+sudo apt-get update -y -q
+sudo apt-get install libmariadb3 -y -q
+sudo apt-get install mariadb-client-core-10.1 -y -q
+
+echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
 RDS_USER=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_username_key}')
 RDS_PASSWORD=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_password_key}')
 RDS_PORT=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_port_key}')

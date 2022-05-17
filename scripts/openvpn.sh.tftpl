@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ ! -f /usr/local/openvpn_as/etc/as.conf ]
+then
+   echo "Initializing OpenVPN_AS."
+   sudo ovpn-init --ec2 --host=${hostname} --no_reroute_gw --local_auth --batch
+else
+   echo "Skipping OpenVPN_AS Initialization."
+fi
+
+echo "Configuring Basic OpenVPN_AS Settings."
+cd /usr/local/openvpn_as/scripts
+./sacli --key 'cs.web_server_name' --value '${webserver_name}' ConfigPut
+./sacli --key 'admin_ui.https.ip_address' --value 'all' ConfigPut
+./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
+./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
+./sacli --key 'cs.https.port' --value '${ui_https_port}' ConfigPut
+./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
+./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
+COUNTER=0
+for block in '${vpc_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+for block in '${openvpn_client_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+
+echo "Setting hostname."
+./sacli --key 'host.name' --value '${hostname}' ConfigPut
+./sacli start
+

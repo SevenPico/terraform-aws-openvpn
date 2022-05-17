@@ -49,15 +49,16 @@ resource "aws_secretsmanager_secret_version" "ec2_autoscale_group" {
     ignore_changes  = [secret_string, secret_binary]
     prevent_destroy = false
   }
-  secret_string = jsonencode({
-    OPENVPN_LICENSE    = var.openvpn_license_filepath != null ? file(var.openvpn_license_filepath) : ""
-    TIMEZONE           = var.openvpn_timezone
-  })
+  secret_string = jsonencode(merge(
+    var.additional_secrets_map,
+    {
+      TIMEZONE = var.openvpn_timezone
+  }))
 }
 
-data "aws_secretsmanager_secret_version" "ec2_autoscale_group" {
-  count         = module.ec2_autoscale_group_meta.enabled ? 1 : 0
-  depends_on    = [aws_secretsmanager_secret_version.ec2_autoscale_group]
-  secret_id     = aws_secretsmanager_secret.ec2_autoscale_group[0].id
-  version_stage = "AWSCURRENT"
-}
+#data "aws_secretsmanager_secret_version" "ec2_autoscale_group" {
+#  count         = module.ec2_autoscale_group_meta.enabled ? 1 : 0
+#  depends_on    = [aws_secretsmanager_secret_version.ec2_autoscale_group]
+#  secret_id     = aws_secretsmanager_secret.ec2_autoscale_group[0].id
+#  version_stage = "AWSCURRENT"
+#}

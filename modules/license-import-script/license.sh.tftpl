@@ -1,0 +1,15 @@
+#!/bin/bash
+
+LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${keyname}')
+if [ ! -z "$LICENSE" ]
+then
+   echo "Activating OpenVPN_AS License."
+   cd /usr/local/openvpn_as/scripts
+   ./liman Activate $LICENSE
+else
+   echo "Skipping OpenVPN_AS License Activation."
+fi
+
+
+
+

@@ -1,6 +1,7 @@
 variable "bucket_id" { type = string }
 variable "script_name" { type = string }
 variable "ec2_role_name" { type = string }
+
 variable "rds_mysql_instance_address" { type = string }
 variable "rds_secret_arn" { type = string }
 variable "rds_security_group_id" { type = string }

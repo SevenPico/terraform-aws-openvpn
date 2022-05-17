@@ -1,6 +1,6 @@
-enabled             = false
-namespace           = "spi"
-environment         = "test"
+enabled             = true
+namespace           = "sp"
+environment         = "default"
 stage               = "openvpn"
 #name                = ""
 #delimiter           = var.delimiter

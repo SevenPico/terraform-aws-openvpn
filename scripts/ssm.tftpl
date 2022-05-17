@@ -22,8 +22,6 @@
           "sudo apt-get install ntp -y -q",
           "sudo apt-get install jq -y -q",
           "sudo apt-get install awscli -y -q",
-          "sudo apt-get install libmariadb3 -y -q",
-          "sudo apt-get install mariadb-client-core-10.1 -y -q",
           "cd /root",
           "mkdir -p ./scripts",
           "sudo aws s3 sync s3://${scripts_bucket_id} ./scripts/ --region ${region} --delete --sse",

@@ -26,7 +26,7 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
   document_type   = "Command"
 
   tags = module.ec2_autoscale_group_ssm_initialization_meta.tags
-  content = templatefile("${path.module}/scripts/ssm-init.tftpl", {
+  content = templatefile("${path.module}/scripts/ssm.tftpl", {
     environment       = module.ec2_autoscale_group_ssm_initialization_meta.environment
     scripts_bucket_id = module.ec2_autoscale_group_scripts_bucket.bucket_id
     region            = data.aws_region.current[0].name
