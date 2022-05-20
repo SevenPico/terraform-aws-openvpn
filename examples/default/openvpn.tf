@@ -1,3 +1,6 @@
+#------------------------------------------------------------------------------
+# OpenVPN Labels
+#------------------------------------------------------------------------------
 module "openvpn_meta" {
   source  = "registry.terraform.io/cloudposse/label/null"
   version = "0.25.0"
@@ -11,6 +14,10 @@ module "openvpn_dns_meta" {
   name    = "vpn"
 }
 
+
+#------------------------------------------------------------------------------
+# OpenVPN
+#------------------------------------------------------------------------------
 module "openvpn" {
   source  = "../.."
   context = module.openvpn_meta.context
@@ -24,6 +31,9 @@ module "openvpn" {
 
   #Optional
   openvpn_ui_alb_security_group_id = module.openvpn_alb.security_group_id
-  openvpn_ui_alb_target_groups     = [module.openvpn_alb.default_target_group_arn]
-  openvpn_daemon_nlb_target_groups = aws_lb_target_group.openvpn_nlb.*.arn
+  openvpn_ui_alb_target_groups     = [
+    module.openvpn_alb.default_target_group_arn,
+    module.openvpn_ui_nlb.default_target_group_arn
+  ]
+  openvpn_daemon_nlb_target_groups = aws_lb_target_group.openvpn_daemon_nlb.*.arn
 }

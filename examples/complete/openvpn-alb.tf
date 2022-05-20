@@ -1,31 +1,41 @@
 # ------------------------------------------------------------------------------
-# Application Load Balancer
+# OpenVPN ALB Labels
 # ------------------------------------------------------------------------------
-module "alb_meta" {
+module "openvpn_alb_meta" {
   source          = "registry.terraform.io/cloudposse/label/null"
   version         = "0.25.0"
-  context         = module.this.context
-  enabled         = module.this.context.enabled
+  context         = module.openvpn_meta.context
   attributes      = ["alb"]
   id_length_limit = 32
 }
 
-module "alb_tgt_meta" {
+module "openvpn_alb_tgt_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
-  context    = module.alb_meta.context
+  context    = module.openvpn_alb_meta.context
   name       = null
   attributes = ["tgt"]
 }
 
-module "alb" {
+module "openvpn_alb_dns_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.dns_meta.context
+  name    = "${module.openvpn_dns_meta.name}-ui-alb"
+}
+
+
+# ------------------------------------------------------------------------------
+# OpenVPN ALB
+# ------------------------------------------------------------------------------
+module "openvpn_alb" {
   source  = "registry.terraform.io/cloudposse/alb/aws"
   version = "1.0.0"
-  context = module.alb_meta.context
+  context = module.openvpn_alb_meta.context
 
 
   access_logs_enabled                     = false
-  access_logs_prefix                      = module.alb_meta.id
+  access_logs_prefix                      = module.openvpn_alb_meta.id
   access_logs_s3_bucket_id                = ""
   additional_certs                        = []
   alb_access_logs_s3_bucket_force_destroy = true
@@ -75,7 +85,7 @@ module "alb" {
   }
   subnet_ids                   = module.vpc_subnets.public_subnet_ids
   target_group_additional_tags = {}
-  target_group_name            = ""
+  target_group_name            = module.openvpn_alb_tgt_meta.id
   target_group_name_max_length = 32
   target_group_port            = var.openvpn_ui_https_port
   target_group_protocol        = "HTTPS"
@@ -85,56 +95,28 @@ module "alb" {
 
 
 # ------------------------------------------------------------------------------
-# Application Load Balancer : Security Group
+# OpenVPN ALB DNS Record
 # ------------------------------------------------------------------------------
-#module "alb_security_group" {
-#  source  = "registry.terraform.io/cloudposse/security-group/aws"
-#  version = "0.4.3"
-#  context = module.alb_meta.context
-#
-#  vpc_id                     = var.openvpn_vpc_id
-#  security_group_name        = [module.alb_meta.id]
-#  security_group_description = "Controls access to the ${module.alb_meta.id}"
-#  create_before_destroy      = true
-##  rules_map                  = var.alb_security_group_rules_map
-#  rules = [
-#    {
-#      type        = "egress"
-#      from_port   = "0"
-#      to_port     = "0"
-#      protocol    = "-1"
-#      cidr_blocks = ["0.0.0.0/0"]
-#    },
-#    {
-#      type        = "ingress"
-#      from_port   = var.openvpn_server_admin_ui_https_port
-#      to_port     = var.openvpn_server_admin_ui_https_port
-#      protocol    = "tcp"
-#      cidr_blocks = ["0.0.0.0/0"]
-#    }
-#  ]
-#}
-
-
-# ------------------------------------------------------------------------------
-# Application Load Balancer : DNS Record
-# ------------------------------------------------------------------------------
-module "alb_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
-  name    = "openvpn"
-}
-
-resource "aws_route53_record" "alb" {
-  count   = module.alb_dns_meta.enabled ? 1 : 0
-  name    = module.alb_dns_meta.id
+resource "aws_route53_record" "openvpn_alb_private_zone" {
+  count   = module.openvpn_alb_dns_meta.enabled ? 1 : 0
+  name    = module.openvpn_alb_dns_meta.id
   type    = "A"
-  zone_id = aws_route53_zone.public[0].id
+  zone_id = aws_route53_zone.private[0].id
   alias {
-    name                   = module.alb.alb_dns_name
-    zone_id                = module.alb.alb_zone_id
+    name                   = module.openvpn_alb.alb_dns_name
+    zone_id                = module.openvpn_alb.alb_zone_id
     evaluate_target_health = true
   }
 }
 
+resource "aws_route53_record" "openvpn_alb" {
+  count   = module.openvpn_alb_dns_meta.enabled ? 1 : 0
+  name    = module.openvpn_alb_dns_meta.id
+  zone_id = aws_route53_zone.public[0].id
+  type    = "A"
+  alias {
+    name                   = module.openvpn_alb.alb_dns_name
+    zone_id                = module.openvpn_alb.alb_zone_id
+    evaluate_target_health = true
+  }
+}

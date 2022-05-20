@@ -1,6 +1,7 @@
 data "aws_route53_zone" "root" {
   count = module.dns_meta.enabled ? 1 : 0
   name  = var.root_domain
+
 }
 
 
@@ -16,6 +17,12 @@ module "dns_meta" {
   delimiter           = "."
   regex_replace_chars = "/[^a-zA-Z0-9-.]/"
   label_order         = ["name", "namespace"]
+#  descriptor_formats = {
+#    path = {
+#      labels = ["name", "namespace"]
+#      format = "%v.%v"
+#    }
+#  }
 }
 
 resource "aws_route53_zone" "public" {

@@ -75,11 +75,10 @@ locals {
 }
 
 module "rds" {
-  source  = "registry.terraform.io/cloudposse/rds/aws"
-  version = "0.38.4"
+  source  = "app.terraform.io/SevenPico/rds/aws"
+  version = "0.38.4.1"
   context = module.rds_meta.context
   enabled = module.rds_meta.enabled
-  depends_on = [aws_route53_zone.private]
 
   #Required
   allocated_storage            = 100

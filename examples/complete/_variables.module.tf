@@ -1,1 +1,0 @@
-/Users/dlraring/WorkSpace/SevenPico/terraform-aws-autoscaled-ec2-openvpn/_variables.tf

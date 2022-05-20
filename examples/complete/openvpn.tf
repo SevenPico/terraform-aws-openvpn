@@ -1,3 +1,23 @@
+#------------------------------------------------------------------------------
+# OpenVPN Labels
+#------------------------------------------------------------------------------
+module "openvpn_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.this.context
+}
+
+module "openvpn_dns_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.dns_meta.context
+  name    = "vpn"
+}
+
+
+#------------------------------------------------------------------------------
+# OpenVPN
+#------------------------------------------------------------------------------
 module "openvpn" {
   source  = "../.."
   context = module.this.context
@@ -7,6 +27,7 @@ module "openvpn" {
   vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
+  openvpn_hostname           = "vpn"
 
   # Optional
   additional_secrets_map           = var.additional_secrets_map
@@ -20,12 +41,22 @@ module "openvpn" {
   ec2_user_data                    = var.ec2_user_data
   openvpn_client_cidr_blocks       = var.openvpn_client_cidr_blocks
   openvpn_daemon_ingress_blocks    = var.openvpn_daemon_ingress_blocks
-  openvpn_daemon_nlb_target_groups = var.openvpn_daemon_nlb_target_groups
-  openvpn_hostname                 = "vpn"
+  openvpn_daemon_nlb_target_groups = aws_lb_target_group.openvpn_daemon_nlb.*.arn
+  openvpn_daemon_tcp_port          = var.openvpn_daemon_tcp_port
+  openvpn_daemon_udp_port          = var.openvpn_daemon_udp_port
+  openvpn_license_filepath         = var.openvpn_license_filepath
+  openvpn_timezone                 = var.openvpn_timezone
   openvpn_ui_alb_https_port        = var.openvpn_ui_alb_https_port
-  openvpn_ui_alb_security_group_id = module.alb.security_group_id
-  openvpn_ui_alb_target_groups     = [module.alb.default_target_group_arn]
+
+  openvpn_ui_alb_security_group_id = module.openvpn_alb.security_group_id
+  openvpn_ui_alb_target_groups     = [
+    module.openvpn_alb.default_target_group_arn,
+    module.openvpn_ui_nlb.default_target_group_arn
+  ]
+  openvpn_ui_https_port            = var.openvpn_ui_https_port
   openvpn_ui_ingress_blocks        = var.openvpn_ui_ingress_blocks
+  openvpn_web_server_name          = var.openvpn_web_server_name
+
   openvpn_config_scripts = [
     "init.sh",
     "openvpn-init.sh",
@@ -34,21 +65,6 @@ module "openvpn" {
     local.ssl_script_name,
     local.license_script_name,
   ]
-
-
-  openvpn_daemon_tcp_port = var.openvpn_daemon_tcp_port
-  openvpn_daemon_udp_port = var.openvpn_daemon_udp_port
-  #  openvpn_license_filepath = var.openvpn_license_filepath
-  openvpn_timezone        = var.openvpn_timezone
-  openvpn_ui_https_port   = var.openvpn_ui_https_port
-  openvpn_web_server_name = var.openvpn_web_server_name
-
-  #  openvpn_client_cidr_blocks           = var.openvpn_client_cidr_blocks
-  #  openvpn_client_dhcp_network          = var.openvpn_client_dhcp_network
-  #  openvpn_client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask
-  #  openvpn_client_group_dhcp_cidr_block = var.openvpn_client_group_dhcp_cidr_block
-  #  openvpn_client_static_network        = var.openvpn_client_static_network
-  #  openvpn_client_static_network_mask   = var.openvpn_client_static_network_mask
 
   logs_storage_bucket_id                              = var.logs_storage_bucket_id
   logs_storage_abort_incomplete_multipart_upload_days = var.logs_storage_abort_incomplete_multipart_upload_days

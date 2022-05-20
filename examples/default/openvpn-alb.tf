@@ -17,6 +17,13 @@ module "openvpn_alb_tgt_meta" {
   attributes = ["tgt"]
 }
 
+module "openvpn_alb_dns_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.dns_meta.context
+  name    = "${module.openvpn_dns_meta.name}-ui-alb"
+}
+
 
 # ------------------------------------------------------------------------------
 # OpenVPN ALB
@@ -90,18 +97,11 @@ module "openvpn_alb" {
 # ------------------------------------------------------------------------------
 # OpenVPN ALB DNS Record
 # ------------------------------------------------------------------------------
-module "openvpn_alb_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
-  name    = "${module.openvpn_dns_meta.name}-ui"
-}
-
-resource "aws_route53_record" "openvpn_alb" {
+resource "aws_route53_record" "openvpn_alb_private_zone" {
   count   = module.openvpn_alb_dns_meta.enabled ? 1 : 0
   name    = module.openvpn_alb_dns_meta.id
   type    = "A"
-  zone_id = aws_route53_zone.public[0].id
+  zone_id = aws_route53_zone.private[0].id
   alias {
     name                   = module.openvpn_alb.alb_dns_name
     zone_id                = module.openvpn_alb.alb_zone_id
@@ -109,3 +109,14 @@ resource "aws_route53_record" "openvpn_alb" {
   }
 }
 
+resource "aws_route53_record" "openvpn_alb" {
+  count   = module.openvpn_alb_dns_meta.enabled ? 1 : 0
+  name    = module.openvpn_alb_dns_meta.id
+  zone_id = aws_route53_zone.public[0].id
+  type    = "A"
+  alias {
+    name                   = module.openvpn_alb.alb_dns_name
+    zone_id                = module.openvpn_alb.alb_zone_id
+    evaluate_target_health = true
+  }
+}

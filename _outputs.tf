@@ -1,12 +1,12 @@
-output "autoscaling_group_arn" {
+output "autoscale_group_arn" {
   value = module.ec2_autoscale_group.autoscaling_group_arn
 }
 
-output "autoscaling_group_id" {
+output "autoscale_group_id" {
   value = module.ec2_autoscale_group.autoscaling_group_id
 }
 
-output "autoscaling_group_name" {
+output "autoscale_group_name" {
   value = module.ec2_autoscale_group.autoscaling_group_name
 }
 
@@ -26,7 +26,7 @@ output "secret_arn" {
   value = join("", aws_secretsmanager_secret_version.ec2_autoscale_group.*.arn)
 }
 
-output "autoscaling_sns_topic_arn" {
+output "autoscale_sns_topic_arn" {
   value = join("", aws_sns_topic.ec2_autoscale_group.*.arn)
 }
 

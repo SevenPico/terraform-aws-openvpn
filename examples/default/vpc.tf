@@ -5,6 +5,17 @@ module "vpc_meta" {
   name    = "vpc"
 }
 
+module "vpc_subnets_meta" {
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.vpc_meta.context
+  name    = "subnet"
+}
+
+
+#------------------------------------------------------------------------------
+# VPC Subnets
+#------------------------------------------------------------------------------
 module "vpc" {
   source  = "registry.terraform.io/cloudposse/vpc/aws"
   version = "0.28.1"
@@ -32,15 +43,8 @@ module "vpc" {
 
 
 #------------------------------------------------------------------------------
-# Subnets
+# VPC Subnets
 #------------------------------------------------------------------------------
-module "vpc_subnets_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.vpc_meta.context
-  name    = "subnet"
-}
-
 module "vpc_subnets" {
   source  = "registry.terraform.io/cloudposse/dynamic-subnets/aws"
   version = "0.39.8"

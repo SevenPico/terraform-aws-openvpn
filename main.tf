@@ -151,7 +151,7 @@ module "ec2_autoscale_group_sg" {
 }
 
 resource "aws_security_group_rule" "ui_port" {
-  count             = (module.ec2_autoscale_group_sg_meta.enabled && ! local.ui_alb_enabled) ? 1 : 0
+  count             = 1 //(module.ec2_autoscale_group_sg_meta.enabled && ! local.ui_alb_enabled) ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -161,16 +161,16 @@ resource "aws_security_group_rule" "ui_port" {
   description       = "Allow access to OpenVPN Web UI from anywhere"
 }
 
-resource "aws_security_group_rule" "admin_ui_port_alb" {
-  count                    = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? length(var.openvpn_ui_alb_target_groups) : 0
-  from_port                = var.openvpn_ui_https_port
-  protocol                 = "tcp"
-  security_group_id        = module.ec2_autoscale_group_sg.id
-  to_port                  = var.openvpn_ui_https_port
-  type                     = "ingress"
-  source_security_group_id = var.openvpn_ui_alb_security_group_id
-  description              = "Allow access to OpenVPN Web UI from ALB"
-}
+#resource "aws_security_group_rule" "admin_ui_port_alb" {
+#  count                    = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? length(var.openvpn_ui_alb_target_groups) : 0
+#  from_port                = var.openvpn_ui_https_port
+#  protocol                 = "tcp"
+#  security_group_id        = module.ec2_autoscale_group_sg.id
+#  to_port                  = var.openvpn_ui_https_port
+#  type                     = "ingress"
+#  source_security_group_id = var.openvpn_ui_alb_security_group_id
+#  description              = "Allow access to OpenVPN Web UI from ALB"
+#}
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
   count             = module.ec2_autoscale_group_sg_meta.enabled && !local.ui_alb_enabled ? 1 : 0

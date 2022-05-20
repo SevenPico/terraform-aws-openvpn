@@ -1,5 +1,5 @@
 output "autoscaling_group_arn" {
-  value = module.openvpn.autoscaling_group_arn
+  value = module.openvpn.autoscale_group_arn
 }
 
 output "ec2_security_group_id" {
