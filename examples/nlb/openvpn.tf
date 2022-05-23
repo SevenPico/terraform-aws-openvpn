@@ -29,4 +29,6 @@ module "openvpn" {
   openvpn_dhcp_option_domain = var.common_name
   openvpn_hostname           = module.openvpn_dns_meta.id
 
+  #Optional
+  openvpn_nlb_target_groups = aws_lb_target_group.openvpn_nlb.*.arn
 }

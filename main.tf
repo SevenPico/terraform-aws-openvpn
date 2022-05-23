@@ -24,8 +24,7 @@ module "ec2_autoscale_group_sg_meta" {
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 locals {
-  ui_alb_enabled = length(var.openvpn_ui_alb_target_groups) > 0
-  daemon_nlb_enabled = length(var.openvpn_daemon_nlb_target_groups) > 0
+  nlb_enabled = length(var.openvpn_nlb_target_groups) > 0
 }
 
 module "ec2_autoscale_group" {
@@ -105,7 +104,7 @@ module "ec2_autoscale_group" {
     "instance",
     "volume"
   ]
-  target_group_arns         = concat(var.openvpn_ui_alb_target_groups, var.openvpn_daemon_nlb_target_groups)
+  target_group_arns         = compact(var.openvpn_nlb_target_groups)
   termination_policies      = ["Default"]
   user_data_base64          = base64encode(var.ec2_user_data)
   wait_for_capacity_timeout = "10m"
@@ -151,7 +150,7 @@ module "ec2_autoscale_group_sg" {
 }
 
 resource "aws_security_group_rule" "ui_port" {
-  count             = 1 //(module.ec2_autoscale_group_sg_meta.enabled && ! local.ui_alb_enabled) ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -161,30 +160,8 @@ resource "aws_security_group_rule" "ui_port" {
   description       = "Allow access to OpenVPN Web UI from anywhere"
 }
 
-#resource "aws_security_group_rule" "admin_ui_port_alb" {
-#  count                    = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? length(var.openvpn_ui_alb_target_groups) : 0
-#  from_port                = var.openvpn_ui_https_port
-#  protocol                 = "tcp"
-#  security_group_id        = module.ec2_autoscale_group_sg.id
-#  to_port                  = var.openvpn_ui_https_port
-#  type                     = "ingress"
-#  source_security_group_id = var.openvpn_ui_alb_security_group_id
-#  description              = "Allow access to OpenVPN Web UI from ALB"
-#}
-
 resource "aws_security_group_rule" "daemon_tcp_port" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled && !local.ui_alb_enabled ? 1 : 0
-  from_port         = var.openvpn_daemon_tcp_port
-  protocol          = "tcp"
-  security_group_id = module.ec2_autoscale_group_sg.id
-  to_port           = var.openvpn_daemon_tcp_port
-  type              = "ingress"
-  cidr_blocks       = var.openvpn_daemon_ingress_blocks
-  description       = "Allow access to OpenVPN TCP Daemon"
-}
-
-resource "aws_security_group_rule" "daemon_tcp_port_nlb" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
   from_port         = var.openvpn_daemon_tcp_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -195,7 +172,7 @@ resource "aws_security_group_rule" "daemon_tcp_port_nlb" {
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled && !local.ui_alb_enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
   from_port         = var.openvpn_daemon_udp_port
   protocol          = "udp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -204,51 +181,3 @@ resource "aws_security_group_rule" "daemon_udp" {
   cidr_blocks       = var.openvpn_daemon_ingress_blocks
   description       = "Allow access to OpenVPN UDP Daemon"
 }
-
-resource "aws_security_group_rule" "daemon_udp_nlb" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled && local.ui_alb_enabled ? 1 : 0
-  from_port         = var.openvpn_daemon_udp_port
-  protocol          = "udp"
-  security_group_id = module.ec2_autoscale_group_sg.id
-  to_port           = var.openvpn_daemon_udp_port
-  type              = "ingress"
-  cidr_blocks       = var.openvpn_daemon_ingress_blocks
-  description       = "Allow access to OpenVPN UDP Daemon"
-}
-
-
-##------------------------------------------------------------------------------
-## EC2 VPN Auto Scale LifeCycle Hooks
-##------------------------------------------------------------------------------
-#resource "aws_autoscaling_lifecycle_hook" "ec2_openvpn_asg_instance_launching" {
-#  count                   = module.ec2_openvpn_meta.enabled ? 1 : 0
-#  autoscaling_group_name  = module.ec2_openvpn_asg.autoscaling_group_name
-#  lifecycle_transition    = "autoscaling:EC2_INSTANCE_LAUNCHING"
-#  name                    = "${module.ec2_openvpn_meta.id}-instance-launching"
-#  default_result          = "ABANDON"
-#  heartbeat_timeout       = 300
-#  notification_target_arn = aws_sns_topic.ec2_openvpn_asg[0].arn
-#  role_arn                = aws_iam_role.ec2_openvpn_asg_iam_lifecycle.arn
-#}
-#
-#resource "aws_autoscaling_lifecycle_hook" "ec2_openvpn_asg_instance_terminating" {
-#  count                   = module.ec2_openvpn_meta.enabled ? 1 : 0
-#  autoscaling_group_name  = module.ec2_openvpn_asg.autoscaling_group_name
-#  lifecycle_transition    = "autoscaling:EC2_INSTANCE_TERMINATING"
-#  name                    = "${module.ec2_openvpn_meta.id}-instance-terminating"
-#  default_result          = "ABANDON"
-#  heartbeat_timeout       = 300
-#  notification_target_arn = aws_sns_topic.ec2_openvpn_asg[0].arn
-#  role_arn                = aws_iam_role.ec2_openvpn_asg_iam_lifecycle.arn
-#}
-
-
-
-
-
-
-
-
-
-
-

@@ -41,25 +41,19 @@ module "openvpn" {
   ec2_user_data                    = var.ec2_user_data
   openvpn_client_cidr_blocks       = var.openvpn_client_cidr_blocks
   openvpn_daemon_ingress_blocks    = var.openvpn_daemon_ingress_blocks
-  openvpn_daemon_nlb_target_groups = aws_lb_target_group.openvpn_daemon_nlb.*.arn
+  openvpn_nlb_target_groups = aws_lb_target_group.openvpn_nlb.*.arn
   openvpn_daemon_tcp_port          = var.openvpn_daemon_tcp_port
   openvpn_daemon_udp_port          = var.openvpn_daemon_udp_port
   openvpn_license_filepath         = var.openvpn_license_filepath
   openvpn_timezone                 = var.openvpn_timezone
-  openvpn_ui_alb_https_port        = var.openvpn_ui_alb_https_port
 
-  openvpn_ui_alb_security_group_id = module.openvpn_alb.security_group_id
-  openvpn_ui_alb_target_groups     = [
-    module.openvpn_alb.default_target_group_arn,
-    module.openvpn_ui_nlb.default_target_group_arn
-  ]
   openvpn_ui_https_port            = var.openvpn_ui_https_port
   openvpn_ui_ingress_blocks        = var.openvpn_ui_ingress_blocks
   openvpn_web_server_name          = var.openvpn_web_server_name
 
   openvpn_config_scripts = [
     "init.sh",
-    "openvpn-init.sh",
+    "openvpn.sh",
     local.network_script_name,
     local.mysql_script_name,
     local.ssl_script_name,

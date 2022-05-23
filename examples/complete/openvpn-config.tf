@@ -6,7 +6,7 @@ locals {
 }
 
 
-module "mysql_config_script" {
+module "openvpn_mysql_config_script" {
   source     = "../../modules/mysql-config-script"
   context    = module.this.context
   depends_on = [module.openvpn]
@@ -20,7 +20,7 @@ module "mysql_config_script" {
   rds_security_group_id      = module.rds.security_group_id
 }
 
-module "ssl_config_script" {
+module "openvpn_ssl_config_script" {
   source     = "../../modules/ssl-config-script"
   context    = module.this.context
   depends_on = [module.openvpn]
@@ -32,7 +32,7 @@ module "ssl_config_script" {
   ssl_secret_kms_key_arn = module.ssl_certificate.kms_key_arn
 }
 
-module "license_import_script" {
+module "openvpn_license_import_script" {
   source     = "../../modules/license-import-script"
   context    = module.this.context
   depends_on = [module.openvpn]
@@ -45,7 +45,7 @@ module "license_import_script" {
 }
 
 
-module "network_config_script" {
+module "openvpn_network_config_script" {
   source     = "../../modules/network-config-script"
   context    = module.this.context
   depends_on = [module.openvpn]
