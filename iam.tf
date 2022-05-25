@@ -218,7 +218,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_sns_policy" {
 resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_sns_policy" {
   count  = module.ec2_autoscale_group_lifecycle_role_meta.enabled && module.ec2_autoscale_group_sns_meta.enabled ? 1 : 0
   name   = module.ec2_autoscale_group_lifecycle_policy_meta.id
-  role   = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id
+  role   = "${aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id}-sns"
   policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_sns_policy[0].json
 }
 
