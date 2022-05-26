@@ -5,13 +5,6 @@ module "ec2_autoscale_group_meta" {
   attributes = ["ec2", "asg"]
 }
 
-#module "ec2_autoscale_group_dns_meta" {
-#  source  = "registry.terraform.io/cloudposse/label/null"
-#  version = "0.25.0"
-#  context = module.dns_meta.context
-#  name    = var.openvpn_hostname
-#}
-
 module "ec2_autoscale_group_sg_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"

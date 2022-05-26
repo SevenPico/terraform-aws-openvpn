@@ -30,7 +30,6 @@ module "openvpn" {
   openvpn_hostname           = "vpn"
 
   # Optional
-  additional_secrets_map                = var.additional_secrets_map
   ami_id                                = var.ami_id
   autoscale_desired_count               = var.autoscale_desired_count
   autoscale_instance_type               = var.autoscale_instance_type
