@@ -36,7 +36,7 @@ module "openvpn_license_import_script" {
   source     = "../../modules/license-import-script"
   context    = module.this.context
   depends_on = [module.openvpn]
-  
+
   bucket_id           = module.openvpn.ssm_script_bucket_id
   script_name         = local.license_script_name
   ec2_role_name       = module.openvpn.role_name
