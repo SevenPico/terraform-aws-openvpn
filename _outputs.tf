@@ -18,14 +18,6 @@ output "security_group_name" {
   value = module.ec2_autoscale_group_sg.name
 }
 
-output "secret_kms_key_arn" {
-  value = module.ec2_autoscale_group_secrets_kms_key.key_arn
-}
-
-output "secret_arn" {
-  value = join("", aws_secretsmanager_secret_version.ec2_autoscale_group.*.arn)
-}
-
 output "autoscale_sns_topic_arn" {
   value = join("", aws_sns_topic.ec2_autoscale_group.*.arn)
 }
