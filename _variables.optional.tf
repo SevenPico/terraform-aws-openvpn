@@ -38,6 +38,7 @@ variable "openvpn_daemon_udp_port" { default = 1194 }
 variable "openvpn_time_zone" { default = "America/Chicago" }
 variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
+variable "openvpn_ssm_association_output_bucket_name" { default = null }
 
 variable "openvpn_client_cidr_blocks" { default = ["172.27.0.0/16"] }
 

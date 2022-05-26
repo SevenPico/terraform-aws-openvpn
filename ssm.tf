@@ -38,4 +38,11 @@ resource "aws_ssm_association" "ec2_autoscale_group_initialization" {
     key    = "tag:Name"
     values = [module.ec2_autoscale_group_meta.id]
   }
+  dynamic  "output_location" {
+    for_each       = var.openvpn_ssm_association_output_bucket_name != null ? [1]: []
+    content {
+      s3_bucket_name = var.openvpn_ssm_association_output_bucket_name
+      s3_key_prefix = aws_ssm_document.ec2_autoscale_group_initialization[0].name
+    }
+  }
 }
