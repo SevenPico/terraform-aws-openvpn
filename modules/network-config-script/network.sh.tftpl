@@ -11,4 +11,5 @@ echo "Configuring OpenVPN_AS VPN Settings."
 ./sacli --key 'vpn.server.group_pool.0' --value '${client_group_dhcp_cidr_block}' ConfigPut
 ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
 ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
+./sacli start
 

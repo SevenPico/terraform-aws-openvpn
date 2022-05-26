@@ -5,7 +5,9 @@ if [ ! -z "$LICENSE" ]
 then
    echo "Activating OpenVPN_AS License."
    cd /usr/local/openvpn_as/scripts
-   ./liman Activate $LICENSE
+   sudo ./sacli -v "$LICENSE" LoadSubscription
+   ./sacli start
+   ./sacli SubscriptionStatus
 else
    echo "Skipping OpenVPN_AS License Activation."
 fi
