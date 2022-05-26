@@ -43,16 +43,6 @@ locals {
 data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
   count   = module.ec2_autoscale_group_meta.enabled ? 1 : 0
   version = "2012-10-17"
-  statement {
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey"
-    ]
-    effect = "Allow"
-    resources = [
-      module.ec2_autoscale_group_secrets_kms_key.key_arn
-    ]
-  }
 
   statement {
     actions = [

@@ -28,5 +28,4 @@ module "openvpn" {
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
   openvpn_hostname           = module.openvpn_dns_meta.id
-
 }

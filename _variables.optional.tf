@@ -29,12 +29,13 @@ variable "autoscale_desired_count" { default = 1 }
 variable "autoscale_instance_type" { default = "t3.micro" }
 variable "autoscale_max_count" { default = 1 }
 variable "autoscale_min_count" { default = 1 }
+variable "autoscale_sns_topic_default_result" { default = "CONTINUE" }
+variable "autoscale_sns_topic_heartbeat_timeout" { default = 180 }
 variable "create_autoscale_sns_topic" { default = false }
 
 variable "openvpn_daemon_tcp_port" { default = 443 }
 variable "openvpn_daemon_udp_port" { default = 1194 }
-variable "openvpn_license_filepath" { default = null }
-variable "openvpn_timezone" { default = "America/Chicago" }
+variable "openvpn_time_zone" { default = "America/Chicago" }
 variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
 

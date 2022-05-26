@@ -75,8 +75,7 @@ resource "aws_s3_object" "init_sh" {
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
     hostname   = var.openvpn_hostname
-    secret_arn = join("", aws_secretsmanager_secret.ec2_autoscale_group[*].arn)
-    region     = data.aws_region.current[0].name
+    time_zone = var.openvpn_time_zone
   })
 }
 

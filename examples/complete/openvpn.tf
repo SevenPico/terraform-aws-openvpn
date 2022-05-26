@@ -30,26 +30,28 @@ module "openvpn" {
   openvpn_hostname           = "vpn"
 
   # Optional
-  additional_secrets_map           = var.additional_secrets_map
-  ami_id                           = var.ami_id
-  autoscale_desired_count          = var.autoscale_desired_count
-  autoscale_instance_type          = var.autoscale_instance_type
-  autoscale_max_count              = var.autoscale_max_count
-  autoscale_min_count              = var.autoscale_min_count
-  cloudwatch_logs_expiration_days  = var.cloudwatch_logs_expiration_days
-  create_autoscale_sns_topic       = var.create_autoscale_sns_topic
-  ec2_user_data                    = var.ec2_user_data
-  openvpn_client_cidr_blocks       = var.openvpn_client_cidr_blocks
-  openvpn_daemon_ingress_blocks    = var.openvpn_daemon_ingress_blocks
-  openvpn_nlb_target_groups = aws_lb_target_group.openvpn_nlb.*.arn
-  openvpn_daemon_tcp_port          = var.openvpn_daemon_tcp_port
-  openvpn_daemon_udp_port          = var.openvpn_daemon_udp_port
-  openvpn_license_filepath         = var.openvpn_license_filepath
-  openvpn_timezone                 = var.openvpn_timezone
+  additional_secrets_map                = var.additional_secrets_map
+  ami_id                                = var.ami_id
+  autoscale_desired_count               = var.autoscale_desired_count
+  autoscale_instance_type               = var.autoscale_instance_type
+  autoscale_max_count                   = var.autoscale_max_count
+  autoscale_min_count                   = var.autoscale_min_count
+  autoscale_sns_topic_default_result    = var.autoscale_sns_topic_default_result
+  autoscale_sns_topic_heartbeat_timeout = var.autoscale_sns_topic_heartbeat_timeout
 
-  openvpn_ui_https_port            = var.openvpn_ui_https_port
-  openvpn_ui_ingress_blocks        = var.openvpn_ui_ingress_blocks
-  openvpn_web_server_name          = var.openvpn_web_server_name
+  cloudwatch_logs_expiration_days = var.cloudwatch_logs_expiration_days
+  create_autoscale_sns_topic      = var.create_autoscale_sns_topic
+  ec2_user_data                   = var.ec2_user_data
+  openvpn_client_cidr_blocks      = var.openvpn_client_cidr_blocks
+  openvpn_daemon_ingress_blocks   = var.openvpn_daemon_ingress_blocks
+  openvpn_nlb_target_groups       = aws_lb_target_group.openvpn_nlb.*.arn
+  openvpn_daemon_tcp_port         = var.openvpn_daemon_tcp_port
+  openvpn_daemon_udp_port         = var.openvpn_daemon_udp_port
+  openvpn_time_zone               = var.openvpn_time_zone
+
+  openvpn_ui_https_port     = var.openvpn_ui_https_port
+  openvpn_ui_ingress_blocks = var.openvpn_ui_ingress_blocks
+  openvpn_web_server_name   = var.openvpn_web_server_name
 
   openvpn_config_scripts = [
     "init.sh",
