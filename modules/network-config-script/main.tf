@@ -15,5 +15,7 @@ resource "aws_s3_object" "network_sh" {
     client_group_dhcp_cidr_block = var.openvpn_client_group_dhcp_cidr_block,
     client_static_network        = var.openvpn_client_static_network,
     client_static_network_mask   = var.openvpn_client_static_network_mask
+    openvpn_client_cidr_blocks   = join(" ", var.openvpn_client_cidr_blocks),
+    vpc_cidr_blocks              = join(" ", var.vpc_cidr_blocks)
   })
 }

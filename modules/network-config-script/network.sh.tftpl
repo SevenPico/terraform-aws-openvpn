@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Configuring OpenVPN_AS VPN Settings."
+echo "Configuring OpenVPN_AS VPN Settings For Routing and Static IP Assignment."
 cd /usr/local/openvpn_as/scripts
 sudo ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
 sudo ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
@@ -12,5 +12,18 @@ sudo ./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
 sudo ./sacli --key 'vpn.server.group_pool.0' --value '${client_group_dhcp_cidr_block}' ConfigPut
 sudo ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
 sudo ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
+
+COUNTER=0
+for block in '${vpc_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+for block in '${openvpn_client_cidr_blocks}'; do
+   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
+   COUNTER=$[$COUNTER +1]
+done
+./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+
+
 sudo ./sacli start
 

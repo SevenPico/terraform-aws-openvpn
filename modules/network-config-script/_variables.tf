@@ -8,4 +8,6 @@ variable "openvpn_client_dhcp_network_mask" { type = number }
 variable "openvpn_client_group_dhcp_cidr_block" { type = string }
 variable "openvpn_client_static_network" { type = string }
 variable "openvpn_client_static_network_mask" { type = number }
+variable "openvpn_client_cidr_blocks" { type = list(string) }
+variable "vpc_cidr_blocks" { type = list(string) }
 

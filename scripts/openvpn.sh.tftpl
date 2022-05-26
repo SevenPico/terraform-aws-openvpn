@@ -18,16 +18,6 @@ cd /usr/local/openvpn_as/scripts
 ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
 ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
 ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
-COUNTER=0
-for block in '${vpc_cidr_blocks}'; do
-   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
-   COUNTER=$[$COUNTER +1]
-done
-for block in '${openvpn_client_cidr_blocks}'; do
-   ./sacli --key 'vpn.server.routing.private_network.$COUNTER' --value "$val" ConfigPut
-   COUNTER=$[$COUNTER +1]
-done
-./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
 
 echo "Setting hostname."
 ./sacli --key 'host.name' --value '${hostname}' ConfigPut

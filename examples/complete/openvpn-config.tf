@@ -40,8 +40,8 @@ module "openvpn_license_import_script" {
   bucket_id           = module.openvpn.ssm_script_bucket_id
   script_name         = local.license_script_name
   ec2_role_name       = module.openvpn.role_name
-  secrets_arn         = module.openvpn.secret_arn
-  secrets_kms_key_arn = module.openvpn.secret_kms_key_arn
+  secrets_arn         = aws_secretsmanager_secret.openvpn.arn
+  secrets_kms_key_arn = module.openvpn_secret_kms_key.key_arn
 }
 
 
@@ -58,4 +58,6 @@ module "openvpn_network_config_script" {
   openvpn_client_group_dhcp_cidr_block = var.openvpn_client_group_dhcp_cidr_block
   openvpn_client_static_network        = var.openvpn_client_static_network
   openvpn_client_static_network_mask   = var.openvpn_client_static_network_mask
+  openvpn_client_cidr_blocks           = var.openvpn_client_cidr_blocks
+  vpc_cidr_blocks                      = [module.vpc.vpc_cidr_block]
 }
