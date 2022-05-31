@@ -27,6 +27,7 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
     scripts_bucket_id = module.ec2_autoscale_group_scripts_bucket.bucket_id
     region            = data.aws_region.current[0].name
     config_cmds       = var.openvpn_config_scripts
+    time_zone         = var.openvpn_time_zone
   })
 }
 

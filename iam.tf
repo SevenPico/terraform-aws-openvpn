@@ -94,6 +94,25 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
     effect    = "Allow"
     resources = ["*"]
   }
+
+  dynamic  "statement" {
+    for_each = var.openvpn_ssm_association_output_bucket_name != null ? [1]: []
+    content {
+      actions = [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload",
+      ]
+      effect = "Allow"
+      resources = [
+        "arn:aws:s3:::${var.openvpn_ssm_association_output_bucket_name}",
+        "arn:aws:s3:::${var.openvpn_ssm_association_output_bucket_name}/*"
+      ]
+    }
+  }
 }
 
 module "ec2_autoscale_group_role" {

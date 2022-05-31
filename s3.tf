@@ -75,7 +75,6 @@ resource "aws_s3_object" "init_sh" {
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
     hostname   = var.openvpn_hostname
-    time_zone = var.openvpn_time_zone
   })
 }
 

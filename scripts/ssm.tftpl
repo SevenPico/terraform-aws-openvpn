@@ -15,13 +15,18 @@
       "inputs": {
         "runCommand": [
           "#!/bin/bash",
-          "DEBIAN_FRONTEND=noninteractive",
+
+          "export DEBIAN_FRONTEND=noninteractive",
+          "sudo ln -fs /usr/share/zoneinfo/${time_zone} /etc/localtime",
+          "sudo dpkg-reconfigure --frontend noninteractive tzdata > /dev/null 2>&1",
           "sudo rm /var/lib/dpkg/lock > /dev/null 2>&1",
           "sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1",
-          "sudo apt-get update -y -q",
-          "sudo apt-get install ntp -y -q",
-          "sudo apt-get install jq -y -q",
-          "sudo apt-get install awscli -y -q",
+
+          "sudo apt-get update -y -q > /dev/null 2>&1",
+          "sudo apt-get install ntp -y -q > /dev/null 2>&1",
+          "sudo apt-get install jq -y -q > /dev/null 2>&1",
+          "sudo apt-get install awscli -y -q > /dev/null 2>&1",
+
           "cd /root",
           "mkdir -p ./scripts",
           "sudo aws s3 sync s3://${scripts_bucket_id} ./scripts/ --region ${region} --delete --sse",

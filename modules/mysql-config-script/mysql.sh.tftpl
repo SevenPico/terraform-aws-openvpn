@@ -4,9 +4,9 @@ DEBIAN_FRONTEND=noninteractive
 
 sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
 sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
-sudo apt-get update -y -q
-sudo apt-get install libmariadb3 -y -q
-sudo apt-get install mariadb-client-core-10.1 -y -q
+sudo apt-get update -y -q > /dev/null 2>&1
+sudo apt-get install libmariadb3 -y -q > /dev/null 2>&1
+sudo apt-get install mariadb-client-core-10.1 -y -q > /dev/null 2>&1
 
 echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
 RDS_USER=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_username_key}')
