@@ -24,6 +24,21 @@ variable "openvpn_config_scripts" {
   ]
 }
 
+variable "secret_arn" {
+  type = string
+  default = null
+}
+
+variable "secret_kms_key_arn" {
+  type = string
+  default = null
+}
+
+variable "secret_admin_password_key" {
+  type = string
+  default = null
+}
+
 variable "ami_id" { default = "ami-037ff6453f0855c46" } # "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
 variable "autoscale_desired_count" { default = 1 }
 variable "autoscale_instance_type" { default = "t3.micro" }

@@ -21,5 +21,14 @@ cd /usr/local/openvpn_as/scripts
 
 echo "Setting hostname."
 ./sacli --key 'host.name' --value '${hostname}' ConfigPut
-./sacli start
 
+if [ -n "${password_secret_arn}" ]; then
+    echo "Setting Admin Password."
+    pass=$(aws secretsmanager get-secret-value --secret-id ${password_secret_arn} --region ${region}\
+        | jq -r ".SecretString"\
+        | jq -r ".${password_secret_key}")
+
+    echo "openvpn:$pass" | sudo chpasswd
+fi
+
+./sacli start

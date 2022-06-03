@@ -91,5 +91,8 @@ resource "aws_s3_object" "openvpn_sh" {
     dhcp_option_domain         = var.openvpn_dhcp_option_domain,
     openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
     vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
+    password_secret_arn        = var.secret_arn
+    password_secret_key        = var.secret_admin_password_key
+    region                     = local.current_region
   })
 }

@@ -79,9 +79,10 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
       "secretsmanager:GetSecretValue",
     ]
     effect = "Allow"
-    resources = [
-      "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.ec2_autoscale_group_meta.id}*"
-    ]
+    resources = compact([
+      "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.ec2_autoscale_group_meta.id}*",
+      var.secret_arn,
+    ])
   }
   statement {
     actions = [
@@ -111,6 +112,20 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
         "arn:aws:s3:::${var.openvpn_ssm_association_output_bucket_name}",
         "arn:aws:s3:::${var.openvpn_ssm_association_output_bucket_name}/*"
       ]
+    }
+  }
+
+  dynamic  "statement" {
+    for_each = var.secret_kms_key_arn != null ? [1] : []
+    content {
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+      ]
+      effect = "Allow"
+      resources = compact([
+        var.secret_kms_key_arn,
+      ])
     }
   }
 }
