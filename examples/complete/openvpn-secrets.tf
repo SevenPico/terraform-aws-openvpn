@@ -57,5 +57,13 @@ resource "aws_secretsmanager_secret_version" "openvpn" {
   secret_string = jsonencode(merge(
     {
       OPENVPN_LICENSE : ""
+      ADMIN_USERNAME = "openvpn"
+      ADMIN_PASSWORD = one(random_password.openvpn_admin[*].result)
   }))
+}
+
+resource "random_password" "openvpn_admin" {
+  count   = module.openvpn_secret_meta.enabled ? 1 : 0
+  length  = 32
+  special = false
 }

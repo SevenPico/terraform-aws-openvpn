@@ -40,7 +40,7 @@ module "openvpn_license_import_script" {
   bucket_id           = module.openvpn.ssm_script_bucket_id
   script_name         = local.license_script_name
   ec2_role_name       = module.openvpn.role_name
-  secrets_arn         = aws_secretsmanager_secret.openvpn.arn
+  secrets_arn         = one(aws_secretsmanager_secret.openvpn[*].arn)
   secrets_kms_key_arn = module.openvpn_secret_kms_key.key_arn
 }
 

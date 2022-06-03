@@ -61,6 +61,10 @@ module "openvpn" {
     local.license_script_name,
   ]
 
+  secret_arn = one(aws_secretsmanager_secret.openvpn[*].arn)
+  secret_kms_key_arn = module.openvpn_secret_kms_key.key_arn
+  secret_admin_password_key = "ADMIN_PASSWORD"
+
   logs_storage_bucket_id                              = var.logs_storage_bucket_id
   logs_storage_abort_incomplete_multipart_upload_days = var.logs_storage_abort_incomplete_multipart_upload_days
   logs_storage_enable_glacier_transition              = var.logs_storage_enable_glacier_transition
