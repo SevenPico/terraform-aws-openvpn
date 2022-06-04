@@ -25,7 +25,7 @@ variable "openvpn_config_scripts" {
 }
 
 variable "associate_public_ip_address" {
-  type = boolean
+  type = bool
   default = true
 }
 
