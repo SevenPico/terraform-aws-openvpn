@@ -24,6 +24,11 @@ variable "openvpn_config_scripts" {
   ]
 }
 
+variable "associate_public_ip_address" {
+  type = boolean
+  default = true
+}
+
 variable "secret_arn" {
   type = string
   default = null

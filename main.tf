@@ -31,7 +31,7 @@ module "ec2_autoscale_group" {
   desired_capacity = var.autoscale_desired_count
   subnet_ids       = var.subnet_ids
 
-  associate_public_ip_address             = true
+  associate_public_ip_address             = var.associate_public_ip_address
   autoscaling_policies_enabled            = false
   block_device_mappings                   = []
   capacity_rebalance                      = false

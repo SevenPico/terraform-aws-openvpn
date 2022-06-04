@@ -23,7 +23,7 @@ module "openvpn" {
   context = module.this.context
 
   # Required
-  subnet_ids                 = module.vpc_subnets.public_subnet_ids
+  subnet_ids                 = module.vpc_subnets.private_subnet_ids
   vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
@@ -31,6 +31,7 @@ module "openvpn" {
 
   # Optional
   ami_id                                = var.ami_id
+  associate_public_ip_address           = false
   autoscale_desired_count               = var.autoscale_desired_count
   autoscale_instance_type               = var.autoscale_instance_type
   autoscale_max_count                   = var.autoscale_max_count
