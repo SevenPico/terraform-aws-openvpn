@@ -31,7 +31,7 @@ variable "associate_public_ip_address" {
 
 variable "secret_arn" {
   type = string
-  default = null
+  default = ""
 }
 
 variable "secret_kms_key_arn" {
@@ -41,7 +41,7 @@ variable "secret_kms_key_arn" {
 
 variable "secret_admin_password_key" {
   type = string
-  default = null
+  default = ""
 }
 
 variable "ami_id" { default = "ami-037ff6453f0855c46" } # "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
