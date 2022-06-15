@@ -1,4 +1,5 @@
 #!/bin/bash
+sleep 30
 
 LICENSE=$(aws secretsmanager get-secret-value --secret-id ${secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${keyname}')
 if [ ! -z "$LICENSE" ]
