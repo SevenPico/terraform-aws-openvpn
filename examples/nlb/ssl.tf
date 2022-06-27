@@ -8,6 +8,7 @@ module "ssl_certificate_meta" {
 module "ssl_certificate" {
   source  = "../../../terraform-aws-ssl-certificate"
   context = module.ssl_certificate_meta.context
+  depends_on = [aws_route53_zone.public]
 
   common_name        = var.common_name
   create_letsencrypt = true

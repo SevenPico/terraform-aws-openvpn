@@ -36,3 +36,19 @@ module "openvpn" {
   autoscale_max_count        = 1
   autoscale_min_count        = 0
 }
+
+# Delays VPN initialization until all resources are in place
+resource "null_resource" "openvpn_set_autoscale_counts" {
+  provisioner "local-exec" {
+    command = join(" ", [
+      "aws", "autoscaling", "update-auto-scaling-group",
+      "--auto-scaling-group-name", module.openvpn.autoscale_group_name,
+      "--desired-capacity", 1,
+      "--profile", "7pi.io" # FIXME - profile should be a var?
+    ])
+  }
+
+  depends_on = [
+    module.openvpn
+  ]
+}

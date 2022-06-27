@@ -46,3 +46,16 @@ output "ssm_script_bucket_id" {
   value = module.ec2_autoscale_group_scripts_bucket.bucket_id
 }
 
+output "nlb_dns_name" {
+  value = one(module.nlb[*].nlb_dns_name)
+}
+
+output "nlb_zone_id" {
+  value = one(module.nlb[*].nlb_zone_id)
+}
+
+output "secret_arn" {
+  value = var.create_admin_secret
+}
+
+

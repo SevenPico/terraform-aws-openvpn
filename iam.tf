@@ -5,7 +5,6 @@ module "ec2_autoscale_group_role_meta" {
   attributes = ["role"]
 }
 
-
 module "ec2_autoscale_group_lifecycle_role_meta" {
   source          = "registry.terraform.io/cloudposse/label/null"
   version         = "0.25.0"
@@ -81,7 +80,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
     effect = "Allow"
     resources = compact([
       "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.ec2_autoscale_group_meta.id}*",
-      var.secret_arn,
+      local.secret_arn,
     ])
   }
   statement {
@@ -124,7 +123,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
       ]
       effect = "Allow"
       resources = compact([
-        var.secret_kms_key_arn,
+        local.secret_kms_key_arn,
       ])
     }
   }

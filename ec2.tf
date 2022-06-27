@@ -16,10 +16,6 @@ module "ec2_autoscale_group_sg_meta" {
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
-locals {
-  nlb_enabled = length(var.openvpn_nlb_target_groups) > 0
-}
-
 module "ec2_autoscale_group" {
   source  = "registry.terraform.io/cloudposse/ec2-autoscale-group/aws"
   version = "0.30.1"
@@ -97,7 +93,7 @@ module "ec2_autoscale_group" {
     "instance",
     "volume"
   ]
-  target_group_arns         = compact(var.openvpn_nlb_target_groups)
+  target_group_arns         = var.create_nlb ? compact(aws_lb_target_group.nlb.*.arn) : []
   termination_policies      = ["Default"]
   user_data_base64          = base64encode(var.ec2_user_data)
   wait_for_capacity_timeout = "10m"
@@ -150,7 +146,7 @@ resource "aws_security_group_rule" "ui_port" {
   to_port           = var.openvpn_ui_https_port
   type              = "ingress"
   cidr_blocks       = var.openvpn_ui_ingress_blocks
-  description       = "Allow access to OpenVPN Web UI from anywhere"
+  description       = "Allow access to OpenVPN Web UI."
 }
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
@@ -161,7 +157,7 @@ resource "aws_security_group_rule" "daemon_tcp_port" {
   to_port           = var.openvpn_daemon_tcp_port
   type              = "ingress"
   cidr_blocks       = var.openvpn_daemon_ingress_blocks
-  description       = "Allow access to OpenVPN TCP Daemon"
+  description       = "Allow access to OpenVPN TCP Daemon."
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
@@ -172,5 +168,5 @@ resource "aws_security_group_rule" "daemon_udp" {
   to_port           = var.openvpn_daemon_udp_port
   type              = "ingress"
   cidr_blocks       = var.openvpn_daemon_ingress_blocks
-  description       = "Allow access to OpenVPN UDP Daemon"
+  description       = "Allow access to OpenVPN UDP Daemon."
 }
