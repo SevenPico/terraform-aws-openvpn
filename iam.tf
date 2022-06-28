@@ -39,7 +39,7 @@ locals {
   current_account_id = length(data.aws_caller_identity.current) > 0 ? one(data.aws_caller_identity.current[*].account_id) : ""
 }
 
-data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
+data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
   count   = module.ec2_autoscale_group_meta.enabled ? 1 : 0
   version = "2012-10-17"
 
@@ -95,8 +95,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
     resources = ["*"]
   }
 
-  dynamic  "statement" {
-    for_each = var.openvpn_ssm_association_output_bucket_name != null ? [1]: []
+  dynamic "statement" {
+    for_each = var.openvpn_ssm_association_output_bucket_name != null ? [1] : []
     content {
       actions = [
         "s3:ListBucket",
@@ -114,8 +114,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
     }
   }
 
-  dynamic  "statement" {
-    for_each = var.secret_kms_key_arn != null ? [1] : []
+  dynamic "statement" {
+    for_each = local.secret_kms_key_arn != null ? [1] : []
     content {
       actions = [
         "kms:Decrypt",
@@ -131,16 +131,22 @@ data "aws_iam_policy_document" "ec2_autoscale_group_policy" {
 
 module "ec2_autoscale_group_role" {
   source  = "registry.terraform.io/cloudposse/iam-role/aws"
-  version = "0.13.0"
+  version = "0.16.2"
   context = module.ec2_autoscale_group_role_meta.context
 
-  policy_description    = "VPN Server Permissions"
-  role_description      = "IAM role with permissions to perform actions required by the VPN Server"
-  assume_role_actions   = ["sts:AssumeRole"]
-  max_session_duration  = 3600
-  policy_document_count = 1
+
+
+  assume_role_actions      = ["sts:AssumeRole"]
+  assume_role_conditions   = []
+  instance_profile_enabled = false
+  managed_policy_arns      = []
+  max_session_duration     = 3600
+  path                     = "/"
+  permissions_boundary     = ""
+  policy_description       = "VPN Server Permissions"
+  policy_document_count    = 1
   policy_documents = [
-    join("", data.aws_iam_policy_document.ec2_autoscale_group_policy.*.json)
+    join("", data.aws_iam_policy_document.ec2_autoscale_group_role_policy.*.json)
   ]
   principals = {
     Service : [
@@ -148,7 +154,8 @@ module "ec2_autoscale_group_role" {
       "ssm.amazonaws.com"
     ]
   }
-  use_fullname = true
+  role_description = "IAM role with permissions to perform actions required by the VPN Server"
+  use_fullname     = true
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_autoscale_group_ssm_management" {

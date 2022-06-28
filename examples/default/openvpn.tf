@@ -28,6 +28,9 @@ module "openvpn" {
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
   openvpn_hostname           = module.openvpn_dns_meta.id
+
+  # Optional
+  create_admin_secret = true
 }
 
 # Delays VPN initialization until all resources are in place
