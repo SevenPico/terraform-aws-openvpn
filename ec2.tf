@@ -1,3 +1,30 @@
+#------------------------------------------------------------------------------
+# EC2 VPN Auto Scale Group Locals
+#------------------------------------------------------------------------------
+locals {
+  cloudflare_cidrs = [
+    "103.21.244.0/22",
+    "103.22.200.0/22",
+    "103.31.4.0/22",
+    "104.16.0.0/13",
+    "104.24.0.0/14",
+    "108.162.192.0/18",
+    "131.0.72.0/22",
+    "141.101.64.0/18",
+    "162.158.0.0/15",
+    "172.64.0.0/13",
+    "173.245.48.0/20",
+    "188.114.96.0/20",
+    "190.93.240.0/20",
+    "197.234.240.0/22",
+    "198.41.128.0/17"
+  ]
+}
+
+
+#------------------------------------------------------------------------------
+# EC2 VPN Auto Scale Group Meta
+#------------------------------------------------------------------------------
 module "ec2_autoscale_group_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
@@ -6,10 +33,9 @@ module "ec2_autoscale_group_meta" {
 }
 
 module "ec2_autoscale_group_sg_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.ec2_autoscale_group_meta.context
-  enabled    = module.ec2_autoscale_group_meta.enabled
+  source  = "registry.terraform.io/cloudposse/label/null"
+  version = "0.25.0"
+  context = module.ec2_autoscale_group_meta.context
 }
 
 
@@ -21,13 +47,13 @@ module "ec2_autoscale_group" {
   version = "0.30.1"
   context = module.ec2_autoscale_group_meta.context
 
-  instance_type    = var.autoscale_instance_type
-  max_size         = var.autoscale_max_count
-  min_size         = var.autoscale_min_count
-  desired_capacity = var.autoscale_desired_count
+  instance_type    = var.ec2_autoscale_instance_type
+  max_size         = var.ec2_autoscale_max_count
+  min_size         = var.ec2_autoscale_min_count
+  desired_capacity = var.ec2_autoscale_desired_count
   subnet_ids       = var.subnet_ids
 
-  associate_public_ip_address             = var.associate_public_ip_address
+  associate_public_ip_address             = var.ec2_associate_public_ip_address
   autoscaling_policies_enabled            = false
   block_device_mappings                   = []
   capacity_rebalance                      = false
@@ -61,7 +87,7 @@ module "ec2_autoscale_group" {
   health_check_grace_period            = 300
   health_check_type                    = "EC2"
   iam_instance_profile_name            = join("", aws_iam_instance_profile.ec2_autoscale_group_instance_profile.*.name)
-  image_id                             = var.ami_id
+  image_id                             = var.ec2_ami_id
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
   instance_refresh                     = null
@@ -86,7 +112,7 @@ module "ec2_autoscale_group" {
   scale_up_cooldown_seconds            = 300
   scale_up_policy_type                 = "SimpleScaling"
   scale_up_scaling_adjustment          = 1
-  security_group_ids                   = [module.ec2_autoscale_group_sg.id]
+  security_group_ids                   = concat([module.ec2_autoscale_group_sg.id], var.ec2_additional_security_group_ids)
   service_linked_role_arn              = ""
   suspended_processes                  = []
   tag_specifications_resource_types = [
@@ -105,38 +131,85 @@ module "ec2_autoscale_group" {
 # EC2 VPN Auto Scale Security Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_sg" {
-  source  = "app.terraform.io/SevenPico/security-group/aws"
-  version = "0.4.3"
+  source  = "registry.terraform.io/cloudposse/security-group/aws"
+  version = "2.0.0-rc1"
   context = module.ec2_autoscale_group_sg_meta.context
 
   vpc_id = var.vpc_id
-  rules = [
+
+  allow_all_egress              = true
+  create_before_destroy         = true
+  inline_rules_enabled          = false
+  preserve_security_group_id    = false
+  revoke_rules_on_delete        = false
+  rule_matrix                   = []
+  rules                         = [
     {
-      key                      = 4
+      key                      = 1
       type                     = "egress"
       from_port                = 443
       to_port                  = 443
       protocol                 = "tcp"
-      cidr_blocks              = ["0.0.0.0/0"]
+      cidr_blocks              = var.vpc_cidr_blocks
       ipv6_cidr_blocks         = []
       source_security_group_id = null
       self                     = null
-      description              = "Allow https egress on 443 everywhere"
+      description              = "Allow https egress to VPC."
     },
     {
-      key                      = 5
+      key                      = 2
       type                     = "egress"
-      from_port                = 80
-      to_port                  = 80
+      from_port                = 443
+      to_port                  = 443
       protocol                 = "tcp"
-      cidr_blocks              = ["0.0.0.0/0"]
+      cidr_blocks              = local.cloudflare_cidrs
       ipv6_cidr_blocks         = []
       source_security_group_id = null
       self                     = null
-      description              = "Allow https egress on 80 everywhere"
+      description              = "Allow https egress to Cloudflare."
     }
   ]
+  rules_map                     = {}
+  security_group_create_timeout = "10m"
+  security_group_delete_timeout = "15m"
+  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_meta.id}"
+  security_group_name           = []
+  target_security_group_id      = []
 }
+
+#module "ec2_autoscale_group_sg" {
+#  source  = "app.terraform.io/SevenPico/security-group/aws"
+#  version = "0.4.3.1"
+#  context = module.ec2_autoscale_group_sg_meta.context
+#
+#  vpc_id = var.vpc_id
+#  rules = [
+#    {
+#      key                      = 4
+#      type                     = "egress"
+#      from_port                = 443
+#      to_port                  = 443
+#      protocol                 = "tcp"
+#      cidr_blocks              = concat(local.cloudflare_cidrs, var.vpc_cidr_blocks)
+#      ipv6_cidr_blocks         = []
+#      source_security_group_id = null
+#      self                     = null
+#      description              = "Allow https egress on 443 to Cloudflare and local VPC."
+#    },
+#    #    {
+#    #      key                      = 5
+#    #      type                     = "egress"
+#    #      from_port                = 80
+#    #      to_port                  = 80
+#    #      protocol                 = "tcp"
+#    #      cidr_blocks              = ["0.0.0.0/0"]
+#    #      ipv6_cidr_blocks         = []
+#    #      source_security_group_id = null
+#    #      self                     = null
+#    #      description              = "Allow https egress on 80 everywhere"
+#    #    }
+#  ]
+#}
 
 resource "aws_security_group_rule" "ui_port" {
   count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0

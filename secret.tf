@@ -5,7 +5,7 @@ module "secret_meta" {
   source     = "registry.terraform.io/cloudposse/label/null"
   version    = "0.25.0"
   context    = module.this.context
-  enabled = module.this.enabled && var.create_admin_secret
+  enabled = module.this.enabled && var.create_openvpn_secret
   attributes = ["secret"]
 }
 
@@ -16,8 +16,8 @@ module "secret_kms_meta" {
 }
 
 locals {
-  secret_arn = var.create_admin_secret ? aws_secretsmanager_secret.this[0].arn : var.secret_arn
-  secret_kms_key_arn = var.create_admin_secret ? module.secret_kms_key.key_arn : var.secret_kms_key_arn
+  secret_arn = var.create_openvpn_secret && module.secret_meta.enabled ? aws_secretsmanager_secret.this[0].arn : var.openvpn_secret_arn
+  secret_kms_key_arn = var.create_openvpn_secret && module.secret_meta.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
@@ -32,7 +32,7 @@ module "secret_kms_key" {
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30
   description              = "KMS key for ${module.secret_meta.id}"
-  enable_key_rotation      = var.secret_enable_key_rotation
+  enable_key_rotation      = var.openvpn_secret_enable_kms_key_rotation
   key_usage                = "ENCRYPT_DECRYPT"
 }
 
@@ -62,7 +62,7 @@ resource "aws_secretsmanager_secret_version" "this" {
   secret_string = jsonencode(merge(
     {
       ADMIN_USERNAME = "openvpn"
-      "${var.secret_admin_password_key}" = one(random_password.admin[*].result)
+      "${var.openvpn_secret_admin_password_key}" = one(random_password.admin[*].result)
   }))
 }
 

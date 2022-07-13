@@ -44,18 +44,18 @@ module "nlb" {
   version = "0.8.2.1"
   context = module.nlb_meta.context
 
-  access_logs_enabled               = var.nlb_access_logs_enabled
-  access_logs_prefix                = module.nlb_meta.id
-  access_logs_s3_bucket_id          = module.nlb_meta.id
+  access_logs_enabled               = var.nlb_access_logs_s3_bucket_id != null
+  access_logs_prefix                = var.nlb_access_logs_prefix_override == null ? module.nlb_meta.id : var.nlb_access_logs_prefix_override
+  access_logs_s3_bucket_id          = var.nlb_access_logs_s3_bucket_id
   certificate_arn                   = var.nlb_acm_certificate_arn
   create_default_target_group       = false
-  cross_zone_load_balancing_enabled = true
+  cross_zone_load_balancing_enabled = false
   deletion_protection_enabled       = var.nlb_deletion_protection_enabled
   deregistration_delay              = 300
-  health_check_enabled              = true
+  health_check_enabled              = var.openvpn_ui_https_port != null
   health_check_interval             = 10
   health_check_path                 = "/"
-  health_check_port                 = 943
+  health_check_port                 = var.openvpn_ui_https_port
   health_check_protocol             = "HTTPS"
   health_check_threshold            = 2
   internal                          = false
@@ -66,15 +66,14 @@ module "nlb" {
   target_group_port                 = 0
   target_group_target_type          = "ip"
   tcp_enabled                       = false
-  tcp_port                          = 443
+  tcp_port                          = var.openvpn_daemon_tcp_port
   tls_enabled                       = false
-  tls_port                          = 443
+  tls_port                          = var.openvpn_ui_https_port
   tls_ssl_policy                    = var.nlb_tls_ssl_policy
   udp_enabled                       = false
-  udp_port                          = 1194
+  udp_port                          = var.openvpn_daemon_udp_port
   vpc_id                            = var.vpc_id
 }
-
 
 
 # ------------------------------------------------------------------------------
@@ -94,7 +93,7 @@ resource "aws_lb_target_group" "nlb" {
     unhealthy_threshold = 2
     interval            = 10
     protocol            = "HTTPS"
-    port                = 943
+    port                = var.openvpn_ui_https_port
     path                = "/"
   }
   lifecycle {

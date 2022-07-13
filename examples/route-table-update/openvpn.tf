@@ -31,10 +31,10 @@ module "openvpn" {
   openvpn_hostname           = module.openvpn_dns_meta.id
 
   # Optional
-  create_autoscale_sns_topic = true
-  autoscale_desired_count    = 0
-  autoscale_max_count        = 1
-  autoscale_min_count        = 0
+  create_ec2_autoscale_sns_topic = true
+  ec2_autoscale_desired_count    = 0
+  ec2_autoscale_max_count        = 1
+  ec2_autoscale_min_count        = 0
 }
 
 # Delays VPN initialization until all resources are in place

@@ -1,15 +1,15 @@
 module "vpc_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
-  name    = "vpc"
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.this.context
+  attributes = ["vpc"]
 }
 
 module "vpc_subnets_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.vpc_meta.context
-  name    = "subnet"
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.vpc_meta.context
+  attributes = ["subnet"]
 }
 
 

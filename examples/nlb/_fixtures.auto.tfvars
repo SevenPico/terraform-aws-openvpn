@@ -1,6 +1,6 @@
 vpc_cidr_block     = "10.10.0.0/16"
 availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
-common_name        = "openvpn-nlb.7pi.io"
+common_name        = "openvpn-nlb2.7pi.io"
 
 ami_id = "ami-037ff6453f0855c46"
 

@@ -1,20 +1,20 @@
 module "route_table_update" {
-  source  = "../../"
+  source  = "../../modules/route-table-update"
   context = module.this.context
 
-  autoscale_group_arn              = module.openvpn.autoscale_group_arn
-  sns_source_topic_arn             = module.openvpn.autoscale_sns_topic_arn
-  subnet_ids                       = module.vpc_subnets.private_subnet_ids
-  vpc_id                           = module.vpc.vpc_id
-  lambda_log_level                 = "DEBUG"
-  cidr_block_to_route              = var.cidr_block_to_route
   artifact_git_ref                 = ""
   artifact_url                     = ""
+  autoscale_group_arn              = module.openvpn.autoscale_group_arn
+  cidr_block_to_route              = var.cidr_block_to_route
   cloudwatch_log_retention_days    = 1
+  lambda_environment_variables_map = {}
+  lambda_log_level                 = "DEBUG"
   lambda_runtime                   = "python3.9"
   lambda_timeout                   = 300
   results_sns_arn                  = null
-  lambda_environment_variables_map = {}
+  sns_source_topic_arn             = module.openvpn.autoscale_sns_topic_arn
+  subnet_ids                       = module.vpc_subnets.private_subnet_ids
+  vpc_id                           = module.vpc.vpc_id
 }
 
 resource "null_resource" "openvpn_set_autoscale_counts" {

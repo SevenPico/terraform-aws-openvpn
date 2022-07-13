@@ -40,13 +40,13 @@ resource "aws_route53_record" "ns" {
   ttl     = 300
 }
 
-resource "aws_route53_zone" "private" {
-  count = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
-  name  = module.dns_meta.id
-  vpc {
-    vpc_id = module.vpc.vpc_id
-  }
-  tags = module.dns_meta.tags
-}
+#resource "aws_route53_zone" "private" {
+#  count = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
+#  name  = module.dns_meta.id
+#  vpc {
+#    vpc_id = module.vpc.vpc_id
+#  }
+#  tags = module.dns_meta.tags
+#}
 
 

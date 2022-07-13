@@ -8,10 +8,10 @@ module "openvpn_meta" {
 }
 
 module "openvpn_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
-  name    = "vpn"
+  source     = "registry.terraform.io/cloudposse/label/null"
+  version    = "0.25.0"
+  context    = module.dns_meta.context
+  attributes = "vpn"
 }
 
 
@@ -30,17 +30,17 @@ module "openvpn" {
   openvpn_hostname           = "vpn"
 
   # Optional
-  ami_id                                = var.ami_id
-  associate_public_ip_address           = false
-  autoscale_desired_count               = var.autoscale_desired_count
-  autoscale_instance_type               = var.autoscale_instance_type
-  autoscale_max_count                   = var.autoscale_max_count
-  autoscale_min_count                   = var.autoscale_min_count
-  autoscale_sns_topic_default_result    = var.autoscale_sns_topic_default_result
-  autoscale_sns_topic_heartbeat_timeout = var.autoscale_sns_topic_heartbeat_timeout
+  ec2_ami_id                                = var.ami_id
+  ec2_associate_public_ip_address           = false
+  ec2_autoscale_desired_count               = var.autoscale_desired_count
+  ec2_autoscale_instance_type               = var.autoscale_instance_type
+  ec2_autoscale_max_count                   = var.autoscale_max_count
+  ec2_autoscale_min_count                   = var.autoscale_min_count
+  ec2_autoscale_sns_topic_default_result    = var.autoscale_sns_topic_default_result
+  ec2_autoscale_sns_topic_heartbeat_timeout = var.autoscale_sns_topic_heartbeat_timeout
 
   cloudwatch_logs_expiration_days = var.cloudwatch_logs_expiration_days
-  create_autoscale_sns_topic      = var.create_autoscale_sns_topic
+  create_ec2_autoscale_sns_topic  = var.create_autoscale_sns_topic
   ec2_user_data                   = var.ec2_user_data
   openvpn_client_cidr_blocks      = var.openvpn_client_cidr_blocks
   openvpn_daemon_ingress_blocks   = var.openvpn_daemon_ingress_blocks
@@ -53,7 +53,7 @@ module "openvpn" {
   openvpn_ui_ingress_blocks = var.openvpn_ui_ingress_blocks
   openvpn_web_server_name   = var.openvpn_web_server_name
 
-  openvpn_config_scripts = [
+  openvpn_config_scripts_additional = [
     "init.sh",
     "openvpn.sh",
     local.network_script_name,
@@ -62,9 +62,9 @@ module "openvpn" {
     local.license_script_name,
   ]
 
-  secret_arn = one(aws_secretsmanager_secret.openvpn[*].arn)
-  secret_kms_key_arn = module.openvpn_secret_kms_key.key_arn
-  secret_admin_password_key = "ADMIN_PASSWORD"
+  openvpn_secret_arn                = one(aws_secretsmanager_secret.openvpn[*].arn)
+  openvpn_secret_kms_key_arn        = module.openvpn_secret_kms_key.key_arn
+  openvpn_secret_admin_password_key = "ADMIN_PASSWORD"
 
   logs_storage_bucket_id                              = var.logs_storage_bucket_id
   logs_storage_abort_incomplete_multipart_upload_days = var.logs_storage_abort_incomplete_multipart_upload_days

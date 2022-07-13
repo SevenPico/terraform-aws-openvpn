@@ -55,7 +55,7 @@ output "nlb_zone_id" {
 }
 
 output "secret_arn" {
-  value = var.create_admin_secret
+  value = var.create_openvpn_secret
 }
 
 

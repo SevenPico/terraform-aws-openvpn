@@ -3,7 +3,7 @@ module "ec2_autoscale_group_sns_meta" {
   version    = "0.25.0"
   context    = module.ec2_autoscale_group_meta.context
   attributes = ["sns"]
-  enabled    = var.create_autoscale_sns_topic && module.ec2_autoscale_group_meta.enabled
+  enabled    = var.create_ec2_autoscale_sns_topic && module.ec2_autoscale_group_meta.enabled
 }
 
 
@@ -31,8 +31,8 @@ resource "aws_autoscaling_lifecycle_hook" "ec2_autoscale_group_instance_launchin
   autoscaling_group_name  = module.ec2_autoscale_group.autoscaling_group_name
   lifecycle_transition    = "autoscaling:EC2_INSTANCE_LAUNCHING"
   name                    = "${module.ec2_autoscale_group_meta.id}-instance-launching"
-  default_result          = var.autoscale_sns_topic_default_result
-  heartbeat_timeout       = var.autoscale_sns_topic_heartbeat_timeout
+  default_result          = var.ec2_autoscale_sns_topic_default_result
+  heartbeat_timeout       = var.ec2_autoscale_sns_topic_heartbeat_timeout
   notification_target_arn = aws_sns_topic.ec2_autoscale_group[0].arn
   role_arn                = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].arn
 }
@@ -42,8 +42,8 @@ resource "aws_autoscaling_lifecycle_hook" "ec2_autoscale_group_instance_terminat
   autoscaling_group_name  = module.ec2_autoscale_group.autoscaling_group_name
   lifecycle_transition    = "autoscaling:EC2_INSTANCE_TERMINATING"
   name                    = "${module.ec2_autoscale_group_meta.id}-instance-terminating"
-  default_result          = var.autoscale_sns_topic_default_result
-  heartbeat_timeout       = var.autoscale_sns_topic_heartbeat_timeout
+  default_result          = var.ec2_autoscale_sns_topic_default_result
+  heartbeat_timeout       = var.ec2_autoscale_sns_topic_heartbeat_timeout
   notification_target_arn = aws_sns_topic.ec2_autoscale_group[0].arn
   role_arn                = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].arn
 }

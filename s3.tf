@@ -6,12 +6,26 @@ module "ec2_autoscale_group_scripts_bucket_meta" {
 }
 
 
+locals {
+  init_sh = try(join("", aws_s3_object.init_sh[*].key), "")
+  openvpn_sh = try(join("", aws_s3_object.openvpn_sh[*].key), "")
+  static_sh = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
+
+  openvpn_config_scripts = concat(compact([
+    local.init_sh,
+    local.openvpn_sh,
+    local.static_sh
+  ]), var.openvpn_config_scripts_additional)
+}
+
+
 #------------------------------------------------------------------------------
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "registry.terraform.io/cloudposse/s3-bucket/aws"
   version = "2.0.2"
+  context = module.ec2_autoscale_group_scripts_bucket_meta.context
 
   acl                          = "private"
   allow_encrypted_uploads_only = false
@@ -31,14 +45,14 @@ module "ec2_autoscale_group_scripts_bucket" {
   bucket_key_enabled            = false
   bucket_name                   = null
   cors_rule_inputs              = null
-  force_destroy                 = var.s3_force_destroy
+  force_destroy                 = var.openvpn_s3_force_destroy
   grants                        = []
   ignore_public_acls            = true
   kms_master_key_arn            = ""
-  lifecycle_configuration_rules = var.s3_lifecycle_configuration_rules
-  logging = var.s3_access_logs_s3_bucket_id != null ? {
-    bucket_name = var.s3_access_logs_s3_bucket_id
-    prefix      = var.s3_access_logs_prefix
+  lifecycle_configuration_rules = var.openvpn_s3_lifecycle_configuration_rules
+  logging = var.openvpn_s3_access_logs_s3_bucket_id != null ? {
+    bucket_name = var.openvpn_s3_access_logs_s3_bucket_id
+    prefix      = var.openvpn_s3_access_logs_prefix_override == null ? module.ec2_autoscale_group_scripts_bucket_meta.id : var.openvpn_s3_access_logs_prefix_override
   } : null
   object_lock_configuration     = null
   privileged_principal_actions  = []
@@ -53,7 +67,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   sse_algorithm                 = "AES256"
   transfer_acceleration_enabled = false
   user_enabled                  = false
-  versioning_enabled            = var.s3_versioning_enabled
+  versioning_enabled            = var.openvpn_s3_versioning_enabled
   website_inputs                = null
 }
 
@@ -77,10 +91,22 @@ resource "aws_s3_object" "openvpn_sh" {
     daemon_udp_port            = var.openvpn_daemon_udp_port,
     daemon_tcp_port            = var.openvpn_daemon_tcp_port,
     dhcp_option_domain         = var.openvpn_dhcp_option_domain,
+    client_dhcp_network        = var.openvpn_client_dhcp_network
+    client_dhcp_network_mask   = var.openvpn_client_dhcp_network_mask
     openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
     vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
     password_secret_arn        = local.secret_arn
-    password_secret_key        = var.secret_admin_password_key
+    password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
+  })
+}
+
+resource "aws_s3_object" "static_client_addresses_sh" {
+  count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.openvpn_client_static_addresses_enabled ? 1 : 0
+  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  key    = "static-client-addresses.sh.sh"
+  content = templatefile("${path.module}/scripts/static-client-addresses.sh.tftpl", {
+    client_static_network      = var.openvpn_client_static_network,
+    client_static_network_mask = var.openvpn_client_static_network_mask
   })
 }

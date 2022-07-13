@@ -1,6 +1,6 @@
 enabled             = true
 namespace           = "sp"
-environment         = "nlb"
+environment         = "nlb2"
 stage               = "openvpn"
 #name                = ""
 #delimiter           = var.delimiter

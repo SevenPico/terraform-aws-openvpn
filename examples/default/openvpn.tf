@@ -30,7 +30,7 @@ module "openvpn" {
   openvpn_hostname           = module.openvpn_dns_meta.id
 
   # Optional
-  create_admin_secret = true
+  create_openvpn_secret = true
 }
 
 # Delays VPN initialization until all resources are in place
