@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "2.0.3.1"
+  version = "2.0.3.2"
   context = module.ec2_autoscale_group_scripts_bucket_meta.context
 
   acl                          = "private"
