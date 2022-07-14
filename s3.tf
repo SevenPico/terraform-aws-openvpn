@@ -7,9 +7,9 @@ module "ec2_autoscale_group_scripts_bucket_meta" {
 
 
 locals {
-  init_sh = try(join("", aws_s3_object.init_sh[*].key), "")
+  init_sh    = try(join("", aws_s3_object.init_sh[*].key), "")
   openvpn_sh = try(join("", aws_s3_object.openvpn_sh[*].key), "")
-  static_sh = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
+  static_sh  = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
 
   openvpn_config_scripts = concat(compact([
     local.init_sh,
@@ -23,8 +23,8 @@ locals {
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
-  source  = "registry.terraform.io/cloudposse/s3-bucket/aws"
-  version = "2.0.2"
+  source  = "app.terraform.io/SevenPico/s3-bucket/aws"
+  version = "2.0.3.1"
   context = module.ec2_autoscale_group_scripts_bucket_meta.context
 
   acl                          = "private"
