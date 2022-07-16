@@ -2,6 +2,7 @@ variable "create_ec2_autoscale_sns_topic" { default = false }
 variable "create_nlb" { default = false }
 variable "create_openvpn_secret" { default = false }
 
+variable "cloudwatch_enabled" { default = true }
 variable "cloudwatch_logs_expiration_days" { default = 90 }
 
 

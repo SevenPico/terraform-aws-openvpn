@@ -134,8 +134,6 @@ module "ec2_autoscale_group_role" {
   version = "0.16.2"
   context = module.ec2_autoscale_group_role_meta.context
 
-
-
   assume_role_actions      = ["sts:AssumeRole"]
   assume_role_conditions   = []
   instance_profile_enabled = false

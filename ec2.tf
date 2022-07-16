@@ -40,6 +40,16 @@ module "ec2_autoscale_group_sg_meta" {
 
 
 #------------------------------------------------------------------------------
+# EC2 Cloudwatch Log Group
+#------------------------------------------------------------------------------
+resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
+  count             = module.ec2_autoscale_group_meta.enabled && var.cloudwatch_enabled ? 1 : 0
+  name              = "/aws/ec2/${module.ec2_autoscale_group_meta.id}"
+  retention_in_days = var.cloudwatch_logs_expiration_days
+}
+
+
+#------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
@@ -127,6 +137,7 @@ module "ec2_autoscale_group" {
   warm_pool                 = null
 }
 
+
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Security Group
 #------------------------------------------------------------------------------
@@ -137,13 +148,13 @@ module "ec2_autoscale_group_sg" {
 
   vpc_id = var.vpc_id
 
-  allow_all_egress              = true
-  create_before_destroy         = true
-  inline_rules_enabled          = false
-  preserve_security_group_id    = false
-  revoke_rules_on_delete        = false
-  rule_matrix                   = []
-  rules                         = [
+  allow_all_egress           = true
+  create_before_destroy      = true
+  inline_rules_enabled       = false
+  preserve_security_group_id = false
+  revoke_rules_on_delete     = false
+  rule_matrix                = []
+  rules = [
     {
       key                      = 1
       type                     = "egress"
