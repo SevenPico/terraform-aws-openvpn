@@ -18,6 +18,7 @@ variable "ec2_autoscale_min_count" { default = 1 }
 variable "ec2_autoscale_sns_topic_default_result" { default = "CONTINUE" }
 variable "ec2_autoscale_sns_topic_heartbeat_timeout" { default = 180 }
 variable "ec2_additional_security_group_ids" { default = [] }
+variable "ec2_key_name" { default = null }
 
 
 #------------------------------------------------------------------------------

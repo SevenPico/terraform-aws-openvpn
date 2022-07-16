@@ -91,7 +91,7 @@ module "ec2_autoscale_group" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
   instance_refresh                     = null
-  key_name                             = null
+  key_name                             = var.ec2_key_name
   launch_template_version              = "$Latest"
   load_balancers                       = []
   max_instance_lifetime                = null

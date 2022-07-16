@@ -45,6 +45,7 @@ module "openvpn" {
   ec2_autoscale_sns_topic_default_result     = "CONTINUE"
   ec2_autoscale_sns_topic_heartbeat_timeout  = 180
   ec2_additional_security_group_ids          = []
+  ec2_key_name                               = null
   nlb_access_logs_prefix_override            = null
   nlb_access_logs_s3_bucket_id               = null
   nlb_acm_certificate_arn                    = module.ssl_certificate.acm_certificate_arn

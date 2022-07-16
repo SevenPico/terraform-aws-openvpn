@@ -139,7 +139,9 @@ module "ec2_autoscale_group_role" {
   assume_role_actions      = ["sts:AssumeRole"]
   assume_role_conditions   = []
   instance_profile_enabled = false
-  managed_policy_arns      = []
+  managed_policy_arns      = [
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  ]
   max_session_duration     = 3600
   path                     = "/"
   permissions_boundary     = ""
