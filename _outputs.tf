@@ -55,7 +55,13 @@ output "nlb_zone_id" {
 }
 
 output "secret_arn" {
-  value = var.create_openvpn_secret
+  value = local.secret_arn
 }
 
+output "secret_kms_key_arn" {
+  value = local.secret_kms_key_arn
+}
 
+output "instance_name" {
+  value = module.ec2_autoscale_group_meta.id
+}
