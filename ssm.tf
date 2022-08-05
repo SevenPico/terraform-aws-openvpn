@@ -25,7 +25,7 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
   content = templatefile("${path.module}/scripts/ssm.tftpl", {
     environment       = module.ec2_autoscale_group_ssm_initialization_meta.environment
     scripts_bucket_id = module.ec2_autoscale_group_scripts_bucket.bucket_id
-    region            = data.aws_region.current[0].name
+    region            = one(data.aws_region.current[*].name)
     config_cmds       = local.openvpn_config_scripts
     time_zone         = var.openvpn_time_zone
   })
@@ -34,7 +34,7 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
 resource "aws_ssm_association" "ec2_autoscale_group_initialization" {
   count            = module.ec2_autoscale_group_meta.enabled ? 1 : 0
   association_name = module.ec2_autoscale_group_ssm_initialization_meta.id
-  name             = aws_ssm_document.ec2_autoscale_group_initialization[0].name
+  name             = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
   targets {
     key    = "tag:Name"
     values = [module.ec2_autoscale_group_meta.id]
@@ -43,7 +43,7 @@ resource "aws_ssm_association" "ec2_autoscale_group_initialization" {
     for_each       = var.openvpn_ssm_association_output_bucket_name != null ? [1]: []
     content {
       s3_bucket_name = var.openvpn_ssm_association_output_bucket_name
-      s3_key_prefix = aws_ssm_document.ec2_autoscale_group_initialization[0].name
+      s3_key_prefix = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
     }
   }
 }

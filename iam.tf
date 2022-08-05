@@ -193,7 +193,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_assume_role" {
 resource "aws_iam_role" "ec2_autoscale_group_lifecycle_role" {
   count              = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
   name               = module.ec2_autoscale_group_lifecycle_role_meta.id
-  assume_role_policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_assume_role[0].json
+  assume_role_policy = one(data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_assume_role[*].json)
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_policy" {
@@ -216,7 +216,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_policy" {
   #      "sns:Publish"
   #    ]
   #    resources = [
-  #      aws_sns_topic.ec2_autoscale_group[0].arn
+  #      aws_sns_topic.ec2_autoscale_group[*].arn
   #    ]
   #  }
 }
@@ -224,8 +224,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_policy" {
 resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_policy" {
   count  = module.ec2_autoscale_group_lifecycle_role_meta.enabled ? 1 : 0
   name   = module.ec2_autoscale_group_lifecycle_policy_meta.id
-  role   = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id
-  policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_policy[0].json
+  role   = one(aws_iam_role.ec2_autoscale_group_lifecycle_role[*].id)
+  policy = one(data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_policy[*].json)
 }
 
 
@@ -240,7 +240,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_sns_policy" {
       "sns:Publish"
     ]
     resources = [
-      aws_sns_topic.ec2_autoscale_group[0].arn
+      one(aws_sns_topic.ec2_autoscale_group[*].arn)
     ]
   }
 }
@@ -248,8 +248,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_lifecycle_role_sns_policy" {
 resource "aws_iam_role_policy" "ec2_autoscale_group_lifecycle_sns_policy" {
   count  = module.ec2_autoscale_group_lifecycle_role_meta.enabled && module.ec2_autoscale_group_sns_meta.enabled ? 1 : 0
   name   = "${module.ec2_autoscale_group_lifecycle_policy_meta.id}-sns"
-  role   = aws_iam_role.ec2_autoscale_group_lifecycle_role[0].id
-  policy = data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_sns_policy[0].json
+  role   = one(aws_iam_role.ec2_autoscale_group_lifecycle_role[*].id)
+  policy = one(data.aws_iam_policy_document.ec2_autoscale_group_lifecycle_role_sns_policy[*].json)
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_sns_assume_role" {
@@ -271,7 +271,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_sns_assume_role" {
 resource "aws_iam_role" "ec2_autoscale_group_sns" {
   count              = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
   name               = module.ec2_autoscale_group_sns_role_meta.id
-  assume_role_policy = data.aws_iam_policy_document.ec2_autoscale_group_sns_assume_role[0].json
+  assume_role_policy = one(data.aws_iam_policy_document.ec2_autoscale_group_sns_assume_role[*].json)
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_sns_policy" {
@@ -292,6 +292,6 @@ data "aws_iam_policy_document" "ec2_autoscale_group_sns_policy" {
 resource "aws_iam_role_policy" "ec2_openvpn_asg_iam_sns_policy" {
   count  = module.ec2_autoscale_group_sns_role_meta.enabled ? 1 : 0
   name   = "${module.ec2_autoscale_group_sns_role_meta.id}-policy"
-  role   = aws_iam_role.ec2_autoscale_group_sns[0].id
-  policy = data.aws_iam_policy_document.ec2_autoscale_group_sns_policy[0].json
+  role   = one(aws_iam_role.ec2_autoscale_group_sns[*].id)
+  policy = one(data.aws_iam_policy_document.ec2_autoscale_group_sns_policy[*].json)
 }

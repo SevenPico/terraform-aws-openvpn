@@ -16,7 +16,7 @@ module "secret_kms_meta" {
 }
 
 locals {
-  secret_arn = var.create_openvpn_secret && module.secret_meta.enabled ? aws_secretsmanager_secret.this[0].arn : var.openvpn_secret_arn
+  secret_arn = var.create_openvpn_secret && module.secret_meta.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
   secret_kms_key_arn = var.create_openvpn_secret && module.secret_meta.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
 }
 
@@ -54,7 +54,7 @@ resource "aws_secretsmanager_secret" "this" {
 
 resource "aws_secretsmanager_secret_version" "this" {
   count     = module.secret_meta.enabled ? 1 : 0
-  secret_id = aws_secretsmanager_secret.this[0].id
+  secret_id = one(aws_secretsmanager_secret.this[*].id)
   lifecycle {
     ignore_changes  = [secret_string, secret_binary]
     prevent_destroy = false
