@@ -16,8 +16,8 @@ module "secret_kms_meta" {
 }
 
 locals {
-  secret_arn = var.create_openvpn_secret && module.secret_meta.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
-  secret_kms_key_arn = var.create_openvpn_secret && module.secret_meta.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
+  secret_arn = module.secret_meta.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
+  secret_kms_key_arn = module.secret_meta.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
 }
 
 

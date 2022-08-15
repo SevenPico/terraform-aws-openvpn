@@ -37,7 +37,7 @@ variable "nlb_tls_ssl_policy" { default = "ELBSecurityPolicy-TLS13-1-2-2021-06" 
 # OpenVPN Inputs
 #------------------------------------------------------------------------------
 variable "openvpn_client_cidr_blocks" { default = ["172.27.0.0/16"] }
-variable "openvpn_client_dhcp_network" { default = ["172.27.32.0"] }
+variable "openvpn_client_dhcp_network" { default = "172.27.32.0" }
 variable "openvpn_client_dhcp_network_mask" { default = "20" }
 variable "openvpn_client_static_addresses_enabled" { default = false }
 variable "openvpn_client_static_network" { default = "172.27.64.0" }

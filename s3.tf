@@ -104,7 +104,7 @@ resource "aws_s3_object" "openvpn_sh" {
 resource "aws_s3_object" "static_client_addresses_sh" {
   count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.openvpn_client_static_addresses_enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "static-client-addresses.sh.sh"
+  key    = "static-client-addresses.sh"
   content = templatefile("${path.module}/scripts/static-client-addresses.sh.tftpl", {
     client_static_network      = var.openvpn_client_static_network,
     client_static_network_mask = var.openvpn_client_static_network_mask
