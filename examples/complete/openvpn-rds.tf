@@ -1,26 +1,26 @@
 #------------------------------------------------------------------------------
 # EC2 VPN RDS Labels
 #------------------------------------------------------------------------------
-module "rds_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "rds_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
   name    = "rds"
 }
 
-module "rds_secrets_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.rds_meta.context
+module "rds_secrets_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.rds_context.self
   attributes = ["configuration"]
 }
 
-module "rds_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
+module "rds_dns_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.dns_context.self
 
-  name = "${module.rds_meta.stage}-${module.rds_meta.name}"
+  name = "${module.rds_context.stage}-${module.rds_context.name}"
 }
 
 
@@ -28,18 +28,18 @@ module "rds_dns_meta" {
 # EC2 VPN RDS Secrets
 #------------------------------------------------------------------------------
 resource "aws_secretsmanager_secret" "rds" {
-  count       = module.rds_meta.enabled ? 1 : 0
-  name_prefix = "${module.rds_secrets_meta.id}-"
-  tags        = module.rds_secrets_meta.tags
+  count       = module.rds_context.enabled ? 1 : 0
+  name_prefix = "${module.rds_secrets_context.id}-"
+  tags        = module.rds_secrets_context.tags
   kms_key_id  = aws_kms_key.rds[0].id
-  description = "Environment Variables for  ${title(module.rds_meta.id_full)}"
+  description = "Environment Variables for  ${title(module.rds_context.id_full)}"
   lifecycle {
     prevent_destroy = false
   }
 }
 
 resource "aws_secretsmanager_secret_version" "rds" {
-  count     = module.rds_meta.enabled ? 1 : 0
+  count     = module.rds_context.enabled ? 1 : 0
   secret_id = aws_secretsmanager_secret.rds[0].id
   lifecycle {
     ignore_changes  = [secret_string, secret_binary]
@@ -53,7 +53,7 @@ resource "aws_secretsmanager_secret_version" "rds" {
 }
 
 data "aws_secretsmanager_secret_version" "rds" {
-  count         = module.rds_meta.enabled ? 1 : 0
+  count         = module.rds_context.enabled ? 1 : 0
   depends_on    = [aws_secretsmanager_secret_version.rds]
   secret_id     = aws_secretsmanager_secret.rds[0].id
   version_stage = "AWSCURRENT"
@@ -64,21 +64,21 @@ data "aws_secretsmanager_secret_version" "rds" {
 # EC2 VPN RDS
 #------------------------------------------------------------------------------
 resource "aws_kms_key" "rds" {
-  count                   = module.rds_meta.enabled ? 1 : 0
-  description             = "${module.rds_meta.id}-key"
+  count                   = module.rds_context.enabled ? 1 : 0
+  description             = "${module.rds_context.id}-key"
   deletion_window_in_days = 30
-  tags                    = module.rds_meta.tags
+  tags                    = module.rds_context.tags
 }
 
 locals {
-  db_name = replace(module.rds_meta.id, "-", "_")
+  db_name = replace(module.rds_context.id, "-", "_")
 }
 
 module "rds" {
   source  = "app.terraform.io/SevenPico/rds/aws"
   version = "0.38.4.1"
-  context = module.rds_meta.context
-  enabled = module.rds_meta.enabled
+  context = module.rds_context.self
+  enabled = module.rds_context.enabled
 
   #Required
   allocated_storage            = 100
@@ -90,7 +90,7 @@ module "rds" {
   engine_version               = "8.0.23"
   instance_class               = "db.t2.small"
   security_group_ids           = []
-  subnet_ids                   = module.vpc_subnets_meta.enabled ? module.vpc_subnets.private_subnet_ids : []
+  subnet_ids                   = module.vpc_subnets_context.enabled ? module.vpc_subnets.private_subnet_ids : []
   vpc_id                       = module.vpc.vpc_id
 
   # Optional
@@ -110,7 +110,7 @@ module "rds" {
   dns_zone_id                           = join("", aws_route53_zone.private[*].id)
   enabled_cloudwatch_logs_exports       = []
   final_snapshot_identifier             = ""
-  host_name                             = module.rds_dns_meta.id
+  host_name                             = module.rds_dns_context.id
   iam_database_authentication_enabled   = false
   iops                                  = 0
   kms_key_arn                           = one(aws_kms_key.rds[*].arn)
@@ -134,7 +134,7 @@ module "rds" {
 }
 
 resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_backend" {
-  count                    = module.rds_meta.enabled ? 1 : 0
+  count                    = module.rds_context.enabled ? 1 : 0
   security_group_id        = module.rds.security_group_id
   type                     = "ingress"
   from_port                = var.rds_port
@@ -142,11 +142,11 @@ resource "aws_security_group_rule" "allow_ingress_from_openvpn_ec2_to_mysql_back
   protocol                 = "tcp"
   source_security_group_id = module.openvpn.security_group_id
   self                     = null
-  description              = "Allow connections from ${module.this.id}"
+  description              = "Allow connections from ${module.context.id}"
 }
 
 resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backend" {
-  count                    = module.rds_meta.enabled ? 1 : 0
+  count                    = module.rds_context.enabled ? 1 : 0
   security_group_id        = module.openvpn.security_group_id
   type                     = "egress"
   from_port                = var.rds_port
@@ -154,5 +154,5 @@ resource "aws_security_group_rule" "allow_egress_from_openvpn_ec2_to_mysql_backe
   protocol                 = "tcp"
   source_security_group_id = module.rds.security_group_id
   self                     = null
-  description              = "Allow connections to ${module.rds_meta.id}"
+  description              = "Allow connections to ${module.rds_context.id}"
 }

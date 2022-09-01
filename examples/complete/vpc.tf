@@ -1,17 +1,17 @@
 #------------------------------------------------------------------------------
 # VPC Labels
 #------------------------------------------------------------------------------
-module "vpc_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "vpc_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
   name    = "vpc"
 }
 
-module "vpc_subnets_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.vpc_meta.context
+module "vpc_subnets_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.vpc_context.self
   name    = "subnet"
 }
 
@@ -22,7 +22,7 @@ module "vpc_subnets_meta" {
 module "vpc" {
   source  = "registry.terraform.io/cloudposse/vpc/aws"
   version = "0.28.1"
-  context = module.vpc_meta.context
+  context = module.vpc_context.self
 
   cidr_block                                      = var.vpc_cidr_block
   additional_cidr_blocks                          = []
@@ -51,7 +51,7 @@ module "vpc" {
 module "vpc_subnets" {
   source  = "registry.terraform.io/cloudposse/dynamic-subnets/aws"
   version = "0.39.8"
-  context = module.vpc_subnets_meta.context
+  context = module.vpc_subnets_context.self
 
   availability_zones                   = var.availability_zones
   cidr_block                           = var.vpc_cidr_block

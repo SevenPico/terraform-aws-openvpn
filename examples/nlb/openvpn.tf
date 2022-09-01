@@ -1,16 +1,16 @@
 #------------------------------------------------------------------------------
 # OpenVPN Labels
 #------------------------------------------------------------------------------
-module "openvpn_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "openvpn_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
 }
 
-module "openvpn_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
+module "openvpn_dns_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.dns_context.self
   name    = "vpn"
 }
 
@@ -20,7 +20,7 @@ module "openvpn_dns_meta" {
 #------------------------------------------------------------------------------
 module "openvpn" {
   source     = "../.."
-  context    = module.openvpn_meta.context
+  context    = module.openvpn_context.self
   depends_on = [module.ssl_certificate]
 
   # Required
@@ -28,7 +28,7 @@ module "openvpn" {
   vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
-  openvpn_hostname           = module.openvpn_dns_meta.id
+  openvpn_hostname           = module.openvpn_dns_context.id
 
   #Optional
   create_ec2_autoscale_sns_topic             = false
@@ -90,7 +90,7 @@ module "openvpn" {
 #}
 #
 #resource "aws_security_group_rule" "openvpn_vpc_link" {
-#  count                    = module.openvpn_meta.enabled ? length(local.openvpn_sg_rules) : 0
+#  count                    = module.openvpn_context.enabled ? length(local.openvpn_sg_rules) : 0
 #  from_port                = 443
 #  protocol                 = "tcp"
 #  security_group_id        = module.openvpn.security_group_id
@@ -104,7 +104,7 @@ module "openvpn" {
 
 # Delays VPN initialization until all resources are in place
 resource "null_resource" "openvpn_set_autoscale_counts" {
-  count = module.openvpn_meta.enabled ? 1 : 0
+  count = module.openvpn_context.enabled ? 1 : 0
   provisioner "local-exec" {
     command = join(" ", [
       "aws", "autoscaling", "update-auto-scaling-group",
@@ -121,7 +121,7 @@ resource "null_resource" "openvpn_set_autoscale_counts" {
 
 module "reverse_routing_script" {
   source     = "../../modules/reverse-routing-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id     = module.openvpn.ssm_script_bucket_id
@@ -136,7 +136,7 @@ module "reverse_routing_script" {
 
 #module "static_client_addresses_script" {
 #  source     = "../../modules/static-client-addresses-script"
-#  context    = module.this.context
+#  context    = module.context.self
 #  depends_on = [module.openvpn]
 #
 #  bucket_id                          = module.openvpn.ssm_script_bucket_id
@@ -148,7 +148,7 @@ module "reverse_routing_script" {
 
 module "openvpn_ssl_config_script" {
   source     = "../../modules/ssl-config-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id              = module.openvpn.ssm_script_bucket_id
@@ -163,9 +163,9 @@ module "openvpn_ssl_config_script" {
 # OpenVPN NLB DNS Records
 # ------------------------------------------------------------------------------
 resource "aws_route53_record" "openvpn_nlb" {
-  count   = module.openvpn_meta.enabled ? 1 : 0
+  count   = module.openvpn_context.enabled ? 1 : 0
   zone_id = aws_route53_zone.public[0].id
-  name    = module.openvpn_dns_meta.id
+  name    = module.openvpn_dns_context.id
   type    = "A"
   alias {
     name                   = module.openvpn.nlb_dns_name
@@ -175,9 +175,9 @@ resource "aws_route53_record" "openvpn_nlb" {
 }
 
 #resource "aws_route53_record" "openvpn_nlb_private_zone" {
-#  count   = module.openvpn_meta.enabled ? 1 : 0
+#  count   = module.openvpn_context.enabled ? 1 : 0
 #  zone_id = aws_route53_zone.private[0].id
-#  name    = module.openvpn_dns_meta.id
+#  name    = module.openvpn_dns_context.id
 #  type    = "A"
 #  alias {
 #    name                   = module.openvpn.nlb_dns_name

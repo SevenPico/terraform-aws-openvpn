@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # SSL Certificate Meta
 # ------------------------------------------------------------------------------
-module "ssl_certificate_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
+module "ssl_certificate_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
   attributes = ["ssl"]
 }
 
@@ -14,7 +14,7 @@ module "ssl_certificate_meta" {
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
   source  = "../../../terraform-aws-ssl-certificate"
-  context = module.ssl_certificate_meta.context
+  context = module.ssl_certificate_context.self
 
   additional_secrets                = { EXAMPLE = "example value" }
   create_mode                       = "LetsEncrypt"

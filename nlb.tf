@@ -1,20 +1,20 @@
 # ------------------------------------------------------------------------------
 # NLB Labels
 # ------------------------------------------------------------------------------
-module "nlb_meta" {
-  source          = "registry.terraform.io/cloudposse/label/null"
-  version         = "0.25.0"
-  context         = module.this.context
-  enabled         = module.this.enabled && var.create_nlb
+module "nlb_context" {
+  source          = "app.terraform.io/SevenPico/context/null"
+  version         = "1.0.2"
+  context         = module.context.self
+  enabled         = module.context.enabled && var.create_nlb
   attributes      = ["nlb"]
   id_length_limit = 32
 }
 
-module "nlb_tgt_meta" {
+module "nlb_tgt_context" {
   count      = length(local.nlb_listener_protocols)
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.nlb_meta.context
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.nlb_context.self
   attributes = [local.nlb_listener_ports[count.index], "tgt"]
 }
 
@@ -29,7 +29,7 @@ locals {
     {
       elb_name : null
       target_group_arn : x.arn
-      container_name : module.ec2_autoscale_group_meta.id
+      container_name : module.ec2_autoscale_group_context.id
       container_port : x.port
     }
   ]
@@ -42,10 +42,10 @@ locals {
 module "nlb" {
   source  = "app.terraform.io/SevenPico/nlb/aws"
   version = "0.8.2.1"
-  context = module.nlb_meta.context
+  context = module.nlb_context.self
 
   access_logs_enabled               = var.nlb_access_logs_s3_bucket_id != null
-  access_logs_prefix                = var.nlb_access_logs_prefix_override == null ? module.nlb_meta.id : var.nlb_access_logs_prefix_override
+  access_logs_prefix                = var.nlb_access_logs_prefix_override == null ? module.nlb_context.id : var.nlb_access_logs_prefix_override
   access_logs_s3_bucket_id          = var.nlb_access_logs_s3_bucket_id
   certificate_arn                   = var.nlb_acm_certificate_arn
   create_default_target_group       = false
@@ -80,8 +80,8 @@ module "nlb" {
 # NLB Target Groups and Listeners
 # ------------------------------------------------------------------------------
 resource "aws_lb_target_group" "nlb" {
-  count                = module.nlb_meta.enabled ? length(local.nlb_target_protocols) : 0
-  name                 = module.nlb_tgt_meta[count.index].id
+  count                = module.nlb_context.enabled ? length(local.nlb_target_protocols) : 0
+  name                 = module.nlb_tgt_context[count.index].id
   port                 = local.nlb_target_ports[count.index]
   protocol             = local.nlb_target_protocols[count.index]
   vpc_id               = var.vpc_id
@@ -99,11 +99,11 @@ resource "aws_lb_target_group" "nlb" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = module.nlb_tgt_meta[count.index].tags
+  tags = module.nlb_tgt_context[count.index].tags
 }
 
 resource "aws_lb_listener" "nlb" {
-  count             = module.nlb_meta.enabled ? length(local.nlb_listener_protocols) : 0
+  count             = module.nlb_context.enabled ? length(local.nlb_listener_protocols) : 0
   load_balancer_arn = module.nlb.nlb_arn
   port              = local.nlb_listener_ports[count.index]
   protocol          = local.nlb_listener_protocols[count.index]

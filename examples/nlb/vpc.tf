@@ -1,25 +1,25 @@
 #------------------------------------------------------------------------------
 # VPC Meta
 #------------------------------------------------------------------------------
-module "vpc_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
+module "vpc_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
   attributes = ["vpc"]
 }
 
-module "vpc_subnets_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.vpc_meta.context
+module "vpc_subnets_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.vpc_context.self
   attributes = ["subnet"]
 }
 
-module "vpc_endpoint_sg_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
-  enabled = module.this.enabled && local.create_private_links
+module "vpc_endpoint_sg_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
+  enabled = module.context.enabled && local.create_private_links
 }
 
 
@@ -29,7 +29,7 @@ module "vpc_endpoint_sg_meta" {
 module "vpc" {
   source  = "registry.terraform.io/cloudposse/vpc/aws"
   version = "0.28.1"
-  context = module.vpc_meta.context
+  context = module.vpc_context.self
 
   cidr_block                                      = var.vpc_cidr_block
   additional_cidr_blocks                          = []
@@ -58,7 +58,7 @@ module "vpc" {
 module "vpc_subnets" {
   source  = "registry.terraform.io/cloudposse/dynamic-subnets/aws"
   version = "0.39.8"
-  context = module.vpc_subnets_meta.context
+  context = module.vpc_subnets_context.self
 
   availability_zones                   = var.availability_zones
   cidr_block                           = var.vpc_cidr_block
@@ -145,7 +145,7 @@ locals {
 module "vpc_endpoint_sg" {
   source     = "registry.terraform.io/cloudposse/security-group/aws"
   version    = "0.4.2"
-  context    = module.vpc_endpoint_sg_meta.context
+  context    = module.vpc_endpoint_sg_context.self
   attributes = ["vpc", "endpoint"]
 
   allow_all_egress              = false
@@ -179,8 +179,8 @@ module "vpc_endpoint_sg" {
 module "vpc_endpoints" {
   source  = "registry.terraform.io/cloudposse/vpc/aws//modules/vpc-endpoints"
   version = "0.28.1"
-  context = module.vpc_meta.context
-  enabled = module.vpc_meta.enabled && local.create_private_links
+  context = module.vpc_context.self
+  enabled = module.vpc_context.enabled && local.create_private_links
 
   vpc_id = module.vpc.vpc_id
 
@@ -222,7 +222,7 @@ module "vpc_endpoints" {
 }
 
 resource "aws_vpc_endpoint_route_table_association" "vpc_gateway_endpoint" {
-  count           = module.vpc_meta.enabled && length(module.vpc_endpoints.gateway_vpc_endpoints) > 0 ? length(var.availability_zones) : 0
+  count           = module.vpc_context.enabled && length(module.vpc_endpoints.gateway_vpc_endpoints) > 0 ? length(var.availability_zones) : 0
   route_table_id  = module.vpc_subnets.private_route_table_ids[count.index]
   vpc_endpoint_id = module.vpc_endpoints.gateway_vpc_endpoints[0].id
 }

@@ -1,14 +1,14 @@
 data "aws_route53_zone" "root" {
-  count = module.dns_meta.enabled ? 1 : 0
+  count = module.dns_context.enabled ? 1 : 0
   name  = var.root_domain
 
 }
 
 
-module "dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "dns_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
 
   namespace           = var.common_name
   stage               = null
@@ -26,14 +26,14 @@ module "dns_meta" {
 }
 
 resource "aws_route53_zone" "public" {
-  count = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
-  name  = module.dns_meta.id
-  tags  = module.dns_meta.tags
+  count = module.dns_context.enabled && module.vpc_context.enabled ? 1 : 0
+  name  = module.dns_context.id
+  tags  = module.dns_context.tags
 }
 
 resource "aws_route53_record" "ns" {
-  count   = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
-  name    = module.dns_meta.id
+  count   = module.dns_context.enabled && module.vpc_context.enabled ? 1 : 0
+  name    = module.dns_context.id
   type    = "NS"
   zone_id = join("", data.aws_route53_zone.root[*].id)
   records = length(aws_route53_zone.public) > 0 ? aws_route53_zone.public[0].name_servers : []
@@ -41,12 +41,12 @@ resource "aws_route53_record" "ns" {
 }
 
 #resource "aws_route53_zone" "private" {
-#  count = module.dns_meta.enabled && module.vpc_meta.enabled ? 1 : 0
-#  name  = module.dns_meta.id
+#  count = module.dns_context.enabled && module.vpc_context.enabled ? 1 : 0
+#  name  = module.dns_context.id
 #  vpc {
 #    vpc_id = module.vpc.vpc_id
 #  }
-#  tags = module.dns_meta.tags
+#  tags = module.dns_context.tags
 #}
 
 

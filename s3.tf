@@ -1,7 +1,7 @@
-module "ec2_autoscale_group_scripts_bucket_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.ec2_autoscale_group_meta.context
+module "ec2_autoscale_group_scripts_bucket_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.ec2_autoscale_group_context.self
   attributes = ["scripts"]
 }
 
@@ -25,7 +25,7 @@ locals {
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
   version = "3.1.1"
-  context = module.ec2_autoscale_group_scripts_bucket_meta.context
+  context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
   allow_encrypted_uploads_only = false
@@ -72,7 +72,7 @@ module "ec2_autoscale_group_scripts_bucket" {
 }
 
 resource "aws_s3_object" "init_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
@@ -81,7 +81,7 @@ resource "aws_s3_object" "init_sh" {
 }
 
 resource "aws_s3_object" "openvpn_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled ? 1 : 0
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "openvpn.sh"
   content = templatefile("${path.module}/scripts/openvpn.sh.tftpl", {
@@ -102,7 +102,7 @@ resource "aws_s3_object" "openvpn_sh" {
 }
 
 resource "aws_s3_object" "static_client_addresses_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_meta.enabled && var.openvpn_client_static_addresses_enabled ? 1 : 0
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.openvpn_client_static_addresses_enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
   key    = "static-client-addresses.sh"
   content = templatefile("${path.module}/scripts/static-client-addresses.sh.tftpl", {

@@ -1,12 +1,12 @@
-module "ssl_policy_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
+module "ssl_policy_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
   attributes = ["ssl", "policy"]
 }
 
 resource "aws_s3_object" "ssl_cert_sh" {
-  count  = module.ssl_policy_meta.enabled ? 1 : 0
+  count  = module.ssl_policy_context.enabled ? 1 : 0
   bucket = var.bucket_id
   key    = var.script_name
   content = templatefile("${path.module}/ssl.sh.tftpl", {
@@ -19,12 +19,12 @@ resource "aws_s3_object" "ssl_cert_sh" {
 }
 
 data "aws_iam_role" "ec2_role" {
-  count = module.ssl_policy_meta.enabled ? 1 : 0
+  count = module.ssl_policy_context.enabled ? 1 : 0
   name  = var.ec2_role_name
 }
 
 data "aws_iam_policy_document" "ssl_access" {
-  count   = module.ssl_policy_meta.enabled ? 1 : 0
+  count   = module.ssl_policy_context.enabled ? 1 : 0
   version = "2012-10-17"
   statement {
     sid = "DecryptSslKey"
@@ -50,9 +50,9 @@ data "aws_iam_policy_document" "ssl_access" {
 }
 
 resource "aws_iam_role_policy" "ssl_access" {
-  count  = module.ssl_policy_meta.enabled ? 1 : 0
+  count  = module.ssl_policy_context.enabled ? 1 : 0
   policy = join("", data.aws_iam_policy_document.ssl_access[*].json)
   role   = var.ec2_role_name
-  name   = module.ssl_policy_meta.id
+  name   = module.ssl_policy_context.id
 }
 

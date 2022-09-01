@@ -1,24 +1,24 @@
 #------------------------------------------------------------------------------
 # Labels
 #------------------------------------------------------------------------------
-module "lambda_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
+module "lambda_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
   attributes = ["lambda"]
 }
 
-module "lambda_role_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.lambda_meta.context
+module "lambda_role_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.lambda_context.self
   attributes = ["role"]
 }
 
-module "sg_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.lambda_meta.context
+module "sg_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.lambda_context.self
   attributes = ["sg"]
 }
 
@@ -27,7 +27,7 @@ module "sg_meta" {
 # IAM Role
 #------------------------------------------------------------------------------
 data "aws_iam_policy_document" "lambda_assume_role" {
-  count = module.lambda_role_meta.enabled ? 1 : 0
+  count = module.lambda_role_context.enabled ? 1 : 0
   statement {
     actions = ["sts:AssumeRole"]
     effect  = "Allow"
@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 data "aws_iam_policy_document" "this" {
-  count = module.lambda_role_meta.enabled ? 1 : 0
+  count = module.lambda_role_context.enabled ? 1 : 0
   statement {
     actions = [
       "logs:CreateLogGroup",
@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "this" {
 }
 
 data "aws_iam_policy_document" "sns" {
-  count = module.lambda_role_meta.enabled && var.results_sns_arn != null ? 1 : 0
+  count = module.lambda_role_context.enabled && var.results_sns_arn != null ? 1 : 0
   statement {
     actions = [
       "sns:Publish"
@@ -93,29 +93,29 @@ data "aws_iam_policy_document" "sns" {
 }
 
 resource "aws_iam_role" "this" {
-  count              = module.lambda_role_meta.enabled ? 1 : 0
-  name               = module.lambda_role_meta.id
+  count              = module.lambda_role_context.enabled ? 1 : 0
+  name               = module.lambda_role_context.id
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role[0].json
-  tags               = module.this.tags
+  tags               = module.context.tags
   description        = "Lambda permissions to perform VPC Route Table updates."
 }
 
 resource "aws_iam_role_policy" "this" {
-  count  = module.lambda_role_meta.enabled ? 1 : 0
-  name   = "${module.lambda_role_meta.id}-policy"
+  count  = module.lambda_role_context.enabled ? 1 : 0
+  name   = "${module.lambda_role_context.id}-policy"
   role   = aws_iam_role.this[0].name
   policy = data.aws_iam_policy_document.this[0].json
 }
 
 resource "aws_iam_role_policy" "this_sns" {
-  count  = module.lambda_role_meta.enabled && var.results_sns_arn != null ? 1 : 0
-  name   = "${module.lambda_role_meta.id}-sns-policy"
+  count  = module.lambda_role_context.enabled && var.results_sns_arn != null ? 1 : 0
+  name   = "${module.lambda_role_context.id}-sns-policy"
   role   = aws_iam_role.this[0].name
   policy = data.aws_iam_policy_document.sns[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
-  count      = module.lambda_role_meta.enabled ? 1 : 0
+  count      = module.lambda_role_context.enabled ? 1 : 0
   role       = aws_iam_role.this[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
@@ -127,7 +127,7 @@ resource "aws_iam_role_policy_attachment" "this" {
 #module "artifact" {
 #  source      = "registry.terraform.io/cloudposse/module-artifact/external"
 #  version     = "0.7.1"
-#  enabled     = module.this.enabled
+#  enabled     = module.context.enabled
 #  filename    = "lambda.zip"
 #  module_name = "terraform-aws-lambda-elasticsearch-cleanup"
 #  module_path = path.module
@@ -136,7 +136,7 @@ resource "aws_iam_role_policy_attachment" "this" {
 #}
 
 data "archive_file" "artifact" {
-  count       = module.lambda_meta.enabled ? 1 : 0
+  count       = module.lambda_context.enabled ? 1 : 0
   type        = "zip"
   source_dir  = "${path.module}/lambda-src/"
   output_path = "${path.module}/temp/lambda.zip"
@@ -147,21 +147,21 @@ data "archive_file" "artifact" {
 # Lambda Cloudwatch Log Group
 #------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "this" {
-  count             = module.lambda_meta.enabled ? 1 : 0
-  name              = "/aws/lambda/${module.lambda_meta.id}"
+  count             = module.lambda_context.enabled ? 1 : 0
+  name              = "/aws/lambda/${module.lambda_context.id}"
   retention_in_days = var.cloudwatch_log_retention_days
-  tags              = module.this.tags
+  tags              = module.context.tags
 }
 
 #------------------------------------------------------------------------------
 # Lambda Security Group
 #------------------------------------------------------------------------------
 resource "aws_security_group" "default" {
-  count       = module.this.enabled ? 1 : 0
-  name        = module.sg_meta.id
-  description = "Security group rules for ${module.lambda_meta.id}"
+  count       = module.context.enabled ? 1 : 0
+  name        = module.sg_context.id
+  description = "Security group rules for ${module.lambda_context.id}"
   vpc_id      = var.vpc_id
-  tags        = module.sg_meta.tags
+  tags        = module.sg_context.tags
 }
 
 
@@ -169,16 +169,16 @@ resource "aws_security_group" "default" {
 # Lambda Function
 #------------------------------------------------------------------------------
 resource "aws_lambda_function" "this" {
-  count            = module.lambda_meta.enabled ? 1 : 0
+  count            = module.lambda_context.enabled ? 1 : 0
   filename         = data.archive_file.artifact[0].output_path
-  function_name    = module.lambda_meta.id
+  function_name    = module.lambda_context.id
   description      = "Update VPC Route Tables with routes to EC2 instances in the associated Autoscale Group."
   timeout          = var.lambda_timeout
   runtime          = var.lambda_runtime
   role             = aws_iam_role.this[0].arn
   handler          = "app.lambda_handler"
   source_code_hash = data.archive_file.artifact[0].output_base64sha256
-  tags             = module.lambda_meta.tags
+  tags             = module.lambda_context.tags
   layers           = [
     "arn:aws:lambda:${data.aws_region.current[0].name}:017000801446:layer:AWSLambdaPowertoolsPython:19"
   ]
@@ -206,7 +206,7 @@ resource "aws_lambda_function" "this" {
 # Lambda Function SNS Invocation Subscription
 #------------------------------------------------------------------------------
 resource "aws_lambda_permission" "this" {
-  count      = module.lambda_meta.enabled ? 1 : 0
+  count      = module.lambda_context.enabled ? 1 : 0
   depends_on = [aws_lambda_function.this]
 
   statement_id  = "AllowExecutionFromSNS"
@@ -217,7 +217,7 @@ resource "aws_lambda_permission" "this" {
 }
 
 resource "aws_sns_topic_subscription" "this" {
-  count      = module.lambda_meta.enabled ? 1 : 0
+  count      = module.lambda_context.enabled ? 1 : 0
   depends_on = [aws_lambda_permission.this]
 
   topic_arn = var.sns_source_topic_arn

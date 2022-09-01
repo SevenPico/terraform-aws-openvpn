@@ -1,19 +1,19 @@
 # ------------------------------------------------------------------------------
 # OpenVPN NLB Labels
 # ------------------------------------------------------------------------------
-module "openvpn_nlb_meta" {
-  source          = "registry.terraform.io/cloudposse/label/null"
-  version         = "0.25.0"
-  context         = module.openvpn_meta.context
+module "openvpn_nlb_context" {
+  source          = "app.terraform.io/SevenPico/context/null"
+  version         = "1.0.2"
+  context         = module.openvpn_context.self
   attributes      = ["nlb"]
   id_length_limit = 32
 }
 
-module "openvpn_nlb_tgt_meta" {
+module "openvpn_nlb_tgt_context" {
   count      = length(local.nlb_listener_protocols)
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.openvpn_nlb_meta.context
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.openvpn_nlb_context.self
   attributes = [local.nlb_listener_ports[count.index], "tgt"]
 }
 
@@ -28,7 +28,7 @@ locals {
     {
       elb_name : null
       target_group_arn : x.arn
-      container_name : module.openvpn_meta.id
+      container_name : module.openvpn_context.id
       container_port : x.port
     }
   ]
@@ -41,11 +41,11 @@ locals {
 module "openvpn_nlb" {
   source  = "app.terraform.io/SevenPico/nlb/aws"
   version = "0.8.2.1"
-  context = module.openvpn_nlb_meta.context
+  context = module.openvpn_nlb_context.self
 
   access_logs_enabled                     = false
-  access_logs_prefix                      = module.openvpn_nlb_meta.id
-  access_logs_s3_bucket_id                = module.openvpn_nlb_meta.id
+  access_logs_prefix                      = module.openvpn_nlb_context.id
+  access_logs_s3_bucket_id                = module.openvpn_nlb_context.id
   certificate_arn                         = module.ssl_certificate.acm_certificate_arn
   create_default_target_group             = false
   cross_zone_load_balancing_enabled       = true
@@ -88,8 +88,8 @@ module "openvpn_nlb" {
 # OpenVPN NLB Target Groups and Listeners
 # ------------------------------------------------------------------------------
 resource "aws_lb_target_group" "openvpn_nlb" {
-  count                = module.openvpn_nlb_meta.enabled ? length(local.nlb_target_protocols) : 0
-  name                 = module.openvpn_nlb_tgt_meta[count.index].id
+  count                = module.openvpn_nlb_context.enabled ? length(local.nlb_target_protocols) : 0
+  name                 = module.openvpn_nlb_tgt_context[count.index].id
   port                 = local.nlb_target_ports[count.index]
   protocol             = local.nlb_target_protocols[count.index]
   vpc_id               = module.vpc.vpc_id
@@ -107,11 +107,11 @@ resource "aws_lb_target_group" "openvpn_nlb" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = module.openvpn_nlb_tgt_meta[count.index].tags
+  tags = module.openvpn_nlb_tgt_context[count.index].tags
 }
 
 resource "aws_lb_listener" "openvpn_nlb" {
-  count             = module.openvpn_nlb_meta.enabled ? length(local.nlb_listener_protocols) : 0
+  count             = module.openvpn_nlb_context.enabled ? length(local.nlb_listener_protocols) : 0
   load_balancer_arn = module.openvpn_nlb.nlb_arn
   port              = local.nlb_listener_ports[count.index]
   protocol          = local.nlb_listener_protocols[count.index]
@@ -127,9 +127,9 @@ resource "aws_lb_listener" "openvpn_nlb" {
 # OpenVPN NLB DNS Records
 # ------------------------------------------------------------------------------
 resource "aws_route53_record" "openvpn_nlb" {
-  count    = module.openvpn_nlb_meta.enabled ? 1 : 0
+  count    = module.openvpn_nlb_context.enabled ? 1 : 0
   zone_id  = aws_route53_zone.public[0].id
-  name     = module.openvpn_dns_meta.id
+  name     = module.openvpn_dns_context.id
   type     = "A"
   alias {
     name                   = one(module.openvpn_nlb[*].nlb_dns_name)
@@ -139,9 +139,9 @@ resource "aws_route53_record" "openvpn_nlb" {
 }
 
 resource "aws_route53_record" "openvpn_nlb_private_zone" {
-  count   = module.openvpn_nlb_meta.enabled ? 1 : 0
+  count   = module.openvpn_nlb_context.enabled ? 1 : 0
   zone_id = aws_route53_zone.private[0].id
-  name    = module.openvpn_dns_meta.id
+  name    = module.openvpn_dns_context.id
   type    = "A"
   alias {
     name                   = one(module.openvpn_nlb[*].nlb_dns_name)

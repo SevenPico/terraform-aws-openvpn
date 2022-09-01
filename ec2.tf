@@ -25,17 +25,17 @@ locals {
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group Meta
 #------------------------------------------------------------------------------
-module "ec2_autoscale_group_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
+module "ec2_autoscale_group_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
   attributes = ["ec2", "asg"]
 }
 
-module "ec2_autoscale_group_sg_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.ec2_autoscale_group_meta.context
+module "ec2_autoscale_group_sg_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.ec2_autoscale_group_context.self
 }
 
 
@@ -43,8 +43,8 @@ module "ec2_autoscale_group_sg_meta" {
 # EC2 Cloudwatch Log Group
 #------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
-  count             = module.ec2_autoscale_group_meta.enabled && var.cloudwatch_enabled ? 1 : 0
-  name              = "/aws/ec2/${module.ec2_autoscale_group_meta.id}"
+  count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
+  name              = "/aws/ec2/${module.ec2_autoscale_group_context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
 
@@ -55,7 +55,7 @@ resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
 module "ec2_autoscale_group" {
   source  = "registry.terraform.io/cloudposse/ec2-autoscale-group/aws"
   version = "0.30.1"
-  context = module.ec2_autoscale_group_meta.context
+  context = module.ec2_autoscale_group_context.self
 
   instance_type    = var.ec2_autoscale_instance_type
   max_size         = var.ec2_autoscale_max_count
@@ -144,7 +144,7 @@ module "ec2_autoscale_group" {
 module "ec2_autoscale_group_sg" {
   source  = "registry.terraform.io/cloudposse/security-group/aws"
   version = "2.0.0-rc1"
-  context = module.ec2_autoscale_group_sg_meta.context
+  context = module.ec2_autoscale_group_sg_context.self
 
   vpc_id = var.vpc_id
 
@@ -183,7 +183,7 @@ module "ec2_autoscale_group_sg" {
   rules_map                     = {}
   security_group_create_timeout = "10m"
   security_group_delete_timeout = "15m"
-  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_meta.id}"
+  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_context.id}"
   security_group_name           = []
   target_security_group_id      = []
 }
@@ -191,7 +191,7 @@ module "ec2_autoscale_group_sg" {
 #module "ec2_autoscale_group_sg" {
 #  source  = "app.terraform.io/SevenPico/security-group/aws"
 #  version = "0.4.3.1"
-#  context = module.ec2_autoscale_group_sg_meta.context
+#  context = module.ec2_autoscale_group_sg_context.self
 #
 #  vpc_id = var.vpc_id
 #  rules = [
@@ -223,7 +223,7 @@ module "ec2_autoscale_group_sg" {
 #}
 
 resource "aws_security_group_rule" "ui_port" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -234,7 +234,7 @@ resource "aws_security_group_rule" "ui_port" {
 }
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
   from_port         = var.openvpn_daemon_tcp_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -245,7 +245,7 @@ resource "aws_security_group_rule" "daemon_tcp_port" {
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
-  count             = module.ec2_autoscale_group_sg_meta.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
   from_port         = var.openvpn_daemon_udp_port
   protocol          = "udp"
   security_group_id = module.ec2_autoscale_group_sg.id

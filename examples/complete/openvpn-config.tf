@@ -8,7 +8,7 @@ locals {
 
 module "openvpn_mysql_config_script" {
   source     = "../../modules/mysql-config-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id                  = module.openvpn.ssm_script_bucket_id
@@ -22,7 +22,7 @@ module "openvpn_mysql_config_script" {
 
 module "openvpn_ssl_config_script" {
   source     = "../../modules/ssl-config-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id              = module.openvpn.ssm_script_bucket_id
@@ -34,7 +34,7 @@ module "openvpn_ssl_config_script" {
 
 module "openvpn_license_import_script" {
   source     = "../../modules/license-import-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id           = module.openvpn.ssm_script_bucket_id
@@ -47,7 +47,7 @@ module "openvpn_license_import_script" {
 
 module "openvpn_network_config_script" {
   source     = "../../modules/network-config-script"
-  context    = module.this.context
+  context    = module.context.self
   depends_on = [module.openvpn]
 
   bucket_id                            = module.openvpn.ssm_script_bucket_id

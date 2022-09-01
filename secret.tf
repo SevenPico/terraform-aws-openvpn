@@ -1,23 +1,23 @@
 #------------------------------------------------------------------------------
 # Secrets Manager Labels
 #------------------------------------------------------------------------------
-module "secret_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.this.context
-  enabled = module.this.enabled && var.create_openvpn_secret
+module "secret_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.context.self
+  enabled = module.context.enabled && var.create_openvpn_secret
   attributes = ["secret"]
 }
 
-module "secret_kms_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.secret_meta.context
+module "secret_kms_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.secret_context.self
 }
 
 locals {
-  secret_arn = module.secret_meta.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
-  secret_kms_key_arn = module.secret_meta.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
+  secret_arn = module.secret_context.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
+  secret_kms_key_arn = module.secret_context.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
@@ -27,11 +27,11 @@ locals {
 module "secret_kms_key" {
   source  = "registry.terraform.io/cloudposse/kms-key/aws"
   version = "0.12.1"
-  context = module.secret_kms_meta.context
+  context = module.secret_kms_context.self
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30
-  description              = "KMS key for ${module.secret_meta.id}"
+  description              = "KMS key for ${module.secret_context.id}"
   enable_key_rotation      = var.openvpn_secret_enable_kms_key_rotation
   key_usage                = "ENCRYPT_DECRYPT"
 }
@@ -41,11 +41,11 @@ module "secret_kms_key" {
 # Secrets Manager
 #------------------------------------------------------------------------------
 resource "aws_secretsmanager_secret" "this" {
-  count       = module.secret_meta.enabled ? 1 : 0
-  name_prefix = "${module.secret_meta.id}-"
-  tags        = module.secret_meta.tags
+  count       = module.secret_context.enabled ? 1 : 0
+  name_prefix = "${module.secret_context.id}-"
+  tags        = module.secret_context.tags
   kms_key_id  = module.secret_kms_key.key_id
-  description = "Secrets and environment variables for ${module.this.id}"
+  description = "Secrets and environment variables for ${module.context.id}"
   lifecycle {
     ignore_changes  = [name, description, tags]
     prevent_destroy = false
@@ -53,7 +53,7 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  count     = module.secret_meta.enabled ? 1 : 0
+  count     = module.secret_context.enabled ? 1 : 0
   secret_id = one(aws_secretsmanager_secret.this[*].id)
   lifecycle {
     ignore_changes  = [secret_string, secret_binary]
@@ -67,7 +67,7 @@ resource "aws_secretsmanager_secret_version" "this" {
 }
 
 resource "random_password" "admin" {
-  count   = module.secret_meta.enabled ? 1 : 0
+  count   = module.secret_context.enabled ? 1 : 0
   length  = 32
   special = false
 }

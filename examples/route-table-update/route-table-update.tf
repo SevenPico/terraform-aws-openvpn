@@ -1,6 +1,6 @@
 module "route_table_update" {
   source  = "../../modules/route-table-update"
-  context = module.this.context
+  context = module.context.self
 
   artifact_git_ref                 = ""
   artifact_url                     = ""
@@ -33,7 +33,7 @@ resource "null_resource" "openvpn_set_autoscale_counts" {
 }
 
 resource "aws_security_group_rule" "this" {
-  count                    = module.this.enabled ? 1 : 0
+  count                    = module.context.enabled ? 1 : 0
   security_group_id        = module.route_table_update.security_group_id
   protocol                 = "tcp"
   type                     = "egress"
@@ -47,17 +47,17 @@ resource "aws_security_group_rule" "this" {
 #------------------------------------------------------------------------------
 # Private Link
 #------------------------------------------------------------------------------
-module "vpc_endpoints_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.vpc_meta.context
+module "vpc_endpoints_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.vpc_context.self
   attributes = ["endpoints"]
 }
 
 module "vpc_endpoints" {
   source  = "registry.terraform.io/cloudposse/vpc/aws//modules/vpc-endpoints"
   version = "0.28.1"
-  context = module.vpc_endpoints_meta.context
+  context = module.vpc_endpoints_context.self
 
   vpc_id                = module.vpc.vpc_id
   gateway_vpc_endpoints = {}
@@ -72,16 +72,16 @@ module "vpc_endpoints" {
   }
 }
 
-module "vpc_endpoint_ec2_sg_meta" {
-  source     = "registry.terraform.io/cloudposse/label/null"
-  version    = "0.25.0"
-  context    = module.vpc_endpoints_meta.context
+module "vpc_endpoint_ec2_sg_context" {
+  source     = "app.terraform.io/SevenPico/context/null"
+  version    = "1.0.2"
+  context    = module.vpc_endpoints_context.self
   attributes = ["sg"]
 }
 
 resource "aws_security_group" "vpc_endpoint_ec2_sg" {
-  count = module.vpc_endpoints_meta.enabled ? 1 : 0
-  name = module.vpc_endpoint_ec2_sg_meta.id
+  count = module.vpc_endpoints_context.enabled ? 1 : 0
+  name = module.vpc_endpoint_ec2_sg_context.id
   vpc_id = module.vpc.vpc_id
   ingress {
     from_port   = 443
@@ -90,6 +90,6 @@ resource "aws_security_group" "vpc_endpoint_ec2_sg" {
     cidr_blocks = [module.vpc.vpc_cidr_block]
     description = "Security Group for EC2 Interface VPC Endpoint"
   }
-  tags = module.vpc_endpoint_ec2_sg_meta.tags
+  tags = module.vpc_endpoint_ec2_sg_context.tags
 }
 

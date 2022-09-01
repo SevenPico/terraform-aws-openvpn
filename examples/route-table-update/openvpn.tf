@@ -1,17 +1,17 @@
 #------------------------------------------------------------------------------
 # OpenVPN Labels
 #------------------------------------------------------------------------------
-module "openvpn_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.this.context
+module "openvpn_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.context.self
   name    = "vpn"
 }
 
-module "openvpn_dns_meta" {
-  source  = "registry.terraform.io/cloudposse/label/null"
-  version = "0.25.0"
-  context = module.dns_meta.context
+module "openvpn_dns_context" {
+  source  = "app.terraform.io/SevenPico/context/null"
+  version = "1.0.2"
+  context = module.dns_context.self
   name    = "vpn"
 }
 
@@ -21,14 +21,14 @@ module "openvpn_dns_meta" {
 #------------------------------------------------------------------------------
 module "openvpn" {
   source  = "../../../terraform-aws-openvpn"
-  context = module.openvpn_meta.context
+  context = module.openvpn_context.self
 
   # Required
   subnet_ids                 = module.vpc_subnets.public_subnet_ids
   vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
   vpc_id                     = module.vpc.vpc_id
   openvpn_dhcp_option_domain = var.common_name
-  openvpn_hostname           = module.openvpn_dns_meta.id
+  openvpn_hostname           = module.openvpn_dns_context.id
 
   # Optional
   create_ec2_autoscale_sns_topic = true
