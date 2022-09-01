@@ -19,7 +19,7 @@ module "vpc_subnets_context" {
 module "vpc" {
   source  = "registry.terraform.io/cloudposse/vpc/aws"
   version = "0.28.1"
-  context = module.vpc_context.self
+  context = module.vpc_context.legacy
 
   cidr_block                                      = var.vpc_cidr_block
   additional_cidr_blocks                          = []

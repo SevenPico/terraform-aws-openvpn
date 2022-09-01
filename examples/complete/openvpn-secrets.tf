@@ -22,7 +22,7 @@ module "openvpn_secret_kms_context" {
 module "openvpn_secret_kms_key" {
   source  = "registry.terraform.io/cloudposse/kms-key/aws"
   version = "0.12.1"
-  context = module.openvpn_secret_kms_context.self
+  context = module.openvpn_secret_kms_context.legacy
 
   customer_master_key_spec = "SYMMETRIC_DEFAULT"
   deletion_window_in_days  = 30

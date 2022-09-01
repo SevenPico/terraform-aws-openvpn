@@ -55,7 +55,7 @@ resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
 module "ec2_autoscale_group" {
   source  = "registry.terraform.io/cloudposse/ec2-autoscale-group/aws"
   version = "0.30.1"
-  context = module.ec2_autoscale_group_context.self
+  context = module.ec2_autoscale_group_context.legacy
 
   instance_type    = var.ec2_autoscale_instance_type
   max_size         = var.ec2_autoscale_max_count
@@ -144,7 +144,7 @@ module "ec2_autoscale_group" {
 module "ec2_autoscale_group_sg" {
   source  = "registry.terraform.io/cloudposse/security-group/aws"
   version = "2.0.0-rc1"
-  context = module.ec2_autoscale_group_sg_context.self
+  context = module.ec2_autoscale_group_sg_context.legacy
 
   vpc_id = var.vpc_id
 

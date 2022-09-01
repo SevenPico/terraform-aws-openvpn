@@ -57,7 +57,7 @@ module "vpc_endpoints_context" {
 module "vpc_endpoints" {
   source  = "registry.terraform.io/cloudposse/vpc/aws//modules/vpc-endpoints"
   version = "0.28.1"
-  context = module.vpc_endpoints_context.self
+  context = module.vpc_endpoints_context.legacy
 
   vpc_id                = module.vpc.vpc_id
   gateway_vpc_endpoints = {}
