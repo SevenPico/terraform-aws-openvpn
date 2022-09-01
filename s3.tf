@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "2.0.3.2"
+  version = "3.0.1"
   context = module.ec2_autoscale_group_scripts_bucket_meta.context
 
   acl                          = "private"
@@ -52,7 +52,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   lifecycle_configuration_rules = var.openvpn_s3_lifecycle_configuration_rules
   logging = var.openvpn_s3_access_logs_s3_bucket_id != null ? {
     bucket_name = var.openvpn_s3_access_logs_s3_bucket_id
-    prefix      = var.openvpn_s3_access_logs_prefix_override == null ? module.ec2_autoscale_group_scripts_bucket_meta.id : var.openvpn_s3_access_logs_prefix_override
+    prefix      = var.openvpn_s3_access_logs_prefix_override
   } : null
   object_lock_configuration     = null
   privileged_principal_actions  = []
