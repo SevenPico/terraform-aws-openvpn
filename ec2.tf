@@ -143,17 +143,21 @@ module "ec2_autoscale_group" {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_sg" {
   source  = "registry.terraform.io/cloudposse/security-group/aws"
-  version = "2.0.0-rc1"
+  version = "1.0.1"
   context = module.ec2_autoscale_group_sg_context.legacy
 
-  vpc_id = var.vpc_id
+  allow_all_egress              = true
+  create_before_destroy         = true
+  inline_rules_enabled          = false
+  security_group_create_timeout = "10m"
+  security_group_delete_timeout = "15m"
+  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_context.id}"
+  security_group_name           = []
+  target_security_group_id      = []
+  vpc_id                        = var.vpc_id
 
-  allow_all_egress           = true
-  create_before_destroy      = true
-  inline_rules_enabled       = false
-  preserve_security_group_id = false
-  revoke_rules_on_delete     = false
-  rule_matrix                = []
+  rules_map   = {}
+  rule_matrix = []
   rules = [
     {
       key                      = 1
@@ -180,12 +184,6 @@ module "ec2_autoscale_group_sg" {
       description              = "Allow https egress to Cloudflare."
     }
   ]
-  rules_map                     = {}
-  security_group_create_timeout = "10m"
-  security_group_delete_timeout = "15m"
-  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_context.id}"
-  security_group_name           = []
-  target_security_group_id      = []
 }
 
 #module "ec2_autoscale_group_sg" {
