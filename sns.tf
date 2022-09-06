@@ -21,7 +21,7 @@ resource "aws_sns_topic" "ec2_autoscale_group" {
 
 resource "aws_cloudwatch_log_group" "sns" {
   count             = module.ec2_autoscale_group_sns_context.enabled ? 1 : 0
-  name              = "sns/${one(data.aws_region.current[*].name)}/${one(data.aws_caller_identity.current[*].account_id)}/${module.ec2_autoscale_group_sns_context.id}"
+  name              = "sns/${data.aws_region.current.name}/${data.aws_caller_identity.current.account_id}/${module.ec2_autoscale_group_sns_context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
   tags              = module.ec2_autoscale_group_sns_context.tags
 }
