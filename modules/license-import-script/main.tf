@@ -23,7 +23,7 @@ resource "aws_s3_object" "this" {
   content = templatefile("${path.module}/license.sh.tftpl", {
     secret_arn = var.secrets_arn
     keyname    = var.secrets_licence_keyname
-    region     = data.aws_region.current[0].name
+    region     = data.aws_region.current.name
   })
 }
 

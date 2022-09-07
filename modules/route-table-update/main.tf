@@ -180,7 +180,7 @@ resource "aws_lambda_function" "this" {
   source_code_hash = data.archive_file.artifact[0].output_base64sha256
   tags             = module.lambda_context.tags
   layers           = [
-    "arn:aws:lambda:${data.aws_region.current[0].name}:017000801446:layer:AWSLambdaPowertoolsPython:19"
+    "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:19"
   ]
 
   dynamic "environment" {

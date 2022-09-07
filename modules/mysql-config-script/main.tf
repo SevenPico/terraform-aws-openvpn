@@ -15,7 +15,7 @@ resource "aws_s3_object" "openvpn_init_mysql_script" {
     rds_admin_username_key = var.rds_secret_admin_username_keyname
     rds_admin_password_key = var.rds_secret_admin_password_keyname
     rds_port_key           = var.rds_secret_port_keyname
-    region                 = length(data.aws_region.current) > 0 ? one(data.aws_region.current[*].name) : ""
+    region                 = data.aws_region.current.name
   })
 }
 

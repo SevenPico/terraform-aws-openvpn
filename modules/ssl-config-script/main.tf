@@ -11,7 +11,7 @@ resource "aws_s3_object" "ssl_cert_sh" {
   key    = var.script_name
   content = templatefile("${path.module}/ssl.sh.tftpl", {
     secret_arn                      = var.ssl_secret_arn,
-    region                          = data.aws_region.current[0].name,
+    region                          = data.aws_region.current.name,
     certificate_keyname             = var.ssl_secret_certificate_keyname
     certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname
     certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
