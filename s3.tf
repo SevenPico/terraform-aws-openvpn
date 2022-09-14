@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.2"
+  version = "3.1.4"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
@@ -69,6 +69,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   user_enabled                  = false
   versioning_enabled            = var.openvpn_s3_versioning_enabled
   website_inputs                = null
+  wait_time_seconds             = 60
 }
 
 resource "aws_s3_object" "init_sh" {
