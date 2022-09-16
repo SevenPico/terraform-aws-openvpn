@@ -130,9 +130,9 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
 }
 
 module "ec2_autoscale_group_role" {
-  source  = "registry.terraform.io/cloudposse/iam-role/aws"
-  version = "0.16.2"
-  context = module.ec2_autoscale_group_role_context.legacy
+  source  = "app.terraform.io/SevenPico/iam-role/aws"
+  version = "0.16.2.1"
+  context = module.ec2_autoscale_group_role_context.self
 
   assume_role_actions      = ["sts:AssumeRole"]
   assume_role_conditions   = []

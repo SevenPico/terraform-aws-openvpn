@@ -19,7 +19,7 @@ module "ssl_certificate" {
   additional_secrets                = { EXAMPLE = "example value" }
   create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = false
-  common_name                       = var.common_name
+#  common_name                       = var.common_name
   import_filepath_certificate       = null
   import_filepath_certificate_chain = null
   import_filepath_private_key       = null
