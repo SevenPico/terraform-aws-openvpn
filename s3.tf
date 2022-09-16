@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.2"
+  version = "3.1.4"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
@@ -69,6 +69,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   user_enabled                  = false
   versioning_enabled            = var.openvpn_s3_versioning_enabled
   website_inputs                = null
+  wait_time_seconds             = 120
 }
 
 resource "aws_s3_object" "init_sh" {
@@ -78,6 +79,7 @@ resource "aws_s3_object" "init_sh" {
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
     hostname = var.openvpn_hostname
   })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
 
 resource "aws_s3_object" "openvpn_sh" {
@@ -99,6 +101,7 @@ resource "aws_s3_object" "openvpn_sh" {
     password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
   })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
 
 resource "aws_s3_object" "static_client_addresses_sh" {
@@ -109,4 +112,5 @@ resource "aws_s3_object" "static_client_addresses_sh" {
     client_static_network      = var.openvpn_client_static_network,
     client_static_network_mask = var.openvpn_client_static_network_mask
   })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
