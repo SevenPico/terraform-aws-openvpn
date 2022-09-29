@@ -58,7 +58,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   privileged_principal_actions  = []
   privileged_principal_arns     = []
   restrict_public_buckets       = true
-  s3_object_ownership           = "BucketOwnerPreferred"
+  s3_object_ownership           = var.s3_object_ownership
   s3_replica_bucket_arn         = ""
   s3_replication_enabled        = false
   s3_replication_rules          = null
