@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.4"
+  version = "3.2.0"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
@@ -58,7 +58,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   privileged_principal_actions  = []
   privileged_principal_arns     = []
   restrict_public_buckets       = true
-  s3_object_ownership           = var.s3_object_ownership
+  s3_object_ownership           = var.openvpn_s3_object_ownership
   s3_replica_bucket_arn         = ""
   s3_replication_enabled        = false
   s3_replication_rules          = null
