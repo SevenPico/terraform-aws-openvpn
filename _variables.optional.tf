@@ -60,6 +60,7 @@ variable "openvpn_time_zone" { default = "America/Chicago" }
 variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_ui_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
+variable "s3_object_ownership" { default = "BucketOwnerEnforced"}
 
 
 
