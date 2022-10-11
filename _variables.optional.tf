@@ -46,6 +46,7 @@ variable "openvpn_config_scripts_additional" { default = [] }
 variable "openvpn_daemon_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_daemon_tcp_port" { default = 443 }
 variable "openvpn_daemon_udp_port" { default = 1194 }
+variable "openvpn_enable_mfa_delete" { default = false }
 variable "openvpn_s3_access_logs_prefix_override" { default = null }
 variable "openvpn_s3_access_logs_s3_bucket_id" { default = null }
 variable "openvpn_s3_force_destroy" { default = true }
@@ -61,6 +62,7 @@ variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_ui_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
 variable "openvpn_s3_object_ownership" { default = "BucketOwnerEnforced"}
+variable "openvpn_enable_mfa_delete" { default = false }
 
 
 
