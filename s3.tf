@@ -24,7 +24,7 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.5"
+  version = "3.1.6"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
@@ -45,6 +45,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   bucket_key_enabled            = false
   bucket_name                   = null
   cors_rule_inputs              = null
+  enable_mfa_delete             = var.openvpn_enable_mfa_delete
   force_destroy                 = var.openvpn_s3_force_destroy
   grants                        = []
   ignore_public_acls            = true
