@@ -143,7 +143,7 @@ module "ec2_autoscale_group" {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_sg" {
   source  = "app.terraform.io/SevenPico/security-group/aws"
-  version = "2.0.0.1"
+  version = "2.0.0.2"
   context = module.ec2_autoscale_group_sg_context.self
 
   allow_all_egress              = true
