@@ -41,7 +41,7 @@ locals {
 # ------------------------------------------------------------------------------
 module "nlb" {
   source  = "app.terraform.io/SevenPico/nlb/aws"
-  version = "0.8.2.1"
+  version = "0.8.2.6"
   context = module.nlb_context.self
 
   access_logs_enabled               = var.nlb_access_logs_s3_bucket_id != null

@@ -2,6 +2,7 @@ enabled             = true
 namespace           = "sp"
 environment         = "default"
 stage               = "openvpn"
+domain_name        = "openvpn-default.7pi.io"
 #name                = ""
 #delimiter           = var.delimiter
 #attributes          = var.attributes
