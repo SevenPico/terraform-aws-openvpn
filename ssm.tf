@@ -32,18 +32,19 @@ resource "aws_ssm_document" "ec2_autoscale_group_initialization" {
 }
 
 resource "aws_ssm_association" "ec2_autoscale_group_initialization" {
-  count            = module.ec2_autoscale_group_context.enabled ? 1 : 0
-  association_name = module.ec2_autoscale_group_ssm_initialization_context.id
-  name             = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
+  count               = module.ec2_autoscale_group_context.enabled ? 1 : 0
+  association_name    = module.ec2_autoscale_group_ssm_initialization_context.id
+  name                = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
+  schedule_expression = var.ec2_initialization_schedule_expression
   targets {
     key    = "tag:Name"
     values = [module.ec2_autoscale_group_context.id]
   }
-  dynamic  "output_location" {
-    for_each       = var.openvpn_ssm_association_output_bucket_name != null ? [1]: []
+  dynamic "output_location" {
+    for_each = var.openvpn_ssm_association_output_bucket_name != null ? [1] : []
     content {
       s3_bucket_name = var.openvpn_ssm_association_output_bucket_name
-      s3_key_prefix = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
+      s3_key_prefix  = one(aws_ssm_document.ec2_autoscale_group_initialization[*].name)
     }
   }
 }
