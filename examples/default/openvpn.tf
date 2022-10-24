@@ -35,25 +35,23 @@ module "openvpn" {
 # OpenVPN Configuration Scripts
 #------------------------------------------------------------------------------
 locals {
-  reverse_routing_script_name = "reverse-routing.sh"
+  nat_routing_script_name = "nat-routing.sh"
   ssl_config_script_name      = "ssl-config.sh"
 }
 
-module "openvpn_reverse_routing_script" {
-  source  = "app.terraform.io/SevenPico/openvpn/aws//modules/reverse-routing-script"
-  version = "3.1.3"
+module "openvpn_nat_routing_script" {
+  source  = "../../modules/reverse-routing-script"
   context = module.openvpn_context.self
 
   bucket_id                  = module.openvpn.ssm_script_bucket_id
-  script_name                = local.reverse_routing_script_name
+  script_name                = local.nat_routing_script_name
   ec2_role_name              = module.openvpn.role_name
   openvpn_client_cidr_blocks = ["172.27.0.0/16"]
   vpc_cidr_blocks            = [module.vpc.vpc_cidr_block]
 }
 
 module "openvpn_ssl_config_script" {
-  source     = "app.terraform.io/SevenPico/openvpn/aws//modules/ssl-config-script"
-  version    = "3.1.3"
+  source     = "../../modules/ssl-config-script"
   context    = module.openvpn_context.self
   depends_on = [module.openvpn]
 
