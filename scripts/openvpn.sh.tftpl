@@ -20,6 +20,7 @@ cd /usr/local/openvpn_as/scripts
 ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
 ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
 ./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
+./sacli --key 'cs.tls_version_min' --value '1.2' ConfigPut
 
 echo "Setting hostname."
 ./sacli --key 'host.name' --value '${hostname}' ConfigPut
