@@ -18,6 +18,34 @@ locals {
   ]), var.openvpn_config_scripts_additional)
 }
 
+# ------------------------------------------------------------------------------
+# Openvpn S3 Bucket Policy
+# ------------------------------------------------------------------------------
+data "aws_iam_policy_document" "deployer_artifacts_bucket" {
+  count = module.context.enabled ? 1 : 0
+
+  statement {
+    sid       = "ForceSSLOnlyAccess"
+    effect    = "Deny"
+    actions   = ["s3:*"]
+    resources = [
+      module.ec2_autoscale_group_scripts_bucket.bucket_arn,
+      "${module.ec2_autoscale_group_scripts_bucket.bucket_arn}/*"
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
+}
+
 
 #------------------------------------------------------------------------------
 # VPN ASG Scripts Bucket
@@ -64,7 +92,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   s3_replication_enabled        = false
   s3_replication_rules          = null
   s3_replication_source_roles   = []
-  source_policy_documents       = []
+  source_policy_documents       = concat([one(data.aws_iam_policy_document.deployer_artifacts_bucket[*].json)], var.openvpn_s3_source_policy_documents)
   sse_algorithm                 = "AES256"
   transfer_acceleration_enabled = false
   user_enabled                  = false
