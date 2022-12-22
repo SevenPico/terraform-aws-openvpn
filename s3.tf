@@ -9,12 +9,14 @@ module "ec2_autoscale_group_scripts_bucket_context" {
 locals {
   init_sh    = try(join("", aws_s3_object.init_sh[*].key), "")
   install_sh = try(join("", aws_s3_object.install_sh[*].key), "")
+  efs_sh     = try(join("", aws_s3_object.efs_sh[*].key), "")
   openvpn_sh = try(join("", aws_s3_object.openvpn_sh[*].key), "")
   static_sh  = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
 
   openvpn_config_scripts = concat(compact([
     local.init_sh,
     local.install_sh,
+    local.efs_sh,
     local.openvpn_sh,
     local.static_sh
   ]), var.openvpn_config_scripts_additional)
@@ -120,6 +122,15 @@ resource "aws_s3_object" "install_sh" {
   content = templatefile("${path.module}/scripts/install.sh.tftpl", {
     openvpnas_version = "2.11.1-f4027f58-Ubuntu22", # FIXME to var
   })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
+}
+
+resource "aws_s3_object" "efs_sh" {
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
+  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  key    = "efs.sh"
+  # content = templatefile("${path.module}/scripts/efs.sh.tftpl", { })
+  content = file("${path.module}/scripts/efs.sh.tftpl")
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
 

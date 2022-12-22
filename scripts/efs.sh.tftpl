@@ -1,0 +1,281 @@
+#!/bin/bash
+
+#
+# mkdir ~/efs-mount-point
+
+# sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport mount-target-DNS:/   ~/efs-mount-point
+
+# sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport mount-target-ip:/  ~/efs-mount-point
+
+
+#       "sudo apt-get update -y",
+#       "sudo apt-get install nfs-common -y",
+#       "sudo apt-get install python3.8 -y",
+#       "sudo apt-get install python3-pip -y",
+#       "python --version",
+#       "python3 --version",
+#       "echo ${aws_efs_file_system.efs.dns_name}",
+#       "ls -la",
+#       "pwd",
+#       "sudo mkdir -p mount-point",
+#       "ls -la",
+#       "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${aws_efs_file_system.efs.dns_name}:/ mount-point",
+#       "ls",
+#       "cd mount-point",
+#       "ls",
+#       "cd access",
+#       "sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1",
+#       "sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 2",
+#       "printf '2\n' | sudo update-alternatives --config python3",
+#       "pwd",
+#       "ls -la",
+#       "echo 'Python version:'",
+#       "python3 --version",
+#       "pip3 install --upgrade --target access/ numpy --system"
+
+
+#rm -rf /tmp/*
+
+apt-get update && apt-get install -y openvpn-as=${openvpnas_version}
+
+# The following additional packages will be installed:
+#   bridge-utils dmidecode ieee-data iproute2 iptables libatm1 libbpf0 libcap2-bin libelf1 libip4tc2 libip6tc2 liblzo2-2
+#   libmariadb3 libmnl0 libmysqlclient21 libnetfilter-conntrack3 libnfnetlink0 libnftnl11 libpam-cap libpcap0.8
+#   libxmlsec1 libxmlsec1-openssl libxslt1.1 libxtables12 mariadb-common mysql-common openvpn-as-bundled-clients
+#   python3-arrow python3-attr python3-automat python3-bcrypt python3-bs4 python3-cffi python3-cffi-backend python3-click
+#   python3-constantly python3-cryptography python3-decorator python3-defusedxml python3-distutils python3-greenlet
+#   python3-hamcrest python3-html5lib python3-hyperlink python3-incremental python3-ldap3 python3-lib2to3 python3-lxml
+#   python3-migrate python3-mysqldb python3-netaddr python3-openssl python3-pbr python3-ply python3-pyasn1-modules
+#   python3-pycparser python3-service-identity python3-setuptools python3-soupsieve python3-sqlalchemy
+#   python3-sqlalchemy-ext python3-sqlparse python3-tempita python3-twisted python3-webencodings python3-zope.interface
+# Suggested packages:
+#   ifupdown iproute2-doc firewalld kmod nftables python-arrow-doc python-attr-doc python3-dev python-cryptography-doc
+#   python3-cryptography-vectors python-greenlet-dev python-greenlet-doc python3-genshi python-lxml-doc
+#   python-migrate-doc default-mysql-server | virtual-mysql-server ipython3 python-netaddr-docs python-openssl-doc
+#   python3-openssl-dbg python-ply-doc cpp python-setuptools-doc python-sqlalchemy-doc python3-fdb python3-pymssql
+#   python3-psycopg2 python3-asyncpg python3-aiosqlite python-sqlparse-doc python3-pampy python3-serial python3-tk
+#   python3-wxgtk4.0
+# The following NEW packages will be installed:
+#   bridge-utils dmidecode ieee-data iproute2 iptables libatm1 libbpf0 libcap2-bin libelf1 libip4tc2 libip6tc2 liblzo2-2
+#   libmariadb3 libmnl0 libmysqlclient21 libnetfilter-conntrack3 libnfnetlink0 libnftnl11 libpam-cap libpcap0.8
+#   libxmlsec1 libxmlsec1-openssl libxslt1.1 libxtables12 mariadb-common mysql-common openvpn-as
+#   openvpn-as-bundled-clients python3-arrow python3-attr python3-automat python3-bcrypt python3-bs4 python3-cffi
+#   python3-cffi-backend python3-click python3-constantly python3-cryptography python3-decorator python3-defusedxml
+#   python3-distutils python3-greenlet python3-hamcrest python3-html5lib python3-hyperlink python3-incremental
+#   python3-ldap3 python3-lib2to3 python3-lxml python3-migrate python3-mysqldb python3-netaddr python3-openssl
+#   python3-pbr python3-ply python3-pyasn1-modules python3-pycparser python3-service-identity python3-setuptools
+#   python3-soupsieve python3-sqlalchemy python3-sqlalchemy-ext python3-sqlparse python3-tempita python3-twisted
+#   python3-webencodings python3-zope.interface
+
+
+# OpenVPN Install & Config
+# mkdir -p /openvpn{/pid,/sock,/tmp} /dev/net /config/log /config/etc/tmp
+
+# if [ ! -c /dev/net/tun ]; then
+#   mknod /dev/net/tun c 10 200
+# fi
+
+# shopt -s extglob
+
+# if [ -f /version.txt ]; then
+# 	OPENVPNAS_VERSION=$(cat /version.txt)
+
+# 	rm -rf /usr/local/openvpn_as
+# 	ln -s /config /usr/local/openvpn_as
+
+# 	if [ ! -f /config/etc/as.conf ]; then
+# 		apt-get update && apt-get install -y openvpn-as=$OPENVPNAS_VERSION
+
+#     [ -f /var/run/openvpnas.pid ] && kill `cat /var/run/openvpnas.pid`
+
+# 		rm /version.txt
+# 		sed -i \
+# 			-e 's#~/tmp#/openvpn/tmp#g' \
+# 			-e 's#~/sock#/openvpn/sock#g' \
+# 			/usr/local/openvpn_as/etc/as_templ.conf
+# 	else
+# 		mkdir -p /config/backup
+# 		cd /config/etc/db || exit
+# 		DBFILESBAK="*.db"
+# 		for f in $DBFILESBAK
+# 		do
+# 			echo "backing up $f"
+# 			sqlite3 "$f" .dump > /config/backup/"$f"
+# 		done
+# 		echo "backing up as.conf"
+# 		cp /config/etc/as.conf /config/backup/as.conf
+# 		cd /config || exit
+# 		rm -rf !("backup"|"log"|"custom-cont-init.d"|"custom-services.d")
+
+# 		apt-get update && apt-get install -y openvpn-as=$OPENVPNAS_VERSION
+
+# 		echo "Stopping openvpn-as now; will start again later after configuring"
+#     [ -f /var/run/openvpnas.pid ] && kill `cat /var/run/openvpnas.pid`
+# 		rm /version.txt
+# 		sed -i \
+# 			-e 's#~/tmp#/openvpn/tmp#g' \
+# 			-e 's#~/sock#/openvpn/sock#g' \
+# 			/usr/local/openvpn_as/etc/as_templ.conf
+# 		cd /config/backup || exit
+# 		DBFILERES="*.db"
+# 		for f in $DBFILERES
+# 		do
+# 			echo "restoring $f"
+# 			rm -f /config/etc/db/"$f"
+# 			sqlite3 </config/backup/"$f" /config/etc/db/"$f"
+# 		done
+# 		rm -f /config/etc/as.conf
+# 		echo "restoring as.conf"
+# 		cp /config/backup/as.conf /config/etc/as.conf
+# 		rm -rf /config/backup
+# 	fi
+# fi
+
+# shopt -u extglob
+
+# for file in /openvpn/sock/*; do
+#   if [ -e "$file" ]; then
+#     rm -rf "$file"
+#   fi
+# done
+
+# for file in /openvpn/pid/*; do
+#   if [ -e "$file" ]; then
+#     rm -rf "$file"
+#   fi
+# done
+
+
+# # OpenVPN Init
+# if [ ! -f "/config/etc/as.conf" ]; then
+#   ovpn-init \
+#     --host=$HOSTNAME \
+#     --force \
+#     --verbose \
+#     --batch \
+#     --no_reroute_gw \
+#     --local_auth \
+#     --key_algorithm=rsa \
+#     --web_key_algorithm=rsa \
+#     --key_size=2048 \
+#     --web_key_size=2048
+# else
+#   ovpn-init \
+#     --host=$HOSTNAME \
+#     --verbose \
+#     --batch \
+#     --no_reroute_gw \
+#     --local_auth \
+#     --key_algorithm=rsa \
+#     --web_key_algorithm=rsa \
+#     --key_size=2048 \
+#     --web_key_size=2048
+# fi
+
+# sacli --key 'cs.web_server_name'               --value $WEBSERVER_NAME           ConfigPut
+# sacli --key 'admin_ui.https.port'              --value $UI_HTTPS_PORT            ConfigPut
+# sacli --key 'cs.https.port'                    --value $UI_HTTPS_PORT            ConfigPut
+# sacli --key 'vpn.server.daemon.tcp.port'       --value $DAEMON_TCP_PORT          ConfigPut
+# sacli --key 'vpn.server.daemon.udp.port'       --value $DAEMON_UDP_PORT          ConfigPut
+# sacli --key 'vpn.server.dhcp_option.domain'    --value $DHCP_OPTION_DOMAIN       ConfigPut
+# sacli --key 'vpn.daemon.0.client.netmask_bits' --value $CLIENT_DHCP_NETWORK_MASK ConfigPut
+# sacli --key 'vpn.daemon.0.client.network'      --value $CLIENT_DHCP_NETWORK      ConfigPut
+# sacli --key 'host.name'                        --value $HOSTNAME                 ConfigPut
+# sacli --key 'cs.tls_version_min'               --value '1.2'                     ConfigPut
+# sacli --key 'admin_ui.https.ip_address'        --value 'all'                     ConfigPut
+# sacli --key 'cs.https.ip_address'              --value 'all'                     ConfigPut
+
+
+# # Optionally set admin password
+# if [ -n "$PASSWORD_SECRET_ARN" ]; then
+#     echo "Setting Admin Password."
+#     pass=$(aws secretsmanager get-secret-value --secret-id $PASSWORD_SECRET_ARN --region $REGION \
+#         | jq -r ".SecretString" \
+#         | jq -r ".$PASSWORD_SECRET_KEY")
+
+#     echo "openvpn:$pass" | sudo chpasswd
+# fi
+
+# # Optionally enable XML-RPC interface
+# if [ -n "$ENABLE_XML_RPC" ]; then
+#     sacli --key "xmlrpc.relay_level" --value 2 ConfigPut
+# fi
+
+# # Optionally enable static IP assignment
+# if [ -n "$ENABLE_STATIC_NETWORK" ]; then
+#     sacli --key 'vpn.server.static.0.netmask_bits' --value "$CLIENT_STATIC_NETWORK_MASK" ConfigPut
+#     sacli --key 'vpn.server.static.0.network'      --value "$CLIENT_STATIC_NETWORK" ConfigPut
+# fi
+
+# # Optionally import license from secret
+# if [ -n "$LICENSE_SECRET_ARN" ]; then
+#    LICENSE=$(aws secretsmanager get-secret-value --secret-id $LICENSE_SECRET_ARN --region $REGION | jq -r '.SecretString' | jq -r ".$LICENSE_KEYNAME")
+
+#    sacli -v "$LICENSE" LoadSubscription
+# fi
+
+
+# # Optionally setup NAT routing
+# if [ -n "$ENABLE_NAT_ROUTING" ]; then
+#     sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+#     sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+#     sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+#     sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+#     sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+#     sacli --key 'vpn.server.routing.private_access' --value 'nat' ConfigPut
+
+#     COUNTER=0
+#     for block in "$VPC_CIDR_BLOCKS"; do
+#        sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+#        COUNTER=$[$COUNTER +1]
+#     done
+
+#     for block in "$OPENVPN_CLIENT_CIDR_BLOCKS"; do
+#        sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+#        COUNTER=$[$COUNTER +1]
+#     done
+#     sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+# fi
+
+
+# # Optionally setup reverse routing
+# if [ -n "$ENABLE_REVERSE_ROUTING" ]; then
+#     sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+#     sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+#     sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+#     sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+#     sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+#     sacli --key 'vpn.server.routing.private_access' --value 'route' ConfigPut
+
+#     COUNTER=0
+#     for block in "$VPC_CIDR_BLOCKS"; do
+#        sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+#        COUNTER=$[$COUNTER +1]
+#     done
+#     for block in "$OPENVPN_CLIENT_CIDR_BLOCKS"; do
+#        sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+#        COUNTER=$[$COUNTER +1]
+#     done
+#     ./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+# fi
+
+
+# # Optionally setup SSL certificate
+# if [ -n "$SSL_SECRET_ARN" ]; then
+#     SSL_DIR=/etc/openvpn/ssl
+#     mkdir -p $SSL_DIR
+
+#     aws secretsmanager get-secret-value --secret-id $SSL_SECRET_ARN --region $REGION | jq -r '.SecretString' | jq -r '.$CERTIFICATE_KEYNAME'             > $SSL_DIR/server.crt
+#     aws secretsmanager get-secret-value --secret-id $SSL_SECRET_ARN --region $REGION | jq -r '.SecretString' | jq -r '.$CERTIFICATE_BUNDLE_KEYNAME'      > $SSL_DIR/chain.crt
+#     aws secretsmanager get-secret-value --secret-id $SSL_SECRET_ARN --region $REGION | jq -r '.SecretString' | jq -r '.$CERTIFICATE_PRIVATE_KEY_KEYNAME' > $SSL_DIR/server.key
+
+#     sacli --key "cs.priv_key"  --value_file "$SSL_DIR/server.key" ConfigPut
+#     sacli --key "cs.cert"      --value_file "$SSL_DIR/server.crt" ConfigPut
+#     sacli --key "cs.ca_bundle" --value_file "$SSL_DIR/chain.crt"  ConfigPut
+
+#     service openvpnas restart
+# fi
+
+
+# # Restart OpenVPN
+# sacli start
