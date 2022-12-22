@@ -11,7 +11,7 @@ variable "cloudwatch_logs_expiration_days" { default = 90 }
 #------------------------------------------------------------------------------
 variable "ec2_user_data" { default = "" }
 variable "ec2_associate_public_ip_address" { default = true }
-variable "ec2_ami_id" { default = "ami-037ff6453f0855c46" } # "This module was built using ami-037ff6453f0855c46 which is a BYOL, but supports 2 free connections."
+variable "ec2_ami_id" { default = "ami-0574da719dca65348" }
 variable "ec2_autoscale_desired_count" { default = 1 }
 variable "ec2_autoscale_instance_type" { default = "t3.micro" }
 variable "ec2_autoscale_max_count" { default = 1 }
@@ -62,7 +62,7 @@ variable "openvpn_time_zone" { default = "America/Chicago" }
 variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_ui_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
-variable "openvpn_s3_object_ownership" { default = "BucketOwnerEnforced"}
+variable "openvpn_s3_object_ownership" { default = "BucketOwnerEnforced" }
 variable "openvpn_s3_source_policy_documents" {
   type        = list(string)
   default     = []

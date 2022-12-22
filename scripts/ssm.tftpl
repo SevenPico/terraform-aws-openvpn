@@ -34,7 +34,7 @@
           "sudo chmod o-rwx *.sh",
           "sudo chmod ug+rwx *.sh",
           %{ for cmd in config_cmds }
-          "sudo ./${cmd}",
+          "sudo ./${cmd} | tee ${cmd}.log",
           %{ endfor ~}
           "echo"
         ]

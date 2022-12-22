@@ -1,12 +1,14 @@
 #!/bin/bash
 RDS_HOST=${rds_host}
-DEBIAN_FRONTEND=noninteractive
+# DEBIAN_FRONTEND=noninteractive
 
-sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
-sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
-sudo apt-get update -y -q > /dev/null 2>&1
-sudo apt-get install libmariadb3 -y -q > /dev/null 2>&1
-sudo apt-get install mariadb-client-core-10.1 -y -q > /dev/null 2>&1
+# sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
+# sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
+# sudo apt-get update -y -q > /dev/null 2>&1
+# sudo apt-get install libmariadb3 -y -q > /dev/null 2>&1
+# sudo apt-get install mariadb-client-core-10.1 -y -q > /dev/null 2>&1
+
+apt -y install mariadb-server
 
 echo "export LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN=1" >> /etc/profile
 RDS_USER=$(aws secretsmanager get-secret-value --secret-id ${rds_secret_arn} --region ${region} | jq -r '.SecretString' | jq -r '.${rds_admin_username_key}')
@@ -51,5 +53,3 @@ sed -i "s|\("^user_prop_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_userprop|" /usr
 sed -i "s|\("^log_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_log|" /usr/local/openvpn_as/etc/as.conf
 sed -i "s|\("^certs_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_certs|" /usr/local/openvpn_as/etc/as.conf
 sudo service openvpnas restart
-
-
