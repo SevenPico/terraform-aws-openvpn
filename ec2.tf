@@ -163,7 +163,7 @@ module "ec2_autoscale_group_sg" {
       key                      = 1
       type                     = "egress"
       from_port                = 443
-      to_port                  = 443
+      to_port                  = 2049 // 443
       protocol                 = "tcp"
       cidr_blocks              = var.vpc_cidr_blocks
       ipv6_cidr_blocks         = []
@@ -182,7 +182,16 @@ module "ec2_autoscale_group_sg" {
       source_security_group_id = null
       self                     = null
       description              = "Allow https egress to Cloudflare."
-    }
+    },
+    # {
+    #   key                      = 3
+    #   type                     = "egress"
+    #   from_port                = 2049
+    #   to_port                  = 2049
+    #   protocol                 = "tcp"
+    #   source_security_group_id = module.efs.security_group_id
+    #   description              = "Allow TCP egress to the EFS."
+    # }
   ]
 }
 

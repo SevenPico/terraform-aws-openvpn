@@ -21,8 +21,8 @@ module "efs" {
 
   additional_security_group_rules      = []
   allowed_cidr_blocks                  = []
-  allowed_security_group_ids           = []
-  associated_security_group_ids        = [module.ec2_autoscale_group_sg.id]
+  allowed_security_group_ids           = [module.ec2_autoscale_group_sg.id]
+  associated_security_group_ids        = []
   availability_zone_name               = null
   create_security_group                = true
   dns_name                             = ""
