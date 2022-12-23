@@ -31,7 +31,8 @@ if [ -n "${password_secret_arn}" ]; then
         | jq -r ".SecretString"\
         | jq -r ".${password_secret_key}")
 
-    echo "openvpn:$pass" | sudo chpasswd
+    ./sacli --user openvpn --new_pass $pass SetLocalPassword
+    #echo "openvpn:$pass" | sudo chpasswd
 fi
 
 echo "Enabling XML-RPC Interface."
