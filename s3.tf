@@ -142,6 +142,8 @@ resource "aws_s3_object" "openvpn_sh" {
     password_secret_arn        = local.secret_arn
     password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
+    tls_version_min            = var.openvpn_tls_version_min
+    enable_vpn_server_nat      = var.openvpn_enable_server_nat
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }

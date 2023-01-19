@@ -15,12 +15,11 @@ cd /usr/local/openvpn_as/scripts
 ./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
 ./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
 ./sacli --key 'cs.https.port' --value '${ui_https_port}' ConfigPut
-./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
-./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
 ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
 ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
 ./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
-./sacli --key 'cs.tls_version_min' --value '1.2' ConfigPut
+./sacli --key 'cs.tls_version_min' --value '${tls_version_min}' ConfigPut
+./sacli --key "vpn.server.nat" --value '${enable_vpn_server_nat}' ConfigPut
 
 echo "Setting hostname."
 ./sacli --key 'host.name' --value '${hostname}' ConfigPut
@@ -33,6 +32,16 @@ if [ -n "${password_secret_arn}" ]; then
 
     ./sacli --user openvpn --new_pass $pass SetLocalPassword
     #echo "openvpn:$pass" | sudo chpasswd
+fi
+
+if [ -n "${daemon_tcp_port}" ]; then
+    echo "Setting Daemon TCP Port."
+    ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+fi
+
+if [ -n "${daemon_udp_port}" ]; then
+    echo "Setting Daemon UDP Port."
+    ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
 fi
 
 echo "Enabling XML-RPC Interface."
