@@ -8,7 +8,7 @@ module "nat_routing_sh_context" {
 resource "aws_s3_object" "nat_routing_sh" {
   count  = module.nat_routing_sh_context.enabled ? 1 : 0
   bucket = var.bucket_id
-  key    = "reverse-routing.sh"
+  key    = "nat-routing.sh"
   content = templatefile("${path.module}/nat-routing.sh.tftpl", {
 #    client_dhcp_network          = var.openvpn_client_dhcp_network,
 #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
