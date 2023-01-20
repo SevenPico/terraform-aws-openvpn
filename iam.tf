@@ -145,7 +145,7 @@ module "ec2_autoscale_group_role" {
   permissions_boundary  = ""
   policy_description    = "VPN Server Permissions"
   policy_document_count = 1
-  policy_documents      = [join("", data.aws_iam_policy_document.ec2_autoscale_group_role_policy.*.json)]
+  policy_documents      = concat([join("", data.aws_iam_policy_document.ec2_autoscale_group_role_policy.*.json)], var.ec2_additional_instance_role_policies)
   principals = {
     Service : [
       "ec2.amazonaws.com",
