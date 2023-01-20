@@ -137,17 +137,15 @@ module "ec2_autoscale_group_role" {
   assume_role_actions      = ["sts:AssumeRole"]
   assume_role_conditions   = []
   instance_profile_enabled = false
-  managed_policy_arns      = [
+  managed_policy_arns = [
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   ]
-  max_session_duration     = 3600
-  path                     = "/"
-  permissions_boundary     = ""
-  policy_description       = "VPN Server Permissions"
-  policy_document_count    = 1
-  policy_documents = [
-    join("", data.aws_iam_policy_document.ec2_autoscale_group_role_policy.*.json)
-  ]
+  max_session_duration  = 3600
+  path                  = "/"
+  permissions_boundary  = ""
+  policy_description    = "VPN Server Permissions"
+  policy_document_count = 1
+  policy_documents      = concat([join("", data.aws_iam_policy_document.ec2_autoscale_group_role_policy.*.json)], var.ec2_additional_instance_role_policies)
   principals = {
     Service : [
       "ec2.amazonaws.com",

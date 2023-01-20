@@ -63,8 +63,8 @@ variable "openvpn_ui_https_port" { default = 943 }
 variable "openvpn_ui_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_web_server_name" { default = "OpenVPN Server" }
 variable "openvpn_s3_object_ownership" { default = "BucketOwnerEnforced" }
-variable "openvpn_tls_version_min" {default = "1.2"}
-variable "openvpn_enable_server_nat" { default = true}
+variable "openvpn_tls_version_min" { default = "1.2" }
+variable "openvpn_enable_server_nat" { default = true }
 variable "openvpn_s3_source_policy_documents" {
   type        = list(string)
   default     = []
@@ -76,6 +76,10 @@ variable "openvpn_s3_source_policy_documents" {
 }
 
 variable "openvpn_version" {
-  type = string
+  type    = string
   default = "2.11.1-f4027f58-Ubuntu22"
+}
+variable "ec2_additional_instance_role_policies" {
+  type    = any
+  default = []
 }
