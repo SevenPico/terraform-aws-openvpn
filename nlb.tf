@@ -106,7 +106,7 @@ resource "aws_lb_listener" "nlb" {
   count             = module.nlb_context.enabled ? length(local.nlb_listener_protocols) : 0
   load_balancer_arn = module.nlb.nlb_arn
   port              = local.nlb_listener_ports[count.index]
-  ssl_policy        = var.nlb_tls_ssl_policy
+  ssl_policy        = local.nlb_listener_protocols[count.index] == "TLS" ? var.nlb_tls_ssl_policy : null
   protocol          = local.nlb_listener_protocols[count.index]
   certificate_arn   = local.nlb_listener_protocols[count.index] == "TLS" ? var.nlb_acm_certificate_arn : null
   default_action {

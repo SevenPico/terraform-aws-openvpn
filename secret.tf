@@ -5,7 +5,7 @@ module "secret_context" {
   source     = "app.terraform.io/SevenPico/context/null"
   version    = "1.0.2"
   context    = module.context.self
-  enabled = module.context.enabled && var.create_openvpn_secret
+  enabled    = module.context.enabled && var.create_openvpn_secret
   attributes = ["secret"]
 }
 
@@ -16,8 +16,8 @@ module "secret_kms_context" {
 }
 
 locals {
-  secret_arn = module.secret_context.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
-  secret_kms_key_arn = module.secret_context.enabled  ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
+  secret_arn         = module.secret_context.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
+  secret_kms_key_arn = module.secret_context.enabled ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
@@ -61,7 +61,7 @@ resource "aws_secretsmanager_secret_version" "this" {
   }
   secret_string = jsonencode(merge(
     {
-      ADMIN_USERNAME = "openvpn"
+      ADMIN_USERNAME                             = "openvpn"
       "${var.openvpn_secret_admin_password_key}" = one(random_password.admin[*].result)
   }))
 }
