@@ -12,7 +12,6 @@ echo "Configuring Basic OpenVPN_AS Settings."
 cd /usr/local/openvpn_as/scripts
 ./sacli --key 'cs.web_server_name' --value '${webserver_name}' ConfigPut
 ./sacli --key 'admin_ui.https.ip_address' --value 'all' ConfigPut
-./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
 ./sacli --key 'cs.https.ip_address' --value 'all' ConfigPut
 ./sacli --key 'cs.https.port' --value '${ui_https_port}' ConfigPut
 ./sacli --key 'vpn.server.dhcp_option.domain' --value '${dhcp_option_domain}' ConfigPut
@@ -34,14 +33,28 @@ if [ -n "${password_secret_arn}" ]; then
     #echo "openvpn:$pass" | sudo chpasswd
 fi
 
+if [ -n "${ui_https_port}" ]; then
+    echo "Setting Admin UI Port."
+    ./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
+else
+    echo "Disabling Admin UI Port"
+    ./sacli --key 'admin_ui.https.port' ConfigDel
+fi
+
 if [ -n "${daemon_tcp_port}" ]; then
     echo "Setting Daemon TCP Port."
     ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+else
+    echo "Disabling Daemon TCP Port"
+    ./sacli --key 'vpn.server.daemon.tcp.port' ConfigDel
 fi
 
 if [ -n "${daemon_udp_port}" ]; then
     echo "Setting Daemon UDP Port."
     ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
+else
+    echo "Disabling Daemon UDP Port"
+    ./sacli --key 'vpn.server.daemon.udp.port' ConfigDel
 fi
 
 echo "Enabling XML-RPC Interface."
