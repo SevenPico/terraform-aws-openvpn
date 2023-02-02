@@ -131,9 +131,9 @@ resource "aws_s3_object" "openvpn_sh" {
   content = templatefile("${path.module}/scripts/openvpn.sh.tftpl", {
     hostname                   = var.openvpn_hostname
     webserver_name             = var.openvpn_web_server_name,
-    ui_https_port              = var.openvpn_ui_https_port,
-    daemon_udp_port            = var.openvpn_daemon_udp_port,
-    daemon_tcp_port            = var.openvpn_daemon_tcp_port,
+    ui_https_port              = var.openvpn_ui_https_port == null ? "" : var.openvpn_ui_https_port
+    daemon_udp_port            = var.openvpn_daemon_udp_port == null ? "" : var.openvpn_daemon_udp_port
+    daemon_tcp_port            = var.openvpn_daemon_tcp_port == null ? "" : var.openvpn_daemon_tcp_port
     dhcp_option_domain         = var.openvpn_dhcp_option_domain,
     client_dhcp_network        = var.openvpn_client_dhcp_network
     client_dhcp_network_mask   = var.openvpn_client_dhcp_network_mask
