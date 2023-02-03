@@ -17,7 +17,6 @@
 
 ## ----------------------------------------------------------------------------
 ##  _context.tf
-##
 ##  Copied and adapted from terraform-null-label (https://github.com/cloudposse/terraform-null-label/blob/master/exports/context.tf)
 ## ----------------------------------------------------------------------------
 
