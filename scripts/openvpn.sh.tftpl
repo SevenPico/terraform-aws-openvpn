@@ -36,25 +36,28 @@ fi
 if [ -n "${ui_https_port}" ]; then
     echo "Setting Admin UI Port."
     ./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
+    ./sacli --key "admin_ui.https.ip_address" --value 'all' ConfigPut
+    ./sacli --key "cs.https.ip_address" --value 'all' ConfigPut
 else
     echo "Disabling Admin UI Port"
-    ./sacli --key 'admin_ui.https.port' ConfigDel
+    ./sacli --key "admin_ui.https.ip_address" --value localhost ConfigPut
+    ./sacli --key "cs.https.ip_address" --value localhost ConfigPut
+
 fi
 
-if [ -n "${daemon_tcp_port}" ]; then
-    echo "Setting Daemon TCP Port."
+if [ -n "${daemon_tcp_port}" && -n "${daemon_udp_port}" ]; then
+    echo "Setting Daemon TCP and UDP Ports."
     ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
-else
-    echo "Disabling Daemon TCP Port"
-    ./sacli --key 'vpn.server.daemon.tcp.port' ConfigDel
-fi
-
-if [ -n "${daemon_udp_port}" ]; then
+    ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
+    ./sacli --key 'vpn.server.daemon.protocols' --value 'both' ConfigPut
+elif [ -n "${daemon_tcp_port}" ]; then
+    echo "Setting Daemon TCP Port"
+    ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
+    ./sacli --key 'vpn.server.daemon.protocols' --value 'tcp' ConfigPut
+elif [ -n "${daemon_udp_port}" ]; then
     echo "Setting Daemon UDP Port."
     ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
-else
-    echo "Disabling Daemon UDP Port"
-    ./sacli --key 'vpn.server.daemon.udp.port' ConfigDel
+    ./sacli --key 'vpn.server.daemon.protocols' --value 'udp' ConfigPut
 fi
 
 echo "Enabling XML-RPC Interface."

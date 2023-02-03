@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 module "ssl_certificate_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  version    = "1.1.0"
   context    = module.context.self
   attributes = ["ssl"]
 }
@@ -13,12 +13,12 @@ module "ssl_certificate_context" {
 # SSL Certificate
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source     = "app.terraform.io/SevenPico/ssl-certificate/aws"
-  version    = "7.2.0"
+  source  = "app.terraform.io/SevenPico/ssl-certificate/aws"
+  version = "7.2.0"
   context = module.ssl_certificate_context.self
 
-  additional_dns_names = []
-  additional_secrets = {EXAMPLE = "example value"}
+  additional_dns_names              = []
+  additional_secrets                = {}
   create_mode                       = "LetsEncrypt"
   create_secret_update_sns          = false
   import_filepath_certificate       = null

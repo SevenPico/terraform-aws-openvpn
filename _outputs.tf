@@ -65,3 +65,7 @@ output "secret_kms_key_arn" {
 output "instance_name" {
   value = module.ec2_autoscale_group_context.id
 }
+
+output "ui_https_port" {
+  value = var.openvpn_ui_https_port
+}

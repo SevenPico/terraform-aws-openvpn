@@ -18,4 +18,8 @@ output "autoscaling_sns_role_arn" {
   value = module.openvpn.sns_role_arn
 }
 
+output "openvpn_ui_url" {
+  value = "https://${module.openvpn.nlb_dns_name}:${module.openvpn.ui_https_port}"
+}
+
 

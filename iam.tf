@@ -89,7 +89,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
       "ssmmessages:CreateDataChannel",
       "ssmmessages:OpenControlChannel",
       "ssmmessages:OpenDataChannel",
-      "ssm:UpdateInstanceInformation"
+      "ssm:UpdateInstanceInformation",
+      "ssm:PutParameter"
     ]
     effect    = "Allow"
     resources = ["*"]

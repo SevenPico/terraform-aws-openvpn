@@ -1,5 +1,5 @@
 module "efs" {
-  source     = "cloudposse/efs/aws"
+  source     = "registry.terraform.io/cloudposse/efs/aws"
   version    = "0.32.7"
   context    = module.ec2_autoscale_group_context.self
   enabled    = var.efs_enabled && module.ec2_autoscale_group_context.enabled

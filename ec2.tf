@@ -27,14 +27,14 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  version    = "1.1.0"
   context    = module.context.self
   attributes = ["ec2"]
 }
 
 module "ec2_autoscale_group_sg_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.2"
+  version = "1.1.0"
   context = module.ec2_autoscale_group_context.self
 }
 
@@ -45,6 +45,12 @@ module "ec2_autoscale_group_sg_context" {
 resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
   count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
   name              = "/aws/ec2/${module.ec2_autoscale_group_context.id}"
+  retention_in_days = var.cloudwatch_logs_expiration_days
+}
+
+resource "aws_cloudwatch_log_group" "ec2_logs_group" {
+  count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
+  name              = "/aws/ec2/${module.context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
 
@@ -196,7 +202,7 @@ module "ec2_autoscale_group_sg" {
 }
 
 resource "aws_security_group_rule" "ui_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_ui_https_port != null ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -207,7 +213,7 @@ resource "aws_security_group_rule" "ui_port" {
 }
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_tcp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_tcp_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -218,7 +224,7 @@ resource "aws_security_group_rule" "daemon_tcp_port" {
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_udp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_udp_port
   protocol          = "udp"
   security_group_id = module.ec2_autoscale_group_sg.id

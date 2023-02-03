@@ -30,3 +30,4 @@ override.tf.json
 .terraform.lock.hcl
 /.terraform/
 /examples/default/.terraform/
+/cw-config-notes.json

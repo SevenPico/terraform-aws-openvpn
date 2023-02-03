@@ -19,11 +19,17 @@ module "nlb_tgt_context" {
 }
 
 locals {
-  nlb_listener_protocols = ["TLS", "TCP", "UDP"]
-  nlb_listener_ports     = [var.openvpn_ui_https_port, var.openvpn_daemon_tcp_port, var.openvpn_daemon_udp_port]
-  nlb_target_protocols   = ["TLS", "TCP", "UDP"]
-  nlb_target_ports       = [var.openvpn_ui_https_port, var.openvpn_daemon_tcp_port, var.openvpn_daemon_udp_port]
-  nlb_target_type        = ["instance", "instance", "instance"]
+  openvpn_ui_https_protocol   = var.openvpn_ui_https_port != null ? "TLS" : null
+  openvpn_daemon_tcp_protocol = var.openvpn_daemon_tcp_port != null ? "TCP" : null
+  openvpn_daemon_udp_protocol = var.openvpn_daemon_udp_port != null ? "UDP" : null
+  openvpn_ui_https_type       = var.openvpn_ui_https_port != null ? "instance" : null
+  openvpn_daemon_tcp_type     = var.openvpn_daemon_tcp_port != null ? "instance" : null
+  openvpn_daemon_udp_type     = var.openvpn_daemon_udp_port != null ? "instance" : null
+  nlb_listener_protocols      = compact([local.openvpn_ui_https_protocol, local.openvpn_daemon_tcp_protocol, local.openvpn_daemon_udp_protocol])
+  nlb_listener_ports          = compact([var.openvpn_ui_https_port, var.openvpn_daemon_tcp_port, var.openvpn_daemon_udp_port])
+  nlb_target_protocols        = compact([local.openvpn_ui_https_protocol, local.openvpn_daemon_tcp_protocol, local.openvpn_daemon_udp_protocol])
+  nlb_target_ports            = compact([var.openvpn_ui_https_port, var.openvpn_daemon_tcp_port, var.openvpn_daemon_udp_port])
+  nlb_target_type             = compact([local.openvpn_ui_https_type, local.openvpn_daemon_tcp_type, local.openvpn_daemon_udp_type])
 
   openvpn_nlb_target_groups = [for x in aws_lb_target_group.nlb[*] :
     {
@@ -68,10 +74,10 @@ module "nlb" {
   tcp_enabled                       = false
   tcp_port                          = var.openvpn_daemon_tcp_port
   tls_enabled                       = false
-  tls_port                          = var.openvpn_ui_https_port
+  tls_port                          = 443 //ignored
   tls_ssl_policy                    = var.nlb_tls_ssl_policy
   udp_enabled                       = false
-  udp_port                          = var.openvpn_daemon_udp_port
+  udp_port                          = 1194 //ignored
   vpc_id                            = var.vpc_id
 }
 
