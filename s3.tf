@@ -32,14 +32,14 @@ locals {
   install_default_sh  = try(join("", aws_s3_object.install_default_sh[*].key), "")
   install_with_efs_sh = try(join("", aws_s3_object.install_with_efs_sh[*].key), "")
   openvpn_sh          = try(join("", aws_s3_object.openvpn_sh[*].key), "")
-#  static_sh           = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
+  #  static_sh           = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
 
   openvpn_config_scripts = concat(compact([
     local.init_sh,
     local.install_default_sh,
     local.install_with_efs_sh,
     local.openvpn_sh,
-#    local.static_sh
+    #    local.static_sh
   ]), var.openvpn_config_scripts_additional)
 }
 

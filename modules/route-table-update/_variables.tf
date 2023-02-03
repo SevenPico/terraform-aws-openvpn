@@ -20,7 +20,7 @@
 ## ----------------------------------------------------------------------------
 
 
-variable "cloudwatch_log_retention_days" {default = 30}
+variable "cloudwatch_log_retention_days" { default = 30 }
 
 variable "vpc_id" {
   type        = string
@@ -28,14 +28,14 @@ variable "vpc_id" {
 }
 
 variable "cidr_block_to_route" {
-  type = string
+  type        = string
   description = "The CIDR Block to route to Auto Scaled Instances."
 }
 
 variable "lambda_log_level" {
-  type = string
+  type        = string
   description = "Log level verbosity.  Values can be DEBUG, INFO, WARN, ERROR."
-  default = "INFO"
+  default     = "INFO"
 }
 
 variable "subnet_ids" {
@@ -44,12 +44,12 @@ variable "subnet_ids" {
 }
 
 variable "sns_source_topic_arn" {
-  type = string
+  type        = string
   description = "The SNS Topic that will invoke this lambda to perform updates."
 }
 
 variable "autoscale_group_arn" {
-  type = string
+  type        = string
   description = "The Autoscale Group that this lambda will manage route table updates for."
 }
 
@@ -73,8 +73,8 @@ variable "lambda_timeout" {
 }
 
 variable "lambda_environment_variables_map" {
-  type = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
   description = "Environment variables to pass into the container"
 }
 

@@ -41,8 +41,8 @@ resource "aws_s3_object" "openvpn_init_mysql_script" {
 }
 
 data "aws_iam_role" "ec2_role" {
-  count   = module.ec2_rds_policy_context.enabled ? 1 : 0
-  name = var.ec2_role_name
+  count = module.ec2_rds_policy_context.enabled ? 1 : 0
+  name  = var.ec2_role_name
 }
 
 data "aws_iam_policy_document" "rds_secrets_access" {

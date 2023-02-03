@@ -41,8 +41,8 @@ resource "aws_route53_record" "ns" {
 }
 
 resource "aws_route53_zone" "private" {
-  count   = module.context.enabled ? 1 : 0
-  name    = module.context.domain_name
+  count = module.context.enabled ? 1 : 0
+  name  = module.context.domain_name
   vpc {
     vpc_id = module.vpc.vpc_id
   }
