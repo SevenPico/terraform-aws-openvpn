@@ -1,13 +1,34 @@
+## ----------------------------------------------------------------------------
+##  Copyright 2023 SevenPico, Inc.
+##
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+## ----------------------------------------------------------------------------
+
+## ----------------------------------------------------------------------------
+##  ./examples/default/vpc.tf
+##  This file contains code written by SevenPico, Inc.
+## ----------------------------------------------------------------------------
+
 module "vpc_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  version    = "1.1.0"
   context    = module.context.self
   attributes = ["vpc"]
 }
 
 module "vpc_subnets_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  version    = "1.1.0"
   context    = module.vpc_context.self
   attributes = ["subnet"]
 }
@@ -48,7 +69,7 @@ module "vpc" {
 module "vpc_subnets" {
   source  = "registry.terraform.io/cloudposse/dynamic-subnets/aws"
   version = "0.39.8"
-  context = module.vpc_subnets_context.self
+  context = module.vpc_subnets_context.legacy
 
   availability_zones                   = var.availability_zones
   cidr_block                           = var.vpc_cidr_block
@@ -63,7 +84,7 @@ module "vpc_subnets" {
   metadata_http_put_response_hop_limit = 1
   metadata_http_tokens_required        = true
   nat_elastic_ips                      = []
-  nat_gateway_enabled                  = false
+  nat_gateway_enabled                  = true
   nat_instance_enabled                 = false
   nat_instance_type                    = "t3.micro"
   private_network_acl_id               = ""

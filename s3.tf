@@ -1,3 +1,24 @@
+## ----------------------------------------------------------------------------
+##  Copyright 2023 SevenPico, Inc.
+##
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+## ----------------------------------------------------------------------------
+
+## ----------------------------------------------------------------------------
+##  ./s3.tf
+##  This file contains code written by SevenPico, Inc.
+## ----------------------------------------------------------------------------
+
 module "ec2_autoscale_group_scripts_bucket_context" {
   source     = "app.terraform.io/SevenPico/context/null"
   version    = "1.0.2"
@@ -7,16 +28,18 @@ module "ec2_autoscale_group_scripts_bucket_context" {
 
 
 locals {
-  init_sh    = try(join("", aws_s3_object.init_sh[*].key), "")
-  install_sh = try(join("", aws_s3_object.install_sh[*].key), "")
-  openvpn_sh = try(join("", aws_s3_object.openvpn_sh[*].key), "")
-  static_sh  = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
+  init_sh             = try(join("", aws_s3_object.init_sh[*].key), "")
+  install_default_sh  = try(join("", aws_s3_object.install_default_sh[*].key), "")
+  install_with_efs_sh = try(join("", aws_s3_object.install_with_efs_sh[*].key), "")
+  openvpn_sh          = try(join("", aws_s3_object.openvpn_sh[*].key), "")
+  #  static_sh           = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
 
   openvpn_config_scripts = concat(compact([
     local.init_sh,
-    local.install_sh,
+    local.install_default_sh,
+    local.install_with_efs_sh,
     local.openvpn_sh,
-    local.static_sh
+    #    local.static_sh
   ]), var.openvpn_config_scripts_additional)
 }
 
@@ -109,17 +132,39 @@ resource "aws_s3_object" "init_sh" {
   key    = "init.sh"
   content = templatefile("${path.module}/scripts/init.sh.tftpl", {
     hostname = var.openvpn_hostname
+    region   = data.aws_region.current.name
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
 
-resource "aws_s3_object" "install_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
+resource "aws_s3_object" "install_default_sh" {
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && !var.efs_enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "install.sh"
-  content = templatefile("${path.module}/scripts/install.sh.tftpl", {
+  key    = "install-default.sh"
+  content = templatefile("${path.module}/scripts/install-default.sh.tftpl", {
+    openvpnas_version = var.openvpn_version
+  })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
+}
+
+resource "aws_s3_object" "install_with_efs_sh" {
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.efs_enabled ? 1 : 0
+  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  key    = "install-with-efs.sh"
+  content = templatefile("${path.module}/scripts/install-with-efs.sh.tftpl", {
     openvpnas_version         = var.openvpn_version
     efs_mount_target_dns_name = module.efs.mount_target_dns_names[0],
+  })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
+}
+
+resource "aws_s3_object" "cloudwatch_config_json" {
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.cloudwatch_enabled ? 1 : 0
+  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  key    = "cloudwatch-config.json"
+  content = templatefile("${path.module}/scripts/cloudwatch-config.json.tftpl", {
+    metrics_namespace = module.context.id
+    log_group_name    = aws_cloudwatch_log_group.ec2_logs_group[0].name
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }

@@ -1,0 +1,75 @@
+name: Terraform Lint
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'LICENSE'
+      - 'NOTICE'
+      - 'README.md'
+      - '.gitignore'
+    branches:
+      - master
+      - develop
+  pull_request:
+
+jobs:
+  check_format:
+    runs-on: ubuntu-latest
+    name: Check terraform format
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: terraform fmt
+        uses: dflook/terraform-fmt-check@v1.31.1
+
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate terraform
+    env:
+      TERRAFORM_CLOUD_TOKENS: app.terraform.io=${{ secrets.TF_CLOUD_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+
+      - name: terraform validate
+        uses: dflook/terraform-validate@v1.31.1
+
+  tfsec:
+    name: Run AquaSecurity scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo.
+        uses: actions/checkout@master
+
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.2
+        # with:
+        #   soft_fail: true
+
+  checkov:
+    name: Run Bridgecrew.io scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Test with Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./
+          framework: terraform
+
+      - name: Test with Checkov (examples/complete)
+        id: checkov_examples_complete
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./examples/complete
+          framework: terraform

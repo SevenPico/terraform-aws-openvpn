@@ -1,9 +1,30 @@
+## ----------------------------------------------------------------------------
+##  Copyright 2023 SevenPico, Inc.
+##
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+## ----------------------------------------------------------------------------
+
+## ----------------------------------------------------------------------------
+##  ./examples/default/openvpn.tf
+##  This file contains code written by SevenPico, Inc.
+## ----------------------------------------------------------------------------
+
 #------------------------------------------------------------------------------
 # OpenVPN Labels
 #------------------------------------------------------------------------------
 module "openvpn_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.2"
+  version = "1.1.0"
   context = module.context.self
   name    = "vpn"
 }
@@ -25,10 +46,18 @@ module "openvpn" {
   vpc_id                     = module.vpc.vpc_id
 
   # Optional
+  efs_enabled                     = false
   create_openvpn_secret           = true
   nlb_acm_certificate_arn         = module.ssl_certificate.acm_certificate_arn
   nlb_deletion_protection_enabled = false
   nlb_subnet_ids                  = module.vpc_subnets.public_subnet_ids
+  openvpn_daemon_tcp_port         = null
+  openvpn_ui_https_port           = 443
+
+  openvpn_config_scripts_additional = [
+    local.nat_routing_script_name,
+    local.ssl_script_name
+  ]
 }
 
 #------------------------------------------------------------------------------
@@ -36,7 +65,7 @@ module "openvpn" {
 #------------------------------------------------------------------------------
 locals {
   nat_routing_script_name = "nat-routing.sh"
-  ssl_config_script_name      = "ssl-config.sh"
+  ssl_script_name         = "ssl-config.sh"
 }
 
 module "openvpn_nat_routing_script" {
@@ -57,7 +86,7 @@ module "openvpn_ssl_config_script" {
 
   bucket_id              = module.openvpn.ssm_script_bucket_id
   ec2_role_name          = module.openvpn.role_name
-  script_name            = local.ssl_config_script_name
+  script_name            = local.ssl_script_name
   ssl_secret_arn         = module.ssl_certificate.secret_arn
   ssl_secret_kms_key_arn = module.ssl_certificate.kms_key_arn
 }

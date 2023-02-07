@@ -2,41 +2,22 @@
 
 PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
 
+# Set Hostname
 sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
 sudo hostnamectl set-hostname ${hostname}
 sudo hostname ${hostname}
 
+# Install and configure OpenVPN
+STATUS="$(systemctl is-active amazon-cloudwatch-agent)"
+if [ "$${STATUS}" = "active" ]; then
+    echo "Cloudwatch Agent already running"
+else
+    echo "Installing and configuring Cloudwatch Agent"
+    wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+    sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+    sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/root/scripts/cloudwatch-config.json
+fi
 
-#FIXME TODO
-#curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O
-#curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/AgentDependencies.tar.gz -O
-#tar xvf AgentDependencies.tar.gz -C /tmp/
-#sudo python ./awslogs-agent-setup.py --region us-east-1 --dependency-path /tmp/AgentDependencies
-#
-#AWS access key ID
-#Press Enter if using an IAM role. Otherwise, enter your AWS access key ID.
-#
-#AWS secret access key
-#Press Enter if using an IAM role. Otherwise, enter your AWS secret access key.
-#
-#Default Region name
-#Press Enter. The default is us-east-2. You can set this to us-east-1, us-west-1, us-west-2, ap-south-1, ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, eu-central-1, eu-west-1, or sa-east-1.
-#
-#Default output format
-#Leave blank and press Enter.
-#
-#Path of log file to upload
-#The location of the file that contains the log data to send. The installer suggests a path for you.
-#
-#Destination Log Group name
-#The name for your log group. The installer suggests a log group name for you.
-#
-#Destination Log Stream name
-#By default, this is the name of the host. The installer suggests a host name for you.
-#
-#Timestamp format
-#Specify the format of the time stamp within the specified log file. Choose custom to specify your own format.
-#
-#Initial position
-#How data is uploaded. Set this to start_of_file to upload everything in the data file. Set to end_of_file to upload only newly appended data.
-#
+# Keep OpenVPN_AS Log Files Pruned
+echo "Pruning OpenVPN_AS Logs"
+/bin/rm /var/log/openvpnas.log.{15..1000} >/dev/null 2>&1
