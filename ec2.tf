@@ -1,3 +1,24 @@
+## ----------------------------------------------------------------------------
+##  Copyright 2023 SevenPico, Inc.
+##
+##  Licensed under the Apache License, Version 2.0 (the "License");
+##  you may not use this file except in compliance with the License.
+##  You may obtain a copy of the License at
+##
+##     http://www.apache.org/licenses/LICENSE-2.0
+##
+##  Unless required by applicable law or agreed to in writing, software
+##  distributed under the License is distributed on an "AS IS" BASIS,
+##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##  See the License for the specific language governing permissions and
+##  limitations under the License.
+## ----------------------------------------------------------------------------
+
+## ----------------------------------------------------------------------------
+##  ./ec2.tf
+##  This file contains code written by SevenPico, Inc.
+## ----------------------------------------------------------------------------
+
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group Locals
 #------------------------------------------------------------------------------
@@ -27,14 +48,14 @@ locals {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_context" {
   source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  version    = "1.1.0"
   context    = module.context.self
   attributes = ["ec2"]
 }
 
 module "ec2_autoscale_group_sg_context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.2"
+  version = "1.1.0"
   context = module.ec2_autoscale_group_context.self
 }
 
@@ -45,6 +66,12 @@ module "ec2_autoscale_group_sg_context" {
 resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
   count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
   name              = "/aws/ec2/${module.ec2_autoscale_group_context.id}"
+  retention_in_days = var.cloudwatch_logs_expiration_days
+}
+
+resource "aws_cloudwatch_log_group" "ec2_logs_group" {
+  count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
+  name              = "/aws/ec2/${module.context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
 
@@ -196,7 +223,7 @@ module "ec2_autoscale_group_sg" {
 }
 
 resource "aws_security_group_rule" "ui_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_ui_https_port != null ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -207,7 +234,7 @@ resource "aws_security_group_rule" "ui_port" {
 }
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_tcp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_tcp_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -218,7 +245,7 @@ resource "aws_security_group_rule" "daemon_tcp_port" {
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
-  count             = module.ec2_autoscale_group_sg_context.enabled ? 1 : 0
+  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_udp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_udp_port
   protocol          = "udp"
   security_group_id = module.ec2_autoscale_group_sg.id

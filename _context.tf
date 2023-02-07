@@ -17,7 +17,6 @@
 
 ## ----------------------------------------------------------------------------
 ##  _context.tf
-##
 ##  Copied and adapted from terraform-null-label (https://github.com/cloudposse/terraform-null-label/blob/master/exports/context.tf)
 ## ----------------------------------------------------------------------------
 
@@ -45,7 +44,7 @@
 
 module "context" {
   source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.2" # requires Terraform >= 0.13.0
+  version = "1.1.0" # requires Terraform >= 0.13.0
 
   enabled             = var.enabled
   namespace           = var.namespace
