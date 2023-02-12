@@ -23,8 +23,8 @@
 # NLB Labels
 # ------------------------------------------------------------------------------
 module "nlb_context" {
-  source          = "app.terraform.io/SevenPico/context/null"
-  version         = "1.0.2"
+  source          = "SevenPico/context/null"
+  version         = "2.0.0"
   context         = module.context.self
   enabled         = module.context.enabled && var.create_nlb
   attributes      = ["nlb"]
@@ -33,8 +33,8 @@ module "nlb_context" {
 
 module "nlb_tgt_context" {
   count      = length(local.nlb_listener_protocols)
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.nlb_context.self
   attributes = [local.nlb_listener_ports[count.index], "tgt"]
 }
@@ -67,8 +67,8 @@ locals {
 # NLB
 # ------------------------------------------------------------------------------
 module "nlb" {
-  source  = "app.terraform.io/SevenPico/nlb/aws"
-  version = "0.8.2.6"
+  source  = "SevenPicoForks/nlb/aws"
+  version = "2.0.0"
   context = module.nlb_context.self
 
   access_logs_enabled               = var.nlb_access_logs_s3_bucket_id != null

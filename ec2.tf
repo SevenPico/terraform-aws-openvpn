@@ -47,15 +47,15 @@ locals {
 # EC2 VPN Auto Scale Group Meta
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.1.0"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.context.self
   attributes = ["ec2"]
 }
 
 module "ec2_autoscale_group_sg_context" {
-  source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.1.0"
+  source  = "SevenPico/context/null"
+  version = "2.0.0"
   context = module.ec2_autoscale_group_context.self
 }
 
@@ -80,8 +80,8 @@ resource "aws_cloudwatch_log_group" "ec2_logs_group" {
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
-  source  = "app.terraform.io/SevenPico/ec2-autoscale-group/aws"
-  version = "0.30.1.3"
+  source  = "SevenPicoForks/ec2-autoscale-group/aws"
+  version = "2.0.0"
   context = module.ec2_autoscale_group_context.self
 
   instance_type    = var.ec2_autoscale_instance_type
@@ -169,8 +169,8 @@ module "ec2_autoscale_group" {
 # EC2 VPN Auto Scale Security Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_sg" {
-  source  = "app.terraform.io/SevenPico/security-group/aws"
-  version = "2.0.0.2"
+  source  = "SevenPicoForks/security-group/aws"
+  version = "3.0.0"
   context = module.ec2_autoscale_group_sg_context.self
 
   allow_all_egress              = true

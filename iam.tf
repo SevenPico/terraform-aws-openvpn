@@ -20,31 +20,31 @@
 ## ----------------------------------------------------------------------------
 
 module "ec2_autoscale_group_role_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ec2_autoscale_group_context.self
   attributes = ["role"]
 }
 
 module "ec2_autoscale_group_lifecycle_role_context" {
-  source          = "app.terraform.io/SevenPico/context/null"
-  version         = "1.0.2"
+  source          = "SevenPico/context/null"
+  version         = "2.0.0"
   context         = module.ec2_autoscale_group_context.self
   attributes      = ["lifecycle", "role"]
   id_length_limit = 63
 }
 
 module "ec2_autoscale_group_lifecycle_policy_context" {
-  source          = "app.terraform.io/SevenPico/context/null"
-  version         = "1.0.2"
+  source          = "SevenPico/context/null"
+  version         = "2.0.0"
   context         = module.ec2_autoscale_group_context.self
   attributes      = ["lifecycle", "policy"]
   id_length_limit = 63
 }
 
 module "ec2_autoscale_group_sns_role_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ec2_autoscale_group_sns_context.self
   attributes = ["role"]
 }
@@ -85,6 +85,20 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
     resources = [
       "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}",
       "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}/*"
+    ]
+  }
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:PutBucketLocation",
+      "s3:GetObjectVersion",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    effect = "Allow"
+    resources = [
+      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}/backups/*"
     ]
   }
   statement {
@@ -152,8 +166,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
 }
 
 module "ec2_autoscale_group_role" {
-  source  = "app.terraform.io/SevenPico/iam-role/aws"
-  version = "0.16.2.1"
+  source  = "SevenPicoForks/iam-role/aws"
+  version = "2.0.0"
   context = module.ec2_autoscale_group_role_context.self
 
   assume_role_actions      = ["sts:AssumeRole"]

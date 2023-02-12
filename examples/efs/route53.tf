@@ -15,25 +15,38 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./modules/nat-routing-script/main.tf
+##  ./examples/default/route53.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-module "nat_routing_sh_context" {
-  source     = "SevenPico/context/null"
-  version    = "2.0.0"
-  context    = module.context.self
-  attributes = ["nat", "routing"]
+data "aws_route53_zone" "root" {
+  count = module.context.enabled ? 1 : 0
+  name  = var.root_domain
+
 }
 
-resource "aws_s3_object" "nat_routing_sh" {
-  count  = module.nat_routing_sh_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = "nat-routing.sh"
-  content = templatefile("${path.module}/nat-routing.sh.tftpl", {
-    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
-    #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
-    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
-  })
+resource "aws_route53_zone" "public" {
+  count = module.context.enabled ? 1 : 0
+  name  = module.context.domain_name
+  tags  = module.context.tags
 }
+
+resource "aws_route53_record" "ns" {
+  count   = module.context.enabled ? 1 : 0
+  name    = module.context.domain_name
+  type    = "NS"
+  zone_id = join("", data.aws_route53_zone.root[*].id)
+  records = length(aws_route53_zone.public) > 0 ? aws_route53_zone.public[0].name_servers : []
+  ttl     = 300
+}
+
+resource "aws_route53_zone" "private" {
+  count = module.context.enabled ? 1 : 0
+  name  = module.context.domain_name
+  vpc {
+    vpc_id = module.vpc.vpc_id
+  }
+  tags = module.context.tags
+}
+
+

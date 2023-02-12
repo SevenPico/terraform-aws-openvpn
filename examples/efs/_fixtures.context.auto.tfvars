@@ -15,25 +15,22 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./modules/nat-routing-script/main.tf
+##  ./examples/default/_fixtures.context.auto.tfvars
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-module "nat_routing_sh_context" {
-  source     = "SevenPico/context/null"
-  version    = "2.0.0"
-  context    = module.context.self
-  attributes = ["nat", "routing"]
-}
-
-resource "aws_s3_object" "nat_routing_sh" {
-  count  = module.nat_routing_sh_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = "nat-routing.sh"
-  content = templatefile("${path.module}/nat-routing.sh.tftpl", {
-    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
-    #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
-    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
-  })
-}
+enabled     = true
+namespace   = "sp"
+environment = "openvpn"
+stage       = "efs"
+domain_name = "efs.openvpn.7pi.io"
+#name                = ""
+#delimiter           = var.delimiter
+#attributes          = var.attributes
+#tags                = var.tags
+#additional_tag_map  = var.additional_tag_map
+#label_order         = var.label_order
+#regex_replace_chars = var.regex_replace_chars
+#id_length_limit     = var.id_length_limit
+#label_key_case      = var.label_key_case
+#label_value_case    = var.label_value_case

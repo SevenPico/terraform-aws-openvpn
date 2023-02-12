@@ -20,8 +20,8 @@
 ## ----------------------------------------------------------------------------
 
 module "ec2_autoscale_group_scripts_bucket_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ec2_autoscale_group_context.self
   attributes = ["scripts"]
 }
@@ -76,8 +76,8 @@ data "aws_iam_policy_document" "deployer_artifacts_bucket" {
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
-  source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.8"
+  source  = "SevenPicoForks/s3-bucket/aws"
+  version = "4.0.0"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
@@ -126,6 +126,19 @@ module "ec2_autoscale_group_scripts_bucket" {
   wait_time_seconds             = 120
 }
 
+resource "aws_s3_object" "backup_sqlite_install_sh" {
+  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
+  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  key    = "backup-sqlite-install.sh"
+  content = templatefile("${path.module}/scripts/backup-sqlite-install.sh.tftpl", {
+    s3_bucket     = module.ec2_autoscale_group_scripts_bucket.bucket_id
+    region        = data.aws_region.current.name
+    s3_backup_key = "backups/openvpn_backup.tar.gz"
+  })
+  depends_on = [module.ec2_autoscale_group_scripts_bucket]
+}
+
+
 resource "aws_s3_object" "init_sh" {
   count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
@@ -153,7 +166,9 @@ resource "aws_s3_object" "install_with_efs_sh" {
   key    = "install-with-efs.sh"
   content = templatefile("${path.module}/scripts/install-with-efs.sh.tftpl", {
     openvpnas_version         = var.openvpn_version
-    efs_mount_target_dns_name = module.efs.mount_target_dns_names[0],
+    efs_mount_target_dns_name = module.efs.mount_target_dns_names[0]
+    s3_backup_bucket          = module.ec2_autoscale_group_scripts_bucket.bucket_id
+    s3_backup_key             = "backups/openvpn_backup_pre_install.tar.gz"
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }
