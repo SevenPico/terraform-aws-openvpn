@@ -29,7 +29,7 @@
 
           "cd /root",
           "mkdir -p ./scripts",
-          "sudo aws s3 sync s3://${scripts_bucket_id} ./scripts/ --region ${region} --delete --sse",
+          "sudo aws s3 sync s3://${scripts_bucket_id} ./scripts/ --region ${region} --delete --sse --exclude 'backups/*'",
           "cd ./scripts",
           "sudo chmod o-rwx *.sh",
           "sudo chmod ug+rwx *.sh",

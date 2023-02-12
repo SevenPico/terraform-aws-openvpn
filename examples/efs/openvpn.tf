@@ -46,7 +46,7 @@ module "openvpn" {
   vpc_id                     = module.vpc.vpc_id
 
   # Optional
-  efs_enabled                     = false
+  efs_enabled                     = true
   create_openvpn_secret           = true
   nlb_acm_certificate_arn         = module.ssl_certificate.acm_certificate_arn
   nlb_deletion_protection_enabled = false
@@ -69,7 +69,7 @@ locals {
 }
 
 module "openvpn_nat_routing_script" {
-  source  = "../../modules/reverse-routing-script"
+  source  = "../../modules/nat-routing-script"
   context = module.openvpn_context.self
 
   bucket_id                  = module.openvpn.ssm_script_bucket_id

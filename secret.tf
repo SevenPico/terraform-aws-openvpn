@@ -23,16 +23,16 @@
 # Secrets Manager Labels
 #------------------------------------------------------------------------------
 module "secret_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled && var.create_openvpn_secret
   attributes = ["secret"]
 }
 
 module "secret_kms_context" {
-  source  = "app.terraform.io/SevenPico/context/null"
-  version = "1.0.2"
+  source  = "SevenPico/context/null"
+  version = "2.0.0"
   context = module.secret_context.self
 }
 
@@ -46,7 +46,7 @@ locals {
 # Secrets Manager KMS Key
 #------------------------------------------------------------------------------
 module "secret_kms_key" {
-  source  = "registry.terraform.io/cloudposse/kms-key/aws"
+  source  = "cloudposse/kms-key/aws"
   version = "0.12.1"
   context = module.secret_kms_context.legacy
 

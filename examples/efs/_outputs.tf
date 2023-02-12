@@ -15,25 +15,32 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./modules/nat-routing-script/main.tf
+##  ./examples/default/_outputs.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-module "nat_routing_sh_context" {
-  source     = "SevenPico/context/null"
-  version    = "2.0.0"
-  context    = module.context.self
-  attributes = ["nat", "routing"]
+output "autoscaling_group_arn" {
+  value = module.openvpn.autoscale_group_arn
 }
 
-resource "aws_s3_object" "nat_routing_sh" {
-  count  = module.nat_routing_sh_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = "nat-routing.sh"
-  content = templatefile("${path.module}/nat-routing.sh.tftpl", {
-    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
-    #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
-    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
-  })
+output "ec2_security_group_id" {
+  value = module.openvpn.security_group_id
 }
+
+output "autoscaling_role_arn" {
+  value = module.openvpn.role_arn
+}
+
+output "autoscaling_lifecycle_role_arn" {
+  value = module.openvpn.lifecycle_role_arn
+}
+
+output "autoscaling_sns_role_arn" {
+  value = module.openvpn.sns_role_arn
+}
+
+output "openvpn_ui_url" {
+  value = "https://${module.openvpn.nlb_dns_name}:${module.openvpn.ui_https_port}"
+}
+
+

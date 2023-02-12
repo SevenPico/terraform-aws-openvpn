@@ -20,8 +20,8 @@
 ## ----------------------------------------------------------------------------
 
 module "ec2_autoscale_group_sns_context" {
-  source     = "app.terraform.io/SevenPico/context/null"
-  version    = "1.0.2"
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
   context    = module.ec2_autoscale_group_context.self
   attributes = ["sns"]
   enabled    = var.create_ec2_autoscale_sns_topic && module.ec2_autoscale_group_context.enabled

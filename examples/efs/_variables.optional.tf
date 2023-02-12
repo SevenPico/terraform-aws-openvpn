@@ -42,8 +42,6 @@ variable "ec2_autoscale_sns_topic_heartbeat_timeout" { default = 180 }
 variable "ec2_additional_security_group_ids" { default = [] }
 variable "ec2_key_name" { default = null }
 variable "ec2_initialization_schedule_expression" { default = null }
-variable "ec2_backup_schedule_expression" { default = "cron(0 00 00 ? * * *)" }
-variable "ec2_backup_enabled" { default = true }
 variable "efs_enabled" { default = true }
 
 #------------------------------------------------------------------------------
