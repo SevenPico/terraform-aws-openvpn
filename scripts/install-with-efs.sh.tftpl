@@ -4,6 +4,7 @@ OPENVPNAS_VERSION=${openvpnas_version}
 OPENVPNAS_DIR=/usr/local/openvpn_as
 OPENVPNAS_BACKUP_DIR=/usr/local/openvpn_as/backup
 OPENVPNAS_SERVICE=openvpnas
+EFS_MOUNT_OPTIONS="nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev"
 
 S3_BACKUP_BUCKET=${s3_backup_bucket}
 S3_BACKUP_KEY=${s3_backup_key}
@@ -18,22 +19,36 @@ else
   mkdir -p $OPENVPNAS_DIR
   apt -y install nfs-common
   echo "Mounting EFS Volume at /usr/local/openvpn_as."
-  mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_mount_target_dns_name}:/ $OPENVPNAS_DIR
+  mount -t nfs -o $EFS_MOUNT_OPTIONS ${efs_mount_target_dns_name}:/ $OPENVPNAS_DIR
+  sleep 3
+  # Add mount to fstab for reboots
+  printf "${efs_mount_target_dns_name}:/ $OPENVPNAS_DIR nfs $EFS_MOUNT_OPTIONS 0 0\n" >> /etc/fstab
 fi
 
-# If the machine was rebooted, then the mount was just re-established, but likely the OpenVPN service is not running
-# because the openvpn files were not there.  So now they are there, attempt to start the service.
+# Final EFS Check.  Exit if no EFS.
+if grep -q "$OPENVPNAS_DIR" /proc/mounts
+then
+   echo "EFS Drive Is Mounted."
+else
+   echo "The EFS Drive has failed to mount.  Exiting script."
+   exit 1
+fi
 
-service $OPENVPNAS_SERVICE status | grep -i 'running\|stopped' | awk '{print $3}' | while read output;
-do
-  echo $output
-  if [ "$output" == "stopped" ]; then
-    service $OPENVPNAS_SERVICE start
-    echo "$OPENVPNAS_SERVICE service is UP now.!"
-  elif [ "$output" == "running" ]; then
-    echo "$OPENVPNAS_SERVICE service is running"
-  fi
-done
+service $OPENVPNAS_SERVICE status | grep -i 'Active:' | awk '{print $2}' | while read output;
+ do
+   echo "OpenVPN statis is $output"
+   if [ "$output" == "stopped" ]; then
+     echo "Attempting to start OpenVPN"
+     service $OPENVPNAS_SERVICE start
+     echo "$OPENVPNAS_SERVICE service is UP now.!"
+   elif [ "$output" == "failed" ]; then
+     echo "Attempting to start OpenVPN"
+     service $OPENVPNAS_SERVICE start
+     echo "$OPENVPNAS_SERVICE service is UP now.!"
+   elif [ "$output" == "running" ]; then
+     echo "$OPENVPNAS_SERVICE service is running"
+   fi
+ done
 
 service $OPENVPNAS_SERVICE status
 if [ $? = 0 ]; then
