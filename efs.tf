@@ -22,7 +22,7 @@
 module "efs" {
   source     = "cloudposse/efs/aws"
   version    = "0.32.7"
-  context    = module.ec2_autoscale_group_context.self
+  context    = module.ec2_autoscale_group_context.legacy
   enabled    = var.efs_enabled && module.ec2_autoscale_group_context.enabled
   attributes = ["efs"]
 
