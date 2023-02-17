@@ -53,6 +53,7 @@ module "openvpn" {
   nlb_subnet_ids                  = module.vpc_subnets.public_subnet_ids
   openvpn_daemon_tcp_port         = null
   openvpn_ui_https_port           = 443
+  ec2_preserve_security_group_id  = true
 
   openvpn_config_scripts_additional = [
     local.nat_routing_script_name,

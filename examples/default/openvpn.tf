@@ -67,6 +67,7 @@ module "openvpn" {
   ec2_backup_schedule_expression            = "cron(0 00 00 ? * * *)"
   ec2_initialization_schedule_expression    = null
   ec2_key_name                              = null
+  ec2_preserve_security_group_id            = true
   ec2_user_data                             = ""
   efs_enabled                               = true
 
@@ -85,7 +86,7 @@ module "openvpn" {
   openvpn_client_static_addresses_enabled = false
   openvpn_client_static_network           = "172.27.64.0"
   openvpn_client_static_network_mask      = "20"
-  openvpn_config_scripts_additional       = [
+  openvpn_config_scripts_additional = [
     local.nat_routing_script_name,
     local.ssl_script_name
   ]

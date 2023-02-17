@@ -169,7 +169,7 @@ module "ec2_autoscale_group" {
 # EC2 VPN Auto Scale Security Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_sg" {
-  source  = "SevenPicoForks/security-group/aws"
+  source  = "registry.terraform.io/SevenPicoForks/security-group/aws"
   version = "3.0.0"
   context = module.ec2_autoscale_group_sg_context.self
 
@@ -182,6 +182,7 @@ module "ec2_autoscale_group_sg" {
   security_group_name           = []
   target_security_group_id      = []
   vpc_id                        = var.vpc_id
+  preserve_security_group_id    = var.preserve_security_group_id
 
   rules_map   = {}
   rule_matrix = []
