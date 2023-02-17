@@ -182,7 +182,7 @@ module "ec2_autoscale_group_sg" {
   security_group_name           = []
   target_security_group_id      = []
   vpc_id                        = var.vpc_id
-  preserve_security_group_id    = var.preserve_security_group_id
+  preserve_security_group_id    = var.ec2_preserve_security_group_id
 
   rules_map   = {}
   rule_matrix = []
