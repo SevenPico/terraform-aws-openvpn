@@ -45,7 +45,7 @@ module "efs" {
   allowed_security_group_ids           = [module.ec2_autoscale_group_sg.id]
   associated_security_group_ids        = []
   availability_zone_name               = null
-  create_security_group                = true
+  create_security_group                = var.efs_enabled && module.ec2_autoscale_group_context.enabled //cloudposse module has a bug
   dns_name                             = ""
   efs_backup_policy_enabled            = false
   encrypted                            = true
