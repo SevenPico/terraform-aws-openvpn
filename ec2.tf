@@ -173,7 +173,7 @@ module "ec2_autoscale_group_sg" {
   version = "3.0.0"
   context = module.ec2_autoscale_group_sg_context.self
 
-  allow_all_egress              = true
+  allow_all_egress              = var.ec2_security_group_allow_all_egress
   create_before_destroy         = true
   inline_rules_enabled          = false
   security_group_create_timeout = "10m"
@@ -186,41 +186,7 @@ module "ec2_autoscale_group_sg" {
 
   rules_map   = {}
   rule_matrix = []
-  rules = [
-    {
-      key                      = 1
-      type                     = "egress"
-      from_port                = 443
-      to_port                  = 2049 // 443
-      protocol                 = "tcp"
-      cidr_blocks              = var.vpc_cidr_blocks
-      ipv6_cidr_blocks         = []
-      source_security_group_id = null
-      self                     = null
-      description              = "Allow https egress to VPC."
-    },
-    {
-      key                      = 2
-      type                     = "egress"
-      from_port                = 443
-      to_port                  = 443
-      protocol                 = "tcp"
-      cidr_blocks              = local.cloudflare_cidrs
-      ipv6_cidr_blocks         = []
-      source_security_group_id = null
-      self                     = null
-      description              = "Allow https egress to Cloudflare."
-    },
-    # {
-    #   key                      = 3
-    #   type                     = "egress"
-    #   from_port                = 2049
-    #   to_port                  = 2049
-    #   protocol                 = "tcp"
-    #   source_security_group_id = module.efs.security_group_id
-    #   description              = "Allow TCP egress to the EFS."
-    # }
-  ]
+  rules       = var.ec2_security_group_rules
 }
 
 resource "aws_security_group_rule" "ui_port" {
