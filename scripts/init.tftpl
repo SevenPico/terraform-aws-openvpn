@@ -1,0 +1,29 @@
+---
+schemaVersion: "2.2"
+description: Init Script.
+parameters:
+mainSteps:
+  - action: aws:runShellScript
+    name: installingDependencies
+    inputs:
+      runCommand:
+        - |
+          #!/bin/bash
+          PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+          # Set Hostname
+          sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
+          sudo hostnamectl set-hostname ${hostname}
+          sudo hostname ${hostname}
+          # Install and configure OpenVPN
+          STATUS="$(systemctl is-active amazon-cloudwatch-agent)"
+          if [ "$${STATUS}" = "active" ]; then
+          echo "Cloudwatch Agent already running"
+          else
+          echo "Installing and configuring Cloudwatch Agent"
+          wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+          sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+          sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/root/scripts/cloudwatch-config.json
+          fi
+          # Keep OpenVPN_AS Log Files Pruned
+          echo "Pruning OpenVPN_AS Logs"
+          /bin/rm /var/log/openvpnas.log.{15..1000} >/dev/null 2>&1

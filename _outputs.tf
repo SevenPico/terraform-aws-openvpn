@@ -84,7 +84,7 @@ output "secret_kms_key_arn" {
 }
 
 output "instance_name" {
-  value = module.ec2_autoscale_group_context.id
+  value = module.context.id
 }
 
 output "ui_https_port" {

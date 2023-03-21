@@ -1,0 +1,44 @@
+schemaVersion: "2.2"
+description: Install and configure OpenVPN.
+mainSteps:
+  - action: aws:runShellScript
+    name: installConfigureOpenvpn
+    inputs:
+      - |
+        #!/bin/bash
+
+        shopt -s extglob
+
+        # Install and configure OpenVPN
+        STATUS="$(systemctl is-active openvpnas)"
+        if [ "$${STATUS}" = "active" ]; then
+          echo "OpenVPN Installation detected and running. Skipping (re)install."
+        else
+          apt update
+          apt -y install ntp
+          apt -y install curl
+          apt -y install jq
+          apt -y install passwd
+          apt -y install awscli
+          apt -y install sqlite3
+          apt -y install systemctl
+          apt -y install wget
+          apt -y install ca-certificates
+          apt -y install net-tools
+          apt -y install gnupg
+          apt -y install nfs-common
+
+          wget https://as-repository.openvpn.net/as-repo-public.asc -qO /etc/apt/trusted.gpg.d/as-repository.asc
+          echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/as-repository.asc] http://as-repository.openvpn.net/as/debian jammy main">/etc/apt/sources.list.d/openvpn-as-repo.list
+
+          mkdir -p /openvpn{/pid,/sock,/tmp} /dev/net
+
+          if [ ! -c /dev/net/tun ]; then
+            mknod /dev/net/tun c 10 200
+          fi
+
+          echo "Installing OpenVPN"
+          apt-get update && apt-get install -y openvpn-as=${openvpnas_version}
+        fi
+
+        shopt -u extglob

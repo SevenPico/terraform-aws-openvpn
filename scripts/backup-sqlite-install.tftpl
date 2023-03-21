@@ -1,22 +1,18 @@
 ---
-schemaVersion: '2.2'
-description: Restore an SQLite OpenVPN EC2 instance with a backup stored in S3.
+schemaVersion: "2.2"
+description: Backup an SQLite OpenVPN EC2 instance. This document refers to the backup script that is stored on the EC2 instance as a result of the VPN Initialization SSM Document.
 parameters:
   S3BUCKET:
+    type: String
     description: The S3 Bucket where the backup is.
-    type: String
-    default: "${s3_bucket}"
+    default: ${s3_bucket}
   S3BACKUPKEY:
+    type: String
     description: The S3 Object Key of the BackUp GZ file.
-    type: String
-    default: "${s3_backup_key}"
-  BACKUPVERSIONID:
-    description: The ID of the S3 Object Version.
-    type: String
-    default: "${backup_version_id}"
+    default: ${s3_backup_key}
 mainSteps:
   - action: aws:runShellScript
-    name: VpnBackupRestore
+    name: BackupSQlite
     inputs:
       runCommand:
         - |
@@ -28,7 +24,7 @@ mainSteps:
           mkdir -p $OPENVPNAS_BACKUP_DIR
           cd $OPENVPNAS_BACKUP_DIR
           BASENAME=`basename {{S3BACKUPKEY}}`
-          echo "Retrieving {{S3BACKUPKEY}} from {{S3BUCKET}}."
+          echo \"Retrieving {{S3BACKUPKEY}} from {{S3BUCKET}}.\"
           aws s3api get-object --bucket {{S3BUCKET}} --key {{S3BACKUPKEY}} --region ${region} --version-id {{BACKUPVERSIONID}} $BASENAME
           tar -xf $BASENAME
           cd ./etc/db
@@ -36,11 +32,11 @@ mainSteps:
           for f in $DB_FILES
           do
           rm -f $OPENVPNAS_DIR/etc/db/$f
-          echo "Restoring $f."
+          echo \"Restoring $f.\"
           sqlite3 <$OPENVPNAS_BACKUP_DIR/etc/db/$f $OPENVPNAS_DIR/etc/db/$f
           done
-          rm -f $OPENVPNAS_DIR/etc/as.conf
-          echo "Restoring $OPENVPNAS_DIR/etc/as.conf."
+          rm -f $OPENVPNAS_DIR/etc/as.con
+          echo \"Restoring $OPENVPNAS_DIR/etc/as.conf.\"
           cp $OPENVPNAS_BACKUP_DIR/etc/as.conf $OPENVPNAS_DIR/etc/as.conf
           cd $OPENVPNAS_DIR
           rm -Rf $OPENVPNAS_DIR/tmp-backup-restore

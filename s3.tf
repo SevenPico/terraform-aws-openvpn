@@ -22,23 +22,15 @@
 module "ec2_autoscale_group_scripts_bucket_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.ec2_autoscale_group_context.self
+  context    = module.context.self
   attributes = ["scripts"]
 }
 
 
 locals {
-  init_sh             = try(join("", aws_s3_object.init_sh[*].key), "")
-  install_default_sh  = try(join("", aws_s3_object.install_default_sh[*].key), "")
-  install_with_efs_sh = try(join("", aws_s3_object.install_with_efs_sh[*].key), "")
-  openvpn_sh          = try(join("", aws_s3_object.openvpn_sh[*].key), "")
   #  static_sh           = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
 
   openvpn_config_scripts = concat(compact([
-    local.init_sh,
-    local.install_default_sh,
-    local.install_with_efs_sh,
-    local.openvpn_sh,
     #    local.static_sh
   ]), var.openvpn_config_scripts_additional)
 }
@@ -126,53 +118,6 @@ module "ec2_autoscale_group_scripts_bucket" {
   wait_time_seconds             = 120
 }
 
-resource "aws_s3_object" "backup_sqlite_install_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "backup-sqlite-install.sh"
-  content = templatefile("${path.module}/scripts/backup-sqlite-install.sh.tftpl", {
-    s3_bucket     = module.ec2_autoscale_group_scripts_bucket.bucket_id
-    region        = data.aws_region.current.name
-    s3_backup_key = "backups/openvpn_backup.tar.gz"
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
-
-resource "aws_s3_object" "init_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "init.sh"
-  content = templatefile("${path.module}/scripts/init.sh.tftpl", {
-    hostname = var.openvpn_hostname
-    region   = data.aws_region.current.name
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
-resource "aws_s3_object" "install_default_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && !var.efs_enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "install-default.sh"
-  content = templatefile("${path.module}/scripts/install-default.sh.tftpl", {
-    openvpnas_version = var.openvpn_version
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
-resource "aws_s3_object" "install_with_efs_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.efs_enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "install-with-efs.sh"
-  content = templatefile("${path.module}/scripts/install-with-efs.sh.tftpl", {
-    openvpnas_version         = var.openvpn_version
-    efs_mount_target_dns_name = module.efs.mount_target_dns_names[0]
-    s3_backup_bucket          = module.ec2_autoscale_group_scripts_bucket.bucket_id
-    s3_backup_key             = "backups/openvpn_backup_pre_install.tar.gz"
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
 resource "aws_s3_object" "cloudwatch_config_json" {
   count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.cloudwatch_enabled ? 1 : 0
   bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
@@ -180,30 +125,6 @@ resource "aws_s3_object" "cloudwatch_config_json" {
   content = templatefile("${path.module}/scripts/cloudwatch-config.json.tftpl", {
     metrics_namespace = module.context.id
     log_group_name    = aws_cloudwatch_log_group.ec2_logs_group[0].name
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
-resource "aws_s3_object" "openvpn_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "openvpn.sh"
-  content = templatefile("${path.module}/scripts/openvpn.sh.tftpl", {
-    hostname                   = var.openvpn_hostname
-    webserver_name             = var.openvpn_web_server_name,
-    ui_https_port              = var.openvpn_ui_https_port == null ? "" : var.openvpn_ui_https_port
-    daemon_udp_port            = var.openvpn_daemon_udp_port == null ? "" : var.openvpn_daemon_udp_port
-    daemon_tcp_port            = var.openvpn_daemon_tcp_port == null ? "" : var.openvpn_daemon_tcp_port
-    dhcp_option_domain         = var.openvpn_dhcp_option_domain,
-    client_dhcp_network        = var.openvpn_client_dhcp_network
-    client_dhcp_network_mask   = var.openvpn_client_dhcp_network_mask
-    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
-    password_secret_arn        = local.secret_arn
-    password_secret_key        = var.openvpn_secret_admin_password_key
-    region                     = local.current_region
-    tls_version_min            = var.openvpn_tls_version_min
-    enable_vpn_server_nat      = var.openvpn_enable_server_nat
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }

@@ -1,0 +1,129 @@
+schemaVersion: "2.2"
+description: Mounting Efs.
+mainSteps:
+  - action: aws:runShellScript
+    name: mountingEfs
+    inputs:
+      runCommand:
+        - |
+          #!/bin/bash
+          OPENVPNAS_VERSION=${openvpnas_version}
+          OPENVPNAS_DIR=/usr/local/openvpn_as
+          OPENVPNAS_BACKUP_DIR=/usr/local/openvpn_as/backup
+          OPENVPNAS_SERVICE=openvpnas
+          EFS_MOUNT_OPTIONS="nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev"
+
+          S3_BACKUP_BUCKET=${s3_backup_bucket}
+          S3_BACKUP_KEY=${s3_backup_key}
+
+          apt update
+
+          # Is the OpenVPN Installation Dir Already Mounted to the File System?
+          if mount | awk '{if ($3 == "/usr/local/openvpn_as") { exit 0}} ENDFILE{exit -1}'; then
+            echo "$OPENVPNAS_DIR is already mounted to the EFS volume."
+          else
+            mkdir -p $OPENVPNAS_DIR
+            apt -y install nfs-common
+            echo "Mounting EFS Volume at /usr/local/openvpn_as."
+            mount -t nfs -o $EFS_MOUNT_OPTIONS ${efs_mount_target_dns_name}:/ $OPENVPNAS_DIR
+            sleep 3
+          # Add mount to fstab for reboots
+            printf "${efs_mount_target_dns_name}:/ $OPENVPNAS_DIR nfs $EFS_MOUNT_OPTIONS 0 0\n" >> /etc/fstab
+          fi
+
+          # Final EFS Check.  Exit if no EFS.
+          if grep -q "$OPENVPNAS_DIR" /proc/mounts
+          then
+            echo "EFS Drive Is Mounted."
+          else
+            echo "The EFS Drive has failed to mount.  Exiting script."
+            exit 1
+          fi
+
+          service $OPENVPNAS_SERVICE status | grep -i 'Active:' | awk '{print $2}' | while read output;
+          do
+           echo "OpenVPN statis is $output"
+           if [ "$output" == "stopped" ]; then
+             echo "Attempting to start OpenVPN"
+             service $OPENVPNAS_SERVICE start
+             echo "$OPENVPNAS_SERVICE service is UP now.!"
+           elif [ "$output" == "failed" ]; then
+             echo "Attempting to start OpenVPN"
+             service $OPENVPNAS_SERVICE start
+             echo "$OPENVPNAS_SERVICE service is UP now.!"
+           elif [ "$output" == "running" ]; then
+             echo "$OPENVPNAS_SERVICE service is running"
+           fi
+          done
+
+          service $OPENVPNAS_SERVICE status
+          if [ $? = 0 ]; then
+            echo "Skipping installation of $OPENVPNAS_SERVICE."
+          else
+            echo "$OPENVPNAS_SERVICE has not been detected and needs to be installed."
+            apt -y install ntp
+            apt -y install curl
+            apt -y install jq
+            apt -y install passwd
+            apt -y install awscli
+            apt -y install sqlite3
+            apt -y install yum
+            apt -y install systemctl
+            apt -y install wget
+            apt -y install ca-certificates
+            apt -y install net-tools
+            apt -y install gnupg
+
+            wget https://as-repository.openvpn.net/as-repo-public.asc -qO /etc/apt/trusted.gpg.d/as-repository.asc
+            echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/as-repository.asc] http://as-repository.openvpn.net/as/debian jammy main">/etc/apt/sources.list.d/openvpn-as-repo.list
+
+          if [ ! -c /dev/net/tun ]; then
+            mknod /dev/net/tun c 10 200
+          fi
+
+          # if there was an existing prior installation, we need to save off the configuration so it can be restored
+          if [ -f $OPENVPNAS_DIR/etc/as.conf ]; then
+            /root/scripts/backup-sqlite-install.sh "$S3_BACKUP_BUCKET" "$S3_BACKUP_KEY"
+          fi
+
+          # Prep for installation
+          shopt -s extglob
+          mkdir -p /openvpn/tmp
+          mkdir -p /openvpn/sock
+          mkdir -p /openvpn/pid
+
+          echo "Installing OpenVPN."
+          apt-get update && apt-get install -y openvpn-as=$OPENVPNAS_VERSION
+
+          echo "Stopping openvpn-as now; will start again later after configuring"
+          [ -f /var/run/openvpnas.pid ] && kill `cat /var/run/openvpnas.pid`
+          sed -i \
+            -e 's#~/tmp#/openvpn/tmp#g' \
+            -e 's#~/sock#/openvpn/sock#g' \
+            /usr/local/openvpn_as/etc/as_templ.conf
+
+          shopt -u extglob
+
+          for file in /openvpn/sock/*; do
+            if [ -e "$file" ]; then
+              rm -rf "$file"
+            fi
+          done
+
+          for file in /openvpn/pid/*; do
+            if [ -e "$file" ]; then
+              rm -rf "$file"
+            fi
+          done
+
+          service $OPENVPNAS_SERVICE status | grep -i 'running\|stopped' | awk '{print $3}' | while read output;
+          do
+            echo $output
+            if [ "$output" == "stopped" ]; then
+              service $OPENVPNAS_SERVICE start
+              echo "$OPENVPNAS_SERVICE service is UP now.!"
+            elif [ "$output" == "running" ]; then
+              echo "$OPENVPNAS_SERVICE service is running"
+            fi
+          done
+          fi

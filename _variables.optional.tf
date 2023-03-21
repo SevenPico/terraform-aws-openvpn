@@ -45,6 +45,7 @@ variable "ec2_initialization_schedule_expression" { default = null }
 variable "ec2_backup_schedule_expression" { default = "cron(0 00 00 ? * * *)" }
 variable "ec2_backup_enabled" { default = true }
 variable "efs_enabled" { default = true }
+variable "ebs_enable" { default = false }
 variable "ec2_preserve_security_group_id" { default = false }     // when true, minimizes security group destroys.  default to false for backwards compatibility
 variable "ec2_security_group_allow_all_egress" { default = true } //for backwards compatibility
 variable "ec2_security_group_rules" {

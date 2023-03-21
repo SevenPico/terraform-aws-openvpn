@@ -15,13 +15,15 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_variables.required.tf
+##  ./ebs.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "openvpn_hostname" { type = string }
-variable "openvpn_dhcp_option_domain" {}
-variable "subnet_ids" { type = list(string) }
-variable "vpc_cidr_blocks" { type = list(string) }
-variable "vpc_id" { type = string }
-variable "availibilty_zone" { type = string }
+resource "aws_ebs_volume" "openvpn_ebs_volume" {
+  count             = module.context.enabled && var.ebs_enable ? 1 : 0
+  availability_zone = var.availibilty_zone
+  encrypted         = true
+  kms_key_id        = module.secret_kms_key.key_id
+  size              = 10
+  type              = "standard"
+}

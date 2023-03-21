@@ -56,7 +56,7 @@ locals {
     {
       elb_name : null
       target_group_arn : x.arn
-      container_name : module.ec2_autoscale_group_context.id
+      container_name : module.context.id
       container_port : x.port
     }
   ]

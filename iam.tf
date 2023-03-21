@@ -22,23 +22,23 @@
 module "ec2_autoscale_group_role_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.ec2_autoscale_group_context.self
-  attributes = ["role"]
+  context    = module.context.self
+  attributes = ["ec2", "role"]
 }
 
 module "ec2_autoscale_group_lifecycle_role_context" {
   source          = "SevenPico/context/null"
   version         = "2.0.0"
-  context         = module.ec2_autoscale_group_context.self
-  attributes      = ["lifecycle", "role"]
+  context         = module.context.self
+  attributes      = ["ec2", "lifecycle", "role"]
   id_length_limit = 63
 }
 
 module "ec2_autoscale_group_lifecycle_policy_context" {
   source          = "SevenPico/context/null"
   version         = "2.0.0"
-  context         = module.ec2_autoscale_group_context.self
-  attributes      = ["lifecycle", "policy"]
+  context         = module.context.self
+  attributes      = ["ec2", "lifecycle", "policy"]
   id_length_limit = 63
 }
 
@@ -61,7 +61,7 @@ locals {
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
-  count   = module.ec2_autoscale_group_context.enabled ? 1 : 0
+  count   = module.context.enabled ? 1 : 0
   version = "2012-10-17"
 
   statement {
@@ -114,7 +114,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
     ]
     effect = "Allow"
     resources = compact([
-      "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.ec2_autoscale_group_context.id}*",
+      "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.context.id}*",
       local.secret_arn,
     ])
   }
@@ -174,7 +174,8 @@ module "ec2_autoscale_group_role" {
   assume_role_conditions   = []
   instance_profile_enabled = false
   managed_policy_arns = [
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
   ]
   max_session_duration  = 3600
   path                  = "/"
@@ -185,22 +186,16 @@ module "ec2_autoscale_group_role" {
   principals = {
     Service : [
       "ec2.amazonaws.com",
-      "ssm.amazonaws.com"
+      "ssm.amazonaws.com",
     ]
   }
   role_description = "IAM role with permissions to perform actions required by the VPN Server"
   use_fullname     = true
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_autoscale_group_ssm_management" {
-  count      = module.ec2_autoscale_group_role_context.enabled ? 1 : 0
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  role       = module.ec2_autoscale_group_role.name
-}
-
 resource "aws_iam_instance_profile" "ec2_autoscale_group_instance_profile" {
   count = module.ec2_autoscale_group_role_context.enabled ? 1 : 0
-  name  = "${module.ec2_autoscale_group_context.id}-instance-profile"
+  name  = "${module.context.id}-instance-profile"
   role  = module.ec2_autoscale_group_role.name
 }
 
