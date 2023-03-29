@@ -26,19 +26,6 @@ module "ssl_policy_context" {
   attributes = ["ssl", "policy"]
 }
 
-resource "aws_s3_object" "ssl_cert_sh" {
-  count  = module.ssl_policy_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = var.script_name
-  content = templatefile("${path.module}/ssl.sh.tftpl", {
-    secret_arn                      = var.ssl_secret_arn,
-    region                          = data.aws_region.current.name,
-    certificate_keyname             = var.ssl_secret_certificate_keyname
-    certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname
-    certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
-  })
-}
-
 data "aws_iam_role" "ec2_role" {
   count = module.ssl_policy_context.enabled ? 1 : 0
   name  = var.ec2_role_name
@@ -75,5 +62,36 @@ resource "aws_iam_role_policy" "ssl_access" {
   policy = join("", data.aws_iam_policy_document.ssl_access[*].json)
   role   = var.ec2_role_name
   name   = module.ssl_policy_context.id
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document SSL Configuration Script
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "ssl_config_script" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.ssl_policy_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.ssl_policy_context.tags
+  content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
+    secret_arn                      = var.ssl_secret_arn,
+    region                          = data.aws_region.current.name,
+    certificate_keyname             = var.ssl_secret_certificate_keyname
+    certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname
+    certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
+  })
+}
+
+resource "aws_ssm_association" "ssl_config_script" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.ssl_policy_context.id
+  name                = one(aws_ssm_document.ssl_config_script[*].name)
+  schedule_expression = var.ssm_documents_schedule_expression == null ? "" : var.ssm_documents_schedule_expression
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
 }
 

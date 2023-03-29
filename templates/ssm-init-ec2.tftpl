@@ -9,12 +9,24 @@ mainSteps:
       runCommand:
         - |
           #!/bin/bash
+          echo "Upgrading Ubuntu"
+          export DEBIAN_FRONTEND=noninteractive
+          sudo ln -fs /usr/share/zoneinfo/${time_zone} /etc/localtime
+          sudo dpkg-reconfigure --frontend noninteractive tzdata > /dev/null 2>&1
+          sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
+          sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
+          sudo apt-get update -y -q > /dev/null 2>&1
+          sudo apt-get upgrade -y -q > /dev/null 2>&1
+          sudo apt-get install ntp -y -q > /dev/null 2>&1
+          sudo apt-get install jq -y -q > /dev/null 2>&1
+          sudo apt-get install awscli -y -q > /dev/null 2>&1
           PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
           # Set Hostname
           sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
           sudo hostnamectl set-hostname ${hostname}
           sudo hostname ${hostname}
-          # Install and configure OpenVPN
+          # Install and configure Cloudwatch
+          echo "Installing Cloudwatch Agent"
           STATUS="$(systemctl is-active amazon-cloudwatch-agent)"
           if [ "$${STATUS}" = "active" ]; then
           echo "Cloudwatch Agent already running"
@@ -27,3 +39,6 @@ mainSteps:
           # Keep OpenVPN_AS Log Files Pruned
           echo "Pruning OpenVPN_AS Logs"
           /bin/rm /var/log/openvpnas.log.{15..1000} >/dev/null 2>&1
+
+
+          # ubuntu_os_upgrade_cron default = null variable

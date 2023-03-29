@@ -37,16 +37,6 @@ data "aws_secretsmanager_secret_version" "this" {
   version_stage = "AWSCURRENT"
 }
 
-resource "aws_s3_object" "this" {
-  count  = module.license_sh_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = "license.sh"
-  content = templatefile("${path.module}/license.sh.tftpl", {
-    secret_arn = var.secrets_arn
-    keyname    = var.secrets_licence_keyname
-    region     = data.aws_region.current.name
-  })
-}
 
 data "aws_iam_role" "this" {
   count = module.license_sh_context.enabled ? 1 : 0
@@ -84,5 +74,34 @@ resource "aws_iam_role_policy" "this" {
   policy = join("", data.aws_iam_policy_document.this[*].json)
   role   = var.ec2_role_name
   name   = module.license_sh_context.id
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document  License
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "license" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.license_sh_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.license_sh_context.tags
+  content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
+    secret_arn = var.secrets_arn
+    keyname    = var.secrets_licence_keyname
+    region     = data.aws_region.current.name
+  })
+}
+
+resource "aws_ssm_association" "license" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.license_sh_context.id
+  name                = one(aws_ssm_document.license[*].name)
+  schedule_expression = var.ssm_documents_schedule_expression == null ? "" : var.ssm_documents_schedule_expression
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
 }
 

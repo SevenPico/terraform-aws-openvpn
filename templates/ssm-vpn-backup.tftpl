@@ -1,18 +1,18 @@
 ---
-schemaVersion: "2.2"
+schemaVersion: '2.2'
 description: Backup an SQLite OpenVPN EC2 instance. This document refers to the backup script that is stored on the EC2 instance as a result of the VPN Initialization SSM Document.
 parameters:
   S3BUCKET:
-    type: String
     description: The S3 Bucket where the backup is.
-    default: ${s3_bucket}
-  S3BACKUPKEY:
     type: String
+    default: "${s3_bucket}"
+  S3BACKUPKEY:
     description: The S3 Object Key of the BackUp GZ file.
-    default: ${s3_backup_key}
+    type: String
+    default: "${s3_backup_key}"
 mainSteps:
   - action: aws:runShellScript
-    name: BackupSQlite
+    name: backupSqlite
     inputs:
       runCommand:
         - |

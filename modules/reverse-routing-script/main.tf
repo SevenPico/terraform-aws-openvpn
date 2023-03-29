@@ -19,21 +19,39 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-module "reverse_routing_sh_context" {
+module "reverse_routing_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
   attributes = ["reverse", "routing"]
 }
 
-resource "aws_s3_object" "reverse_routing_sh" {
-  count  = module.reverse_routing_sh_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = "reverse-routing.sh"
-  content = templatefile("${path.module}/reverse-routing.sh.tftpl", {
-    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
+
+#------------------------------------------------------------------------------
+# SSM Document Reverse Routing Configuration
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "reverse_routing_script" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.reverse_routing_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.reverse_routing_context.tags
+  content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
+  #    client_dhcp_network          = var.openvpn_client_dhcp_network,
     #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
     openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
     vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
   })
+}
+
+resource "aws_ssm_association" "ssl_config_script" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.reverse_routing_context.id
+  name                = one(aws_ssm_document.reverse_routing_script[*].name)
+  schedule_expression = var.ssm_documents_schedule_expression == null ? "" : var.ssm_documents_schedule_expression
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
 }

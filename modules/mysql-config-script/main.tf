@@ -26,20 +26,6 @@ module "ec2_rds_policy_context" {
   attributes = ["rds", "policy"]
 }
 
-resource "aws_s3_object" "openvpn_init_mysql_script" {
-  count  = module.ec2_rds_policy_context.enabled ? 1 : 0
-  bucket = var.bucket_id
-  key    = var.script_name
-  content = templatefile("${path.module}/mysql.sh.tftpl", {
-    rds_host               = var.rds_mysql_instance_address,
-    rds_secret_arn         = var.rds_secret_arn
-    rds_admin_username_key = var.rds_secret_admin_username_keyname
-    rds_admin_password_key = var.rds_secret_admin_password_keyname
-    rds_port_key           = var.rds_secret_port_keyname
-    region                 = data.aws_region.current.name
-  })
-}
-
 data "aws_iam_role" "ec2_role" {
   count = module.ec2_rds_policy_context.enabled ? 1 : 0
   name  = var.ec2_role_name
@@ -76,4 +62,36 @@ resource "aws_iam_role_policy" "rds_secrets_access" {
   policy = join("", data.aws_iam_policy_document.rds_secrets_access[*].json)
   role   = var.ec2_role_name
   name   = module.ec2_rds_policy_context.id
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document Mysql Configuration
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "nat_routing_script" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.ec2_rds_policy_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.ec2_rds_policy_context.tags
+  content = templatefile("${path.module}/templates/ssm-mysql.tftpl", {
+    rds_host               = var.rds_mysql_instance_address,
+    rds_secret_arn         = var.rds_secret_arn
+    rds_admin_username_key = var.rds_secret_admin_username_keyname
+    rds_admin_password_key = var.rds_secret_admin_password_keyname
+    rds_port_key           = var.rds_secret_port_keyname
+    region                 = data.aws_region.current.name
+  })
+}
+
+resource "aws_ssm_association" "ssl_config_script" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.ec2_rds_policy_context.id
+  name                = one(aws_ssm_document.nat_routing_script[*].name)
+  schedule_expression = var.ssm_documents_schedule_expression == null ? "" : var.ssm_documents_schedule_expression
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
 }

@@ -90,3 +90,23 @@ output "instance_name" {
 output "ui_https_port" {
   value = var.openvpn_ui_https_port
 }
+
+output "ssm_document_init_ec2" {
+  value = try(aws_ssm_document.init_ec2[0].name, "")
+}
+
+output "ssm_document_install" {
+  value = !var.efs_enabled ? try(aws_ssm_document.install_default[0].name, "") : try(aws_ssm_document.install_with_efs[0].name, "")
+}
+
+output "ssm_document_configure_service" {
+  value = try(aws_ssm_document.configure_service[0].name, "")
+}
+
+output "ssm_document_vpn_backup" {
+  value = try(aws_ssm_document.ssm_vpn_backup[0].name, "")
+}
+
+output "ssm_document_vpn_restore" {
+  value = try(aws_ssm_document.ssm_vpn_restore[0].name, "")
+}

@@ -45,7 +45,7 @@ variable "ec2_initialization_schedule_expression" { default = null }
 variable "ec2_backup_schedule_expression" { default = "cron(0 00 00 ? * * *)" }
 variable "ec2_backup_enabled" { default = true }
 variable "efs_enabled" { default = true }
-variable "ebs_enable" { default = false }
+variable "ebs_enabled" { default = false }
 variable "ec2_preserve_security_group_id" { default = false }     // when true, minimizes security group destroys.  default to false for backwards compatibility
 variable "ec2_security_group_allow_all_egress" { default = true } //for backwards compatibility
 variable "ec2_security_group_rules" {
@@ -74,7 +74,7 @@ variable "openvpn_client_dhcp_network_mask" { default = "20" }
 variable "openvpn_client_static_addresses_enabled" { default = false }
 variable "openvpn_client_static_network" { default = "172.27.64.0" }
 variable "openvpn_client_static_network_mask" { default = "20" }
-variable "openvpn_config_scripts_additional" { default = [] }
+variable "openvpn_ssm_composite_initializer_document_name_override" { default = null }
 variable "openvpn_daemon_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_daemon_tcp_port" { default = 443 }
 variable "openvpn_daemon_udp_port" { default = 1194 }
