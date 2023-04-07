@@ -229,3 +229,32 @@ resource "aws_ssm_document" "ssm_vpn_restore" {
   })
 }
 
+
+#------------------------------------------------------------------------------
+# EC2 VPN SSM Document for apt upgrade
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "ec2_upgrade" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.ec2_autoscale_group_ssm_initialization_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.ec2_autoscale_group_ssm_initialization_context.tags
+  content = templatefile("${path.module}/templates/ssm-upgrade-ec2.tftpl", {
+    hostname = var.openvpn_hostname
+    region   = data.aws_region.current.name
+  })
+}
+
+resource "aws_ssm_association" "ec2_upgrade" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = var.openvpn_ssm_composite_initializer_document_name_override == null ? module.ec2_autoscale_group_ssm_initialization_context.id : var.openvpn_ssm_composite_initializer_document_name_override
+  name                = one(aws_ssm_document.ec2_upgrade[*].name)
+  schedule_expression = var.ec2_initialization_schedule_expression
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+  apply_only_at_cron_interval = true
+}
+
