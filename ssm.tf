@@ -250,7 +250,7 @@ resource "aws_ssm_association" "ec2_upgrade" {
   count               = module.context.enabled ? 1 : 0
   association_name    = var.openvpn_ssm_composite_initializer_document_name_override == null ? module.ec2_autoscale_group_ssm_initialization_context.id : var.openvpn_ssm_composite_initializer_document_name_override
   name                = one(aws_ssm_document.ec2_upgrade[*].name)
-  schedule_expression = var.ec2_initialization_schedule_expression
+  schedule_expression = var.ec2_upgrade_schedule_expression
   targets {
     key    = "tag:Name"
     values = [module.context.id]
