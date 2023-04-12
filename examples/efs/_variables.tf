@@ -19,6 +19,6 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "vpc_cidr_block" {  }
-variable "availability_zones" {  }
-variable "root_domain" {  }
+variable "vpc_cidr_block" { type = string }
+variable "availability_zones" { type = list(string) }
+variable "root_domain" { type = string }
