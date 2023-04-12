@@ -55,7 +55,6 @@ inputs = {
   vpc_id                     = ""
   subnet_ids                 = [""]
   openvpn_hostname           = ""
-
 }
 
 remote_state {
