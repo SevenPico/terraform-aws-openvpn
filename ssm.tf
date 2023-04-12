@@ -48,6 +48,13 @@ module "ec2_autoscale_group_ssm_ssl_certificate_refresh_context" {
   attributes = ["ssl", "certificate", "refresh"]
 }
 
+module "ec2_autoscale_group_ssm_upgrade_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  attributes = ["upgrade"]
+}
+
 
 #------------------------------------------------------------------------------
 # EC2 VPN SSM Document for VPN Initialization
@@ -235,20 +242,17 @@ resource "aws_ssm_document" "ssm_vpn_restore" {
 #------------------------------------------------------------------------------
 resource "aws_ssm_document" "ec2_upgrade" {
   count           = module.context.enabled ? 1 : 0
-  name            = module.ec2_autoscale_group_ssm_initialization_context.id
+  name            = module.ec2_autoscale_group_ssm_upgrade_context.id
   document_format = "YAML"
   document_type   = "Command"
 
-  tags = module.ec2_autoscale_group_ssm_initialization_context.tags
-  content = templatefile("${path.module}/templates/ssm-upgrade-ec2.tftpl", {
-    hostname = var.openvpn_hostname
-    region   = data.aws_region.current.name
-  })
+  tags = module.ec2_autoscale_group_ssm_upgrade_context.tags
+  content = templatefile("${path.module}/templates/ssm-upgrade-ec2.tftpl")
 }
 
 resource "aws_ssm_association" "ec2_upgrade" {
   count               = module.context.enabled ? 1 : 0
-  association_name    = var.openvpn_ssm_composite_initializer_document_name_override == null ? module.ec2_autoscale_group_ssm_initialization_context.id : var.openvpn_ssm_composite_initializer_document_name_override
+  association_name    = module.ec2_autoscale_group_ssm_upgrade_context.id
   name                = one(aws_ssm_document.ec2_upgrade[*].name)
   schedule_expression = var.ec2_upgrade_schedule_expression
   targets {
