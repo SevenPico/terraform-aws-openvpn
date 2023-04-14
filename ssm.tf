@@ -38,7 +38,7 @@ module "ec2_autoscale_group_ssm_vpn_backup_context" {
   version    = "2.0.0"
   context    = module.context.self
   attributes = ["backup"]
-  enabled    = var.ec2_backup_enabled && module.context.enabled
+  enabled    = var.enable_openvpn_backups && module.context.enabled
 }
 
 module "ec2_autoscale_group_ssm_ssl_certificate_refresh_context" {
@@ -55,32 +55,64 @@ module "ec2_autoscale_group_ssm_upgrade_context" {
   attributes = ["upgrade"]
 }
 
+module "license_sh_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  attributes = ["license"]
+  enabled    = module.context.enabled && var.enable_licensing
+}
+
+module "nat_routing_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  attributes = ["nat", "routing"]
+}
+
+module "reverse_routing_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  attributes = ["reverse", "routing"]
+}
+
+
+module "ssl_policy_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  attributes = ["ssl", "policy"]
+}
+
 
 #------------------------------------------------------------------------------
 # EC2 VPN SSM Document for VPN Initialization
 #------------------------------------------------------------------------------
 resource "aws_ssm_document" "composite_initializer" {
-  count           = module.context.enabled && var.openvpn_ssm_composite_initializer_document_name_override == null ? 1 : 0
+  count           = module.context.enabled ? 1 : 0
   name            = module.ec2_autoscale_group_ssm_initialization_context.id
   document_format = "YAML"
   document_type   = "Command"
 
   tags = module.ec2_autoscale_group_ssm_initialization_context.tags
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
-    environment           = module.ec2_autoscale_group_ssm_initialization_context.environment
-    scripts_bucket_id     = module.ec2_autoscale_group_scripts_bucket.bucket_id
-    region                = one(data.aws_region.current[*].name)
-    config_cmds           = local.openvpn_config_scripts
-    time_zone             = var.openvpn_time_zone
-    init_ec2_document     = aws_ssm_document.init_ec2[0].name
-    install_document      = !var.efs_enabled ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name
-    configure_service     = aws_ssm_document.configure_service[0].name
+    environment       = module.ec2_autoscale_group_ssm_initialization_context.environment
+    scripts_bucket_id = module.ec2_autoscale_group_scripts_bucket.bucket_id
+    region            = try(data.aws_region.current[0].name, "")
+    init_ec2_document = aws_ssm_document.init_ec2[0].name
+    install_document  = !var.enable_efs ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name
+    configure_service = aws_ssm_document.configure_service[0].name
+    upgrade_os        = aws_ssm_document.ec2_upgrade[0].name
+    configure_routing = var.enable_nat ? aws_ssm_document.nat_routing_script[0].name : aws_ssm_document.reverse_routing_script[0].name
+    configure_ssl     = var.enable_custom_ssl ? aws_ssm_document.ssl_config_script[0].name : ""
+    license_import    = var.enable_licensing ? aws_ssm_document.license[0].name : ""
   })
 }
 
 resource "aws_ssm_association" "composite_initializer" {
   count               = module.context.enabled ? 1 : 0
-  association_name    = var.openvpn_ssm_composite_initializer_document_name_override == null ? module.ec2_autoscale_group_ssm_initialization_context.id : var.openvpn_ssm_composite_initializer_document_name_override
+  association_name    = module.ec2_autoscale_group_ssm_initialization_context.id
   name                = one(aws_ssm_document.composite_initializer[*].name)
   schedule_expression = var.ec2_initialization_schedule_expression
   targets {
@@ -103,9 +135,10 @@ resource "aws_ssm_document" "init_ec2" {
   document_type   = "Command"
 
   tags = module.ec2_autoscale_group_ssm_initialization_context.tags
-  content = templatefile("${path.module}/templates/ssm-ec2-init.tftpl", {
+  content = templatefile("${path.module}/templates/ssm-ec2-initialization.tftpl", {
     hostname = var.openvpn_hostname
-    region   = data.aws_region.current.name
+    time_zone         = var.openvpn_time_zone
+    region   = try(data.aws_region.current[0].name, "")
   })
 }
 
@@ -114,7 +147,7 @@ resource "aws_ssm_document" "init_ec2" {
 # EC2 VPN SSM Document for Installing with Defaults
 #------------------------------------------------------------------------------
 resource "aws_ssm_document" "install_default" {
-  count           = module.context.enabled && !var.efs_enabled ? 1 : 0
+  count           = module.context.enabled && !var.enable_efs ? 1 : 0
   name            = module.ec2_autoscale_group_ssm_initialization_context.id
   document_format = "YAML"
   document_type   = "Command"
@@ -130,12 +163,13 @@ resource "aws_ssm_document" "install_default" {
 # EC2 VPN SSM Document for Installing with EFS mount
 #------------------------------------------------------------------------------
 resource "aws_ssm_document" "install_with_efs" {
-  count           = module.context.enabled && var.efs_enabled ? 1 : 0
+  count           = module.context.enabled && var.enable_efs ? 1 : 0
   name            = module.ec2_autoscale_group_ssm_vpn_restore_context.id
   document_format = "YAML"
   document_type   = "Command"
 
   tags = module.ec2_autoscale_group_ssm_vpn_restore_context.tags
+
   content = templatefile("${path.module}/templates/ssm-install-with-efs.tftpl", {
     openvpnas_version         = var.openvpn_version
     efs_mount_target_dns_name = module.efs.mount_target_dns_names[0]
@@ -186,7 +220,7 @@ resource "aws_ssm_document" "ssm_backup_sqlite" {
 
   tags = module.ec2_autoscale_group_ssm_vpn_backup_context.tags
   content = templatefile("${path.module}/templates/ssm-vpn-backup.tftpl", {
-    region        = one(data.aws_region.current[*].name)
+    region        = try(data.aws_region.current[0].name,"")
     s3_bucket     = module.ec2_autoscale_group_scripts_bucket.bucket_id
     s3_backup_key = "backups/openvpn_backup.tar.gz"
   })
@@ -196,7 +230,7 @@ resource "aws_ssm_association" "ssm_vpn_backup" {
   count                       = module.ec2_autoscale_group_ssm_vpn_backup_context.enabled ? 1 : 0
   association_name            = module.ec2_autoscale_group_ssm_vpn_backup_context.id
   name                        = one(aws_ssm_document.ssm_backup_sqlite[*].name)
-  schedule_expression         = var.ec2_backup_schedule_expression
+  schedule_expression         = var.openvpn_backup_schedule_expression
   apply_only_at_cron_interval = true
   compliance_severity         = "HIGH"
   parameters = {
@@ -246,8 +280,9 @@ resource "aws_ssm_document" "ec2_upgrade" {
   document_format = "YAML"
   document_type   = "Command"
 
-  tags = module.ec2_autoscale_group_ssm_upgrade_context.tags
-  content = templatefile("${path.module}/templates/ssm-upgrade-ec2.tftpl")
+  tags    = module.ec2_autoscale_group_ssm_upgrade_context.tags
+  content = templatefile("${path.module}/templates/ssm-ec2-upgrade.tftpl",{})
+
 }
 
 resource "aws_ssm_association" "ec2_upgrade" {
@@ -262,3 +297,122 @@ resource "aws_ssm_association" "ec2_upgrade" {
   apply_only_at_cron_interval = true
 }
 
+
+#------------------------------------------------------------------------------
+# SSM Document  License
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "license" {
+  count           = module.context.enabled && var.enable_licensing ? 1 : 0
+  name            = module.license_sh_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.license_sh_context.tags
+  content = templatefile("${path.module}/templates/ssm-configure-license.tftpl", {
+    secret_arn = var.openvpn_secret_arn
+    keyname    = "OPENVPN_LICENSE"
+    region     = try(data.aws_region.current[0].name, "")
+  })
+}
+
+resource "aws_ssm_association" "license" {
+  count               = module.context.enabled && var.enable_licensing ? 1 : 0
+  association_name    = module.license_sh_context.id
+  name                = one(aws_ssm_document.license[*].name)
+  schedule_expression = "cron(0 00 00 ? * * *)"
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document NAT Routing Configuration
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "nat_routing_script" {
+  count           = module.context.enabled && var.enable_nat ? 1 : 0
+  name            = module.nat_routing_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.nat_routing_context.tags
+  content = templatefile("${path.module}/templates/ssm-configure-nat-routing.tftpl", {
+    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
+    #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
+    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
+    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
+  })
+}
+
+resource "aws_ssm_association" "nat_routing_script" {
+  count               = module.context.enabled && var.enable_nat ? 1 : 0
+  association_name    = module.nat_routing_context.id
+  name                = one(aws_ssm_document.nat_routing_script[*].name)
+  schedule_expression = "cron(0 00 00 ? * * *)"
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document Reverse Routing Configuration
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "reverse_routing_script" {
+  count           = module.context.enabled && !var.enable_nat ? 1 : 0
+  name            = module.reverse_routing_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.reverse_routing_context.tags
+  content = templatefile("${path.module}/templates/ssm-configure-reverse-routing.tftpl", {
+    #    client_dhcp_network          = var.openvpn_client_dhcp_network,
+    #    client_dhcp_network_mask     = var.openvpn_client_dhcp_network_mask,
+    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
+    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
+  })
+}
+
+resource "aws_ssm_association" "reverse_routing_script" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.reverse_routing_context.id
+  name                = one(aws_ssm_document.reverse_routing_script[*].name)
+  schedule_expression = "cron(0 00 00 ? * * *)"
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document SSL Configuration Script
+#------------------------------------------------------------------------------
+resource "aws_ssm_document" "ssl_config_script" {
+  count           = module.context.enabled && var.enable_custom_ssl ? 1 : 0
+  name            = module.ssl_policy_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.ssl_policy_context.tags
+  content = templatefile("${path.module}/templates/ssm-configure-ssl.tftpl", {
+    secret_arn                      = var.ssl_secret_arn,
+    region                          = try(data.aws_region.current[0].name, ""),
+    certificate_keyname             = var.ssl_secret_certificate_keyname,
+    certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname,
+    certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
+  })
+}
+
+resource "aws_ssm_association" "ssl_config_script" {
+  count               = module.context.enabled ? 1 : 0
+  association_name    = module.ssl_policy_context.id
+  name                = one(aws_ssm_document.ssl_config_script[*].name)
+  schedule_expression = "cron(0 00 00 ? * * *)"
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+}

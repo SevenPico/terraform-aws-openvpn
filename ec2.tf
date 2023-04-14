@@ -47,13 +47,13 @@ locals {
 # EC2 Cloudwatch Log Group
 #------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
-  count             = module.context.enabled && var.cloudwatch_enabled ? 1 : 0
+  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
   name              = "/aws/ec2/${module.context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
 
 resource "aws_cloudwatch_log_group" "ec2_logs_group" {
-  count             = module.context.enabled && var.cloudwatch_enabled ? 1 : 0
+  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
   name              = "/aws/ec2/${module.context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
@@ -165,7 +165,7 @@ module "ec2_autoscale_group_sg" {
   security_group_name           = []
   target_security_group_id      = []
   vpc_id                        = var.vpc_id
-  preserve_security_group_id    = var.ec2_preserve_security_group_id
+  preserve_security_group_id    = true
 
   rules_map   = {}
   rule_matrix = []

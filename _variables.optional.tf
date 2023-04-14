@@ -23,14 +23,32 @@ variable "create_ec2_autoscale_sns_topic" { default = false }
 variable "create_nlb" { default = false }
 variable "create_openvpn_secret" { default = false }
 
-variable "cloudwatch_enabled" { default = true }
+variable "enable_efs" { default = true }
+variable "enable_nat" {
+  description = <<EOF
+  When this is true network address translation is enabled. Clients will be able to reach endpoints in the VPC.
+  When this is False reverse routing will be enabled and clients will be able to be access from endpoints in the VPC
+  as long as the VPC route tables have updated.
+EOF
+}
+variable "enable_custom_ssl" {
+  description = <<EOF
+  When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
+  use the Certificate instead of default OpenVPN Certificate.
+EOF
+}
+variable "enable_licensing" {
+  description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
+}
+variable "enable_openvpn_backups" { default = true }
+variable "enable_ec2_cloudwatch_logs" { default = true }
 variable "cloudwatch_logs_expiration_days" { default = 90 }
 
 
 #------------------------------------------------------------------------------
 # EC2 Inputs
 #------------------------------------------------------------------------------
-variable "ec2_user_data" { default = "" }
+variable "ec2_user_data" { default = "" } #Create Local variable
 variable "ec2_associate_public_ip_address" { default = true }
 variable "ec2_ami_id" { default = "ami-0574da719dca65348" }
 variable "ec2_autoscale_desired_count" { default = 1 }
@@ -42,12 +60,8 @@ variable "ec2_autoscale_sns_topic_heartbeat_timeout" { default = 180 }
 variable "ec2_additional_security_group_ids" { default = [] }
 variable "ec2_key_name" { default = null }
 variable "ec2_initialization_schedule_expression" { default = null }
-variable "ec2_backup_schedule_expression" { default = "cron(0 00 00 ? * * *)" }
 variable "ec2_upgrade_schedule_expression" { default = "cron(15 13 ? * SUN *)" }
-variable "ec2_backup_enabled" { default = true }
-variable "efs_enabled" { default = true }
-variable "ebs_enabled" { default = false }
-variable "ec2_preserve_security_group_id" { default = false }     // when true, minimizes security group destroys.  default to false for backwards compatibility
+#variable "ec2_preserve_security_group_id" { default = false }     // when true, minimizes security group destroys.  default to false for backwards compatibility
 variable "ec2_security_group_allow_all_egress" { default = true } //for backwards compatibility
 variable "ec2_security_group_rules" {
   type    = list(any)
@@ -69,13 +83,13 @@ variable "nlb_tls_ssl_policy" { default = "ELBSecurityPolicy-TLS13-1-2-2021-06" 
 #------------------------------------------------------------------------------
 # OpenVPN Inputs
 #------------------------------------------------------------------------------
+variable "openvpn_backup_schedule_expression" { default = "cron(0 00 00 ? * * *)" }
 variable "openvpn_client_cidr_blocks" { default = ["172.27.0.0/16"] }
 variable "openvpn_client_dhcp_network" { default = "172.27.32.0" }
 variable "openvpn_client_dhcp_network_mask" { default = "20" }
 variable "openvpn_client_static_addresses_enabled" { default = false }
 variable "openvpn_client_static_network" { default = "172.27.64.0" }
 variable "openvpn_client_static_network_mask" { default = "20" }
-variable "openvpn_ssm_composite_initializer_document_name_override" { default = null }
 variable "openvpn_daemon_ingress_blocks" { default = ["0.0.0.0/0"] }
 variable "openvpn_daemon_tcp_port" { default = 443 }
 variable "openvpn_daemon_udp_port" { default = 1194 }

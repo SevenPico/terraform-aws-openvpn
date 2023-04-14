@@ -96,7 +96,7 @@ output "ssm_document_init_ec2" {
 }
 
 output "ssm_document_install" {
-  value = !var.efs_enabled ? try(aws_ssm_document.install_default[0].name, "") : try(aws_ssm_document.install_with_efs[0].name, "")
+  value = !var.enable_efs ? try(aws_ssm_document.install_default[0].name, "") : try(aws_ssm_document.install_with_efs[0].name, "")
 }
 
 output "ssm_document_configure_service" {
@@ -104,7 +104,7 @@ output "ssm_document_configure_service" {
 }
 
 output "ssm_document_vpn_backup" {
-  value = try(aws_ssm_document.ssm_vpn_backup[0].name, "")
+  value = try(aws_ssm_document.ssm_backup_sqlite[0].name, "")
 }
 
 output "ssm_document_vpn_restore" {

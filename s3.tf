@@ -27,14 +27,6 @@ module "ec2_autoscale_group_scripts_bucket_context" {
 }
 
 
-locals {
-  #  static_sh           = try(join("", aws_s3_object.static_client_addresses_sh[*].key), "")
-
-  openvpn_config_scripts = concat(compact([
-    #    local.static_sh
-  ]), var.openvpn_config_scripts_additional)
-}
-
 # ------------------------------------------------------------------------------
 # Openvpn S3 Bucket Policy
 # ------------------------------------------------------------------------------
@@ -116,26 +108,4 @@ module "ec2_autoscale_group_scripts_bucket" {
   versioning_enabled            = var.openvpn_s3_versioning_enabled
   website_inputs                = null
   wait_time_seconds             = 120
-}
-
-resource "aws_s3_object" "cloudwatch_config_json" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.cloudwatch_enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "cloudwatch-config.json"
-  content = templatefile("${path.module}/scripts/cloudwatch-config.json.tftpl", {
-    metrics_namespace = module.context.id
-    log_group_name    = aws_cloudwatch_log_group.ec2_logs_group[0].name
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
-}
-
-resource "aws_s3_object" "static_client_addresses_sh" {
-  count  = module.ec2_autoscale_group_scripts_bucket_context.enabled && var.openvpn_client_static_addresses_enabled ? 1 : 0
-  bucket = module.ec2_autoscale_group_scripts_bucket.bucket_id
-  key    = "static-client-addresses.sh"
-  content = templatefile("${path.module}/scripts/static-client-addresses.sh.tftpl", {
-    client_static_network      = var.openvpn_client_static_network,
-    client_static_network_mask = var.openvpn_client_static_network_mask
-  })
-  depends_on = [module.ec2_autoscale_group_scripts_bucket]
 }

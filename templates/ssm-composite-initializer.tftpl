@@ -7,13 +7,18 @@ parameters:
     type: String
     default: "${environment}"
 mainSteps:
+- action: aws:runDocument
+    name: upgrade_os
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${upgrade_os}"
   - action: aws:runDocument
-    name: init_ec2
+    name: initialize_ec2
     inputs:
       documentType: SSMDocument
       documentPath: "${init_ec2_document}"
   - action: aws:runDocument
-    name: install
+    name: install_openvpn
     inputs:
       documentType: SSMDocument
       documentPath: "${install_document}"
@@ -22,3 +27,19 @@ mainSteps:
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_service}"
+########################################################
+  - action: aws:runDocument
+    name: configure_routing
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_routing}"
+  - action: aws:runDocument
+    name: configure_ssl
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_ssl}"
+  - action: aws:runDocument
+    name: license_import
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${license_import}"

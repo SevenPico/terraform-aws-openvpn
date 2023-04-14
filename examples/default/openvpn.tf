@@ -68,7 +68,7 @@ module "openvpn" {
   create_nlb                     = true
   create_openvpn_secret          = true
 
-  cloudwatch_enabled              = true
+  enable_ec2_cloudwatch_logs              = true
   cloudwatch_logs_expiration_days = 90
 
   # EC2 Inputs
@@ -82,13 +82,13 @@ module "openvpn" {
   ec2_autoscale_min_count                   = 1
   ec2_autoscale_sns_topic_default_result    = "CONTINUE"
   ec2_autoscale_sns_topic_heartbeat_timeout = 180
-  ec2_backup_enabled                        = true
-  ec2_backup_schedule_expression            = "cron(0 00 00 ? * * *)"
+  enable_openvpn_backups                        = true
+  openvpn_backup_schedule_expression            = "cron(0 00 00 ? * * *)"
   ec2_initialization_schedule_expression    = null
   ec2_key_name                              = null
   ec2_preserve_security_group_id            = true
   ec2_user_data                             = ""
-  efs_enabled                               = false
+  enable_efs                               = false
   ec2_security_group_allow_all_egress       = false
   ec2_security_group_rules = [
     {

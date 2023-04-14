@@ -23,7 +23,7 @@ module "efs" {
   source     = "cloudposse/efs/aws"
   version    = "0.32.7"
   context    = module.context.legacy
-  enabled    = var.efs_enabled && module.context.enabled
+  enabled    = var.enable_efs && module.context.enabled
   attributes = ["efs"]
 
   access_points = {
@@ -45,7 +45,7 @@ module "efs" {
   allowed_security_group_ids           = [module.ec2_autoscale_group_sg.id]
   associated_security_group_ids        = []
   availability_zone_name               = null
-  create_security_group                = var.efs_enabled && module.context.enabled //cloudposse module has a bug
+  create_security_group                = var.enable_efs && module.context.enabled //cloudposse module has a bug
   dns_name                             = ""
   efs_backup_policy_enabled            = false
   encrypted                            = true
@@ -53,7 +53,7 @@ module "efs" {
   mount_target_ip_address              = null
   performance_mode                     = "generalPurpose"
   provisioned_throughput_in_mibps      = 0
-  region                               = data.aws_region.current.name
+  region                               = try(data.aws_region.current[0].name, "")
   security_group_create_before_destroy = true
   security_group_create_timeout        = "10m"
   security_group_delete_timeout        = "15m"
