@@ -45,7 +45,7 @@ resource "aws_ssm_document" "nat_routing_script" {
   })
 }
 
-resource "aws_ssm_association" "ssl_config_script" {
+resource "aws_ssm_association" "nat_routing_script" {
   count               = module.context.enabled ? 1 : 0
   association_name    = module.nat_routing_context.id
   name                = one(aws_ssm_document.nat_routing_script[*].name)

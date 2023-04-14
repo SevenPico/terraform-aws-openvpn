@@ -45,7 +45,7 @@ resource "aws_ssm_document" "reverse_routing_script" {
   })
 }
 
-resource "aws_ssm_association" "ssl_config_script" {
+resource "aws_ssm_association" "reverse_routing_script" {
   count               = module.context.enabled ? 1 : 0
   association_name    = module.reverse_routing_context.id
   name                = one(aws_ssm_document.reverse_routing_script[*].name)
