@@ -83,8 +83,8 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
     ]
     effect = "Allow"
     resources = [
-      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}",
-      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}/*"
+      "arn:aws:s3:::${module.backups_bucket.bucket_id}",
+      "arn:aws:s3:::${module.backups_bucket.bucket_id}/*"
     ]
   }
   statement {
@@ -98,7 +98,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
     ]
     effect = "Allow"
     resources = [
-      "arn:aws:s3:::${module.ec2_autoscale_group_scripts_bucket.bucket_id}/backups/*"
+      "arn:aws:s3:::${module.backups_bucket.bucket_id}/backups/*"
     ]
   }
   statement {

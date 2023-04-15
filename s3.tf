@@ -19,27 +19,28 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-module "ec2_autoscale_group_scripts_bucket_context" {
+module "backups_bucket_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  attributes = ["scripts"]
+  attributes = ["backups"]
 }
 
 
 # ------------------------------------------------------------------------------
 # Openvpn S3 Bucket Policy
 # ------------------------------------------------------------------------------
-data "aws_iam_policy_document" "deployer_artifacts_bucket" {
-  count = module.context.enabled ? 1 : 0
+data "aws_iam_policy_document" "backups_bucket" {
+  count = module.backups_bucket_context.enabled ? 1 : 0
+  source_policy_documents = var.s3_source_policy_document
 
   statement {
     sid     = "ForceSSLOnlyAccess"
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
-      module.ec2_autoscale_group_scripts_bucket.bucket_arn,
-      "${module.ec2_autoscale_group_scripts_bucket.bucket_arn}/*"
+      module.backups_bucket.bucket_arn,
+      "${module.backups_bucket.bucket_arn}/*"
     ]
 
     principals {
@@ -59,10 +60,10 @@ data "aws_iam_policy_document" "deployer_artifacts_bucket" {
 #------------------------------------------------------------------------------
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
-module "ec2_autoscale_group_scripts_bucket" {
+module "backups_bucket" {
   source  = "SevenPicoForks/s3-bucket/aws"
   version = "4.0.0"
-  context = module.ec2_autoscale_group_scripts_bucket_context.self
+  context = module.backups_bucket_context.self
 
   acl                          = "private"
   allow_encrypted_uploads_only = false
@@ -101,7 +102,7 @@ module "ec2_autoscale_group_scripts_bucket" {
   s3_replication_enabled        = false
   s3_replication_rules          = null
   s3_replication_source_roles   = []
-  source_policy_documents       = concat([one(data.aws_iam_policy_document.deployer_artifacts_bucket[*].json)], var.openvpn_s3_source_policy_documents)
+  source_policy_documents       = data.aws_iam_policy_document.backups_bucket[*].json
   sse_algorithm                 = "AES256"
   transfer_acceleration_enabled = false
   user_enabled                  = false

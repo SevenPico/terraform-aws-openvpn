@@ -63,7 +63,7 @@ resource "aws_cloudwatch_log_group" "ec2_logs_group" {
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
-  source  = "SevenPicoForks/ec2-autoscale-group/aws"
+  source  = "registry.terraform.io/SevenPicoForks/ec2-autoscale-group/aws"
   version = "2.0.0"
   context = module.context.self
 
@@ -111,7 +111,7 @@ module "ec2_autoscale_group" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
   instance_refresh                     = null
-  key_name                             = var.ec2_key_name
+  key_name                             = ""
   launch_template_version              = "$Latest"
   load_balancers                       = []
   max_instance_lifetime                = null
@@ -141,7 +141,7 @@ module "ec2_autoscale_group" {
   ]
   target_group_arns         = var.create_nlb ? compact(aws_lb_target_group.nlb.*.arn) : []
   termination_policies      = ["Default"]
-  user_data_base64          = base64encode(var.ec2_user_data)
+  user_data_base64          = base64encode("")
   wait_for_capacity_timeout = "10m"
   wait_for_elb_capacity     = 0
   warm_pool                 = null
@@ -159,17 +159,17 @@ module "ec2_autoscale_group_sg" {
   allow_all_egress              = var.ec2_security_group_allow_all_egress
   create_before_destroy         = true
   inline_rules_enabled          = false
+  preserve_security_group_id    = true
+  revoke_rules_on_delete        = false
+  rule_matrix                   = []
+  rules                         = var.ec2_security_group_rules
+  rules_map                     = {}
   security_group_create_timeout = "10m"
   security_group_delete_timeout = "15m"
   security_group_description    = "Allows access to and from ${module.context.id}"
   security_group_name           = []
   target_security_group_id      = []
   vpc_id                        = var.vpc_id
-  preserve_security_group_id    = true
-
-  rules_map   = {}
-  rule_matrix = []
-  rules       = var.ec2_security_group_rules
 }
 
 # FIXME We need to add conditionally if egress is false.

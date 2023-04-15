@@ -19,21 +19,27 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "openvpn_hostname" { type = string }
-variable "openvpn_dhcp_option_domain" {}
-variable "subnet_ids" { type = list(string) }
-variable "vpc_cidr_blocks" { type = list(string) }
-variable "vpc_id" { type = string }
-variable "availability_zone" { type = string }
+variable "availability_zone" {
+  type = string
+}
 
-variable "ssl_secret_arn" {
+variable "openvpn_dhcp_option_domain" {
   type = string
-  default = ""
 }
-variable "ssl_secret_kms_key_arn" {
+
+variable "openvpn_hostname" {
   type = string
-  default = ""
 }
-variable "ssl_secret_certificate_bundle_keyname" { default = "CERTIFICATE_CHAIN" }
-variable "ssl_secret_certificate_keyname" { default = "CERTIFICATE" }
-variable "ssl_secret_certificate_private_key_keyname" { default = "CERTIFICATE_PRIVATE_KEY" }
+
+variable "subnet_ids" {
+  type = list(string)
+}
+
+variable "vpc_cidr_blocks" {
+  type = list(string)
+}
+
+variable "vpc_id" {
+  type = string
+}
+

@@ -34,8 +34,8 @@ module "ssl_certificate_context" {
 # SSL Certificate
 # ------------------------------------------------------------------------------
 module "ssl_certificate" {
-  source  = "SevenPico/ssl-certificate/aws"
-  version = "8.0.0"
+  source  = "registry.terraform.io/SevenPico/ssl-certificate/aws"
+  version = "8.0.7"
   context = module.ssl_certificate_context.self
 
   additional_dns_names              = []

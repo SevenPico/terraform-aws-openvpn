@@ -1,22 +1,17 @@
 ---
 schemaVersion: '2.2'
-description: Bootstraps the OpenVPN Marketplace AMI
-parameters:
-  Environment:
-    description: The Environment The Server is running in.
-    type: String
-    default: "${environment}"
+description: Installs and configures OpenVPN on an EC2 Instance.
 mainSteps:
-- action: aws:runDocument
-    name: upgrade_os
-    inputs:
-      documentType: SSMDocument
-      documentPath: "${upgrade_os}"
   - action: aws:runDocument
-    name: initialize_ec2
+    name: ec2_initialization
     inputs:
       documentType: SSMDocument
-      documentPath: "${init_ec2_document}"
+      documentPath: "${ec2_initialization}"
+- action: aws:runDocument
+    name: ec2_upgrade
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${ec2_upgrade}"
   - action: aws:runDocument
     name: install_openvpn
     inputs:
@@ -27,7 +22,6 @@ mainSteps:
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_service}"
-########################################################
   - action: aws:runDocument
     name: configure_routing
     inputs:
@@ -39,7 +33,7 @@ mainSteps:
       documentType: SSMDocument
       documentPath: "${configure_ssl}"
   - action: aws:runDocument
-    name: license_import
+    name: configure_license
     inputs:
       documentType: SSMDocument
-      documentPath: "${license_import}"
+      documentPath: "${configure_license}"

@@ -60,11 +60,11 @@ output "sns_role_arn" {
 }
 
 output "ssm_script_bucket_arn" {
-  value = module.ec2_autoscale_group_scripts_bucket.bucket_arn
+  value = module.backups_bucket.bucket_arn
 }
 
 output "ssm_script_bucket_id" {
-  value = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  value = module.backups_bucket.bucket_id
 }
 
 output "nlb_dns_name" {
@@ -92,7 +92,7 @@ output "ui_https_port" {
 }
 
 output "ssm_document_init_ec2" {
-  value = try(aws_ssm_document.init_ec2[0].name, "")
+  value = try(aws_ssm_document.ec2_initialization[0].name, "")
 }
 
 output "ssm_document_install" {
@@ -104,9 +104,9 @@ output "ssm_document_configure_service" {
 }
 
 output "ssm_document_vpn_backup" {
-  value = try(aws_ssm_document.ssm_backup_sqlite[0].name, "")
+  value = try(aws_ssm_document.vpn_backup[0].name, "")
 }
 
 output "ssm_document_vpn_restore" {
-  value = try(aws_ssm_document.ssm_vpn_restore[0].name, "")
+  value = try(aws_ssm_document.vpn_restore[0].name, "")
 }
