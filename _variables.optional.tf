@@ -51,6 +51,10 @@ variable "ec2_security_group_rules" {
   type    = list(any)
   default = []
 }
+variable "ec2_block_device_mappings" {
+  type = list(any)
+  default = []
+}
 
 
 #------------------------------------------------------------------------------
