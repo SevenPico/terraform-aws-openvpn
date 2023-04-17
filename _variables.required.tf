@@ -38,7 +38,3 @@ variable "vpc_cidr_blocks" {
 variable "vpc_id" {
   type = string
 }
-
-variable "zone_id" {
-  type = string
-}
