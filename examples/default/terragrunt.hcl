@@ -47,6 +47,14 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
+  vpc_cidr_block     = "10.10.0.0/16"
+  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+  openvpn_dhcp_option_domain = ""
+  vpc_cidr_blocks            = [""]
+  vpc_id                     = ""
+  subnet_ids                 = [""]
+  openvpn_hostname           = ""
 
 }
 
