@@ -58,7 +58,7 @@ module "openvpn" {
 
 
   # REQUIRED
-  availability_zone          = ""
+  availability_zone          = var.availability_zones
   openvpn_dhcp_option_domain = module.context.domain_name
   openvpn_hostname           = module.openvpn_context.dns_name
   subnet_ids                 = module.vpc_subnets.public_subnet_ids
