@@ -75,7 +75,7 @@ module "openvpn" {
   enable_efs                 = false
   enable_nat                 = true
   enable_custom_ssl          = true
-  enable_licensing           = false
+  enable_licensing           = true
   enable_openvpn_backups     = true
   enable_ec2_cloudwatch_logs = true
 
