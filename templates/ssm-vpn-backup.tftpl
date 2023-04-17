@@ -10,6 +10,10 @@ parameters:
     description: The S3 Object Key of the BackUp GZ file.
     type: String
     default: "${s3_backup_key}"
+  BACKUPVERSIONID:
+    description: The ID of the S3 Object Version.
+    type: String
+    default: "${backup_version_id}"
 mainSteps:
   - action: aws:runShellScript
     name: backupSqlite
