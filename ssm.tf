@@ -273,7 +273,7 @@ resource "aws_ssm_document" "configure_reverse_routing" {
 module "configure_ssl_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.context.enabled
+  context    = module.context.self
   enabled    = module.context.enabled && var.enable_custom_ssl
   attributes = ["ssl", "policy"]
 }
