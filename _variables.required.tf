@@ -19,27 +19,27 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-#variable "availability_zone" {
-#  type = string
-#}
-#
-#variable "openvpn_dhcp_option_domain" {
-#  type = string
-#}
-#
-#variable "openvpn_hostname" {
-#  type = string
-#}
-#
-#variable "subnet_ids" {
-#  type = list(string)
-#}
-#
-#variable "vpc_cidr_blocks" {
-#  type = list(string)
-#}
-#
-#variable "vpc_id" {
-#  type = string
-#}
+variable "availability_zone" {
+  type = string
+}
+
+variable "openvpn_dhcp_option_domain" {
+  type = string
+}
+
+variable "openvpn_hostname" {
+  type = string
+}
+
+variable "subnet_ids" {
+  type = list(string)
+}
+
+variable "vpc_cidr_blocks" {
+  type = list(string)
+}
+
+variable "vpc_id" {
+  type = string
+}
 
