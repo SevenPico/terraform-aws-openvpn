@@ -171,6 +171,7 @@ module "openvpn" {
   openvpn_tls_version_min                  = var.openvpn_tls_version_min
   openvpn_enable_server_nat                = var.openvpn_enable_server_nat
   openvpn_version                          = var.openvpn_version
+  zone_id                                  = join("", data.aws_route53_zone.root[*].id)
 
 }
 
@@ -199,21 +200,5 @@ resource "null_resource" "openvpn_set_autoscale_counts" {
       "--desired-capacity",
       1
     ])
-  }
-}
-
-
-# ------------------------------------------------------------------------------
-# OpenVPN NLB DNS Records
-# ------------------------------------------------------------------------------
-resource "aws_route53_record" "openvpn_nlb" {
-  count   = module.openvpn_context.enabled ? 1 : 0
-  zone_id = aws_route53_zone.public[0].id
-  name    = module.openvpn_context.dns_name
-  type    = "A"
-  alias {
-    name                   = module.openvpn.nlb_dns_name
-    zone_id                = module.openvpn.nlb_zone_id
-    evaluate_target_health = true
   }
 }
