@@ -71,7 +71,7 @@ module "vpc_subnets" {
   version = "0.39.8"
   context = module.vpc_subnets_context.legacy
 
-  availability_zones                   = [var.availability_zones]
+  availability_zones                   = var.availability_zones
   cidr_block                           = var.vpc_cidr_block
   igw_id                               = module.vpc.igw_id
   vpc_id                               = module.vpc.vpc_id

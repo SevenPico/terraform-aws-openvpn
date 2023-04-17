@@ -47,7 +47,6 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
-  availability_zones = ["us-east-1a", "us-east-1b"]
 
 }
 

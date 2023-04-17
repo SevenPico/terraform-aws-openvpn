@@ -24,17 +24,17 @@
 # Create Options
 #------------------------------------------------------------------------------
 variable "create_ec2_autoscale_sns_topic" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "create_nlb" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "create_openvpn_secret" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -43,8 +43,8 @@ variable "create_openvpn_secret" {
 # Enablements
 #------------------------------------------------------------------------------
 variable "enable_efs" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "enable_nat" {
@@ -73,17 +73,17 @@ variable "enable_licensing" {
 }
 
 variable "enable_openvpn_backups" {
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }
 
 variable "enable_ec2_cloudwatch_logs" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "cloudwatch_logs_expiration_days" {
-  type = number
+  type    = number
   default = 90
 }
 
@@ -92,27 +92,27 @@ variable "cloudwatch_logs_expiration_days" {
 # SSL Inputs
 #------------------------------------------------------------------------------
 variable "ssl_secret_arn" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "ssl_secret_kms_key_arn" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "ssl_secret_certificate_bundle_keyname" {
-  type = string
+  type    = string
   default = "CERTIFICATE_CHAIN"
 }
 
 variable "ssl_secret_certificate_keyname" {
-  type = string
+  type    = string
   default = "CERTIFICATE"
 }
 
 variable "ssl_secret_certificate_private_key_keyname" {
-  type = string
+  type    = string
   default = "CERTIFICATE_PRIVATE_KEY"
 }
 
@@ -121,62 +121,62 @@ variable "ssl_secret_certificate_private_key_keyname" {
 # EC2 Inputs
 #------------------------------------------------------------------------------
 variable "ec2_associate_public_ip_address" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "ec2_ami_id" {
-  type = string
+  type    = string
   default = "ami-0574da719dca65348"
 }
 
 variable "ec2_autoscale_desired_count" {
-  type = number
+  type    = number
   default = 1
 }
 
 variable "ec2_autoscale_instance_type" {
-  type = string
+  type    = string
   default = "t3.micro"
 }
 
 variable "ec2_autoscale_max_count" {
-  type = number
+  type    = number
   default = 1
 }
 
 variable "ec2_autoscale_min_count" {
-  type = number
+  type    = number
   default = 1
 }
 
 variable "ec2_autoscale_sns_topic_default_result" {
-  type = string
+  type    = string
   default = "CONTINUE"
 }
 
 variable "ec2_autoscale_sns_topic_heartbeat_timeout" {
-  type = number
+  type    = number
   default = 180
 }
 
 variable "ec2_additional_security_group_ids" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "ec2_initialization_schedule_expression" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "ec2_upgrade_schedule_expression" {
-  type = string
+  type    = string
   default = "cron(15 13 ? * SUN *)"
 }
 
 variable "ec2_security_group_allow_all_egress" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -195,32 +195,32 @@ variable "ec2_additional_instance_role_policies" {
 # NLB Inputs
 #------------------------------------------------------------------------------
 variable "nlb_access_logs_prefix_override" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "nlb_access_logs_s3_bucket_id" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "nlb_acm_certificate_arn" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "nlb_deletion_protection_enabled" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "nlb_subnet_ids" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "nlb_tls_ssl_policy" {
-  type = string
+  type    = string
   default = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 }
 
@@ -244,137 +244,137 @@ variable "s3_source_policy_document" {
 # OpenVPN Configuration Inputs
 #------------------------------------------------------------------------------
 variable "openvpn_backup_schedule_expression" {
-  type = string
+  type    = string
   default = "cron(0 00 00 ? * * *)"
 }
 
 variable "openvpn_client_cidr_blocks" {
-  type = list(string)
+  type    = list(string)
   default = ["172.27.0.0/16"]
 }
 
 variable "openvpn_client_dhcp_network" {
-  type = string
+  type    = string
   default = "172.27.32.0"
 }
 
 variable "openvpn_client_dhcp_network_mask" {
-  type = string
+  type    = string
   default = "20"
 }
 
 variable "openvpn_client_static_addresses_enabled" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "openvpn_client_static_network" {
-  type = string
+  type    = string
   default = "172.27.64.0"
 }
 
 variable "openvpn_client_static_network_mask" {
-  type = string
+  type    = string
   default = "20"
 }
 
 variable "openvpn_daemon_ingress_blocks" {
-  type = list(string)
+  type    = list(string)
   default = ["0.0.0.0/0"]
 }
 
 variable "openvpn_daemon_tcp_port" {
-  type = number
+  type    = number
   default = 443
 }
 
 variable "openvpn_daemon_udp_port" {
-  type = number
+  type    = number
   default = 1194
 }
 
 variable "openvpn_enable_mfa_delete" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "openvpn_s3_access_logs_prefix_override" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "openvpn_s3_access_logs_s3_bucket_id" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "openvpn_s3_force_destroy" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "openvpn_s3_lifecycle_configuration_rules" {
-  type = list(any)
+  type    = list(any)
   default = []
 }
 
 variable "openvpn_s3_versioning_enabled" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "openvpn_secret_admin_password_key" {
-  type = string
+  type    = string
   default = "ADMIN_PASSWORD"
 }
 
 variable "openvpn_secret_arn" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "openvpn_secret_enable_kms_key_rotation" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "openvpn_secret_kms_key_arn" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "openvpn_time_zone" {
-  type = string
+  type    = string
   default = "America/Chicago"
 }
 
 variable "openvpn_ui_https_port" {
-  type = number
+  type    = number
   default = 943
 }
 
 variable "openvpn_ui_ingress_blocks" {
-  type = list(string)
+  type    = list(string)
   default = ["0.0.0.0/0"]
 }
 
 variable "openvpn_web_server_name" {
-  type = string
+  type    = string
   default = "OpenVPN Server"
 }
 
 variable "openvpn_s3_object_ownership" {
-  type = string
+  type    = string
   default = "BucketOwnerEnforced"
 }
 
 variable "openvpn_tls_version_min" {
-  type = string
+  type    = string
   default = "1.2"
 }
 
 variable "openvpn_enable_server_nat" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -384,6 +384,6 @@ variable "openvpn_version" {
 }
 
 variable "openvpn_ssm_association_output_bucket_name" {
-  type = string
+  type    = string
   default = null
 }
