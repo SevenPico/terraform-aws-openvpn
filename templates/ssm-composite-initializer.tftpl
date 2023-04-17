@@ -27,13 +27,18 @@ mainSteps:
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_routing}"
+
+%{ if configure_ssl != "" }
   - action: aws:runDocument
     name: configure_ssl
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_ssl}"
+%{ endif }
+%{ if configure_license != "" }
   - action: aws:runDocument
     name: configure_license
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_license}"
+%{ endif }
