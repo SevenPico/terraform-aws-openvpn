@@ -171,7 +171,6 @@ module "openvpn" {
   openvpn_tls_version_min                  = var.openvpn_tls_version_min
   openvpn_enable_server_nat                = var.openvpn_enable_server_nat
   openvpn_version                          = var.openvpn_version
-  zone_id                                  = join("", data.aws_route53_zone.root[*].id)
 
 }
 
