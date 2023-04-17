@@ -7,7 +7,7 @@ mainSteps:
     inputs:
       documentType: SSMDocument
       documentPath: "${ec2_initialization}"
-- action: aws:runDocument
+  - action: aws:runDocument
     name: ec2_upgrade
     inputs:
       documentType: SSMDocument

@@ -141,7 +141,7 @@ module "openvpn" {
   nlb_tls_ssl_policy              = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
   # S3
-  s3_source_policy_document = s3_source_policy_document
+  s3_source_policy_document = var.s3_source_policy_document
 
   # OpenVPN
   openvpn_backup_schedule_expression       = var.openvpn_backup_schedule_expression

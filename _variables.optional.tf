@@ -344,7 +344,7 @@ variable "openvpn_secret_kms_key_arn" {
 }
 
 variable "openvpn_time_zone" {
-  type = tring
+  type = string
   default = "America/Chicago"
 }
 
@@ -383,3 +383,7 @@ variable "openvpn_version" {
   default = "2.11.1-f4027f58-Ubuntu22"
 }
 
+variable "openvpn_ssm_association_output_bucket_name" {
+  type = string
+  default = null
+}
