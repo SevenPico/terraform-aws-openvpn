@@ -19,10 +19,6 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "availability_zone" {
-  type = string
-}
-
 variable "openvpn_dhcp_option_domain" {
   type = string
 }
