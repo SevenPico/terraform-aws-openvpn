@@ -52,11 +52,11 @@ resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
 
-resource "aws_cloudwatch_log_group" "ec2_logs_group" {
-  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
-  name              = "/aws/ec2/${module.context.id}"
-  retention_in_days = var.cloudwatch_logs_expiration_days
-}
+#resource "aws_cloudwatch_log_group" "ec2_logs_group" {
+#  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
+#  name              = "/aws/ec2/${module.context.id}"
+#  retention_in_days = var.cloudwatch_logs_expiration_days
+#}
 
 
 #------------------------------------------------------------------------------
