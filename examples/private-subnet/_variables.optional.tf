@@ -285,7 +285,7 @@ variable "openvpn_daemon_ingress_blocks" {
 
 variable "openvpn_daemon_tcp_port" {
   type    = number
-  default = 443
+  default = null
 }
 
 variable "openvpn_daemon_udp_port" {
@@ -350,7 +350,7 @@ variable "openvpn_time_zone" {
 
 variable "openvpn_ui_https_port" {
   type    = number
-  default = 943
+  default = 443
 }
 
 variable "openvpn_ui_ingress_blocks" {
