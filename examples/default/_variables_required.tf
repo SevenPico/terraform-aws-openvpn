@@ -25,7 +25,7 @@ variable "vpc_cidr_block" {
 }
 variable "availability_zones" {
   type    = list(string)
-  default = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default = ["us-east-1a", "us-east-1b"]
 }
 variable "root_domain" {
   type    = string
