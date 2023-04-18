@@ -27,7 +27,6 @@ mainSteps:
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_routing}"
-
 %{ if configure_ssl != "" }
   - action: aws:runDocument
     name: configure_ssl
