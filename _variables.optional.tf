@@ -122,7 +122,7 @@ variable "ssl_secret_certificate_private_key_keyname" {
 #------------------------------------------------------------------------------
 variable "ec2_associate_public_ip_address" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "ec2_ami_id" {
