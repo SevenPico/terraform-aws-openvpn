@@ -38,7 +38,7 @@ resource "aws_ssm_document" "composite_installer" {
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
     ec2_initialization = try(aws_ssm_document.ec2_initialization[0].name, "")
     ec2_upgrade        = try(aws_ssm_document.ec2_upgrade[0].name, "")
-    install_document   = try(var.enable_efs ? aws_ssm_document.install_with_efs[0].name  : aws_ssm_document.install_default[0].name, "")
+    install_document   = try(!var.enable_efs ? aws_ssm_document.install_default[0].name  : aws_ssm_document.install_with_efs[0].name, "")
     configure_service  = try(aws_ssm_document.configure_service[0].name, "")
     configure_routing  = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
     configure_ssl      = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
@@ -131,7 +131,7 @@ module "install_with_defaults_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && var.enable_efs
+  enabled    = module.context.enabled && !var.enable_efs
   attributes = ["install", "with", "defaults"]
 }
 
