@@ -365,7 +365,6 @@ resource "aws_ssm_document" "vpn_backup" {
     region        = try(data.aws_region.current[0].name, "")
     s3_bucket     = module.backups_bucket.bucket_id
     s3_backup_key = "backups/openvpn_backup.tar.gz"
-    backup_version_id = ""
   })
 }
 

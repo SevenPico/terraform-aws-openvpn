@@ -57,12 +57,14 @@ data "aws_iam_policy_document" "openvpn_ec2_policy_doc" {
   count = module.openvpn_context.enabled ? 1 : 0
 
   statement {
+    sid       = "GetSslSecrets"
     effect    = "Allow"
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [module.ssl_certificate.secret_arn]
   }
 
   statement {
+    sid       = "DecryptSslKmsKey"
     effect    = "Allow"
     actions   = ["kms:Decrypt"]
     resources = [module.ssl_certificate.kms_key_arn]
@@ -150,7 +152,7 @@ module "openvpn" {
       description              = "Allow https egress to Cloudflare."
     }
   ]
-  ec2_additional_instance_role_policies = data.aws_iam_policy_document.openvpn_ec2_policy_doc[*].json
+  ec2_additional_instance_role_policies = try(data.aws_iam_policy_document.openvpn_ec2_policy_doc[*].json, [])
 
   # NLB
   nlb_access_logs_prefix_override = var.nlb_access_logs_s3_bucket_id
