@@ -30,7 +30,7 @@ variable "create_ec2_autoscale_sns_topic" {
 
 variable "create_nlb" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "create_openvpn_secret" {
@@ -79,7 +79,7 @@ variable "enable_openvpn_backups" {
 
 variable "enable_ec2_cloudwatch_logs" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "cloudwatch_logs_expiration_days" {

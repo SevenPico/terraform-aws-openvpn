@@ -90,20 +90,20 @@ module "openvpn" {
   vpc_id = module.vpc.vpc_id
 
   # Create Options
-  create_ec2_autoscale_sns_topic = false
-  create_nlb                     = true
-  create_openvpn_secret          = false
+  create_ec2_autoscale_sns_topic = var.create_ec2_autoscale_sns_topic
+  create_nlb                     = var.create_nlb
+  create_openvpn_secret          = var.create_openvpn_secret
 
   # Enablements
-  enable_efs                 = false
-  enable_nat                 = true
-  enable_custom_ssl          = true
-  enable_licensing           = false
-  enable_openvpn_backups     = true
-  enable_ec2_cloudwatch_logs = true
+  enable_efs                 = var.enable_efs
+  enable_nat                 = var.enable_nat
+  enable_custom_ssl          = var.enable_custom_ssl
+  enable_licensing           = var.enable_licensing
+  enable_openvpn_backups     = var.enable_openvpn_backups
+  enable_ec2_cloudwatch_logs = var.enable_ec2_cloudwatch_logs
 
   # Logging
-  cloudwatch_logs_expiration_days = 90
+  cloudwatch_logs_expiration_days = var.cloudwatch_logs_expiration_days
 
   # SSL
   ssl_secret_arn                             = module.ssl_certificate.secret_arn
@@ -158,9 +158,9 @@ module "openvpn" {
   nlb_access_logs_prefix_override = var.nlb_access_logs_s3_bucket_id
   nlb_access_logs_s3_bucket_id    = var.nlb_access_logs_prefix_override
   nlb_acm_certificate_arn         = module.ssl_certificate.acm_certificate_arn
-  nlb_deletion_protection_enabled = false
+  nlb_deletion_protection_enabled = var.nlb_deletion_protection_enabled
   nlb_subnet_ids                  = module.vpc_subnets.public_subnet_ids
-  nlb_tls_ssl_policy              = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  nlb_tls_ssl_policy              = var.nlb_tls_ssl_policy
 
   # S3
   s3_source_policy_document = var.s3_source_policy_document

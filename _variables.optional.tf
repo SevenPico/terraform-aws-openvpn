@@ -30,7 +30,7 @@ variable "create_ec2_autoscale_sns_topic" {
 
 variable "create_nlb" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "create_openvpn_secret" {
@@ -59,7 +59,7 @@ EOF
 
 variable "enable_custom_ssl" {
   type        = bool
-  default     = true
+  default     = false
   description = <<EOF
   When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
   use the Certificate instead of default OpenVPN Certificate.
@@ -79,7 +79,7 @@ variable "enable_openvpn_backups" {
 
 variable "enable_ec2_cloudwatch_logs" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "cloudwatch_logs_expiration_days" {
