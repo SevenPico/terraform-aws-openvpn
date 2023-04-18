@@ -79,7 +79,7 @@ module "vpc_subnets" {
   aws_route_create_timeout             = "2m"
   aws_route_delete_timeout             = "2m"
   map_public_ip_on_launch              = true
-  max_subnet_count                     = 0 // 0 means create 1 for each AZ
+  max_subnet_count                     = 2 // 0 means create 1 for each AZ
   metadata_http_endpoint_enabled       = false
   metadata_http_put_response_hop_limit = 1
   metadata_http_tokens_required        = true
