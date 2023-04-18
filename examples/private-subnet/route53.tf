@@ -54,7 +54,7 @@ resource "aws_route53_zone" "private" {
 # OpenVPN NLB DNS Records
 # ------------------------------------------------------------------------------
 resource "aws_route53_record" "nlb" {
-  count   = module.openvpn_context.enabled ? 1 : 0
+  count   = module.openvpn_context.enabled && var.create_nlb ? 1 : 0
   zone_id = aws_route53_zone.public[0].id
   name    = module.openvpn_context.dns_name
   type    = "A"
