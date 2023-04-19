@@ -378,7 +378,6 @@ resource "aws_ssm_association" "vpn_backup" {
   parameters = {
     S3BUCKET    = module.backups_bucket.bucket_id
     S3BACKUPKEY = "backups/openvpn_backup_scheduled.tar.gz"
-    BACKUPVERSIONID = ""
   }
 
   targets {
