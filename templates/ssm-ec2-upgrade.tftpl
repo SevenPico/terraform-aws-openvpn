@@ -15,4 +15,5 @@ mainSteps:
           sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
           sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
           sudo apt-get update > /dev/null 2>&1
+          sudo apt-mark hold openvpn-as > /dev/null 2>&1
           sudo apt-get upgrade -y > /dev/null 2>&1
