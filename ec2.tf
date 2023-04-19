@@ -75,7 +75,7 @@ module "ec2_autoscale_group" {
 
   associate_public_ip_address             = var.ec2_associate_public_ip_address
   autoscaling_policies_enabled            = false
-  block_device_mappings                   = []
+  block_device_mappings                   = var.ec2_block_device_mappings
   capacity_rebalance                      = false
   cpu_utilization_high_evaluation_periods = 2
   cpu_utilization_high_period_seconds     = 300
