@@ -37,12 +37,14 @@ data "aws_iam_policy_document" "openvpn_ec2_policy_doc" {
   count = module.openvpn_context.enabled ? 1 : 0
 
   statement {
+    sid       = "GetSslSecrets"
     effect    = "Allow"
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [module.ssl_certificate.secret_arn]
   }
 
   statement {
+    sid       = "DecryptSslKmsKey"
     effect    = "Allow"
     actions   = ["kms:Decrypt"]
     resources = [module.ssl_certificate.kms_key_arn]

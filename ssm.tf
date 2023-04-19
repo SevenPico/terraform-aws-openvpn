@@ -294,17 +294,6 @@ resource "aws_ssm_document" "configure_ssl" {
   })
 }
 
-resource "aws_ssm_association" "configure_ssl" {
-  count               = module.configure_ssl_context.enabled ? 1 : 0
-  association_name    = module.configure_ssl_context.id
-  name                = one(aws_ssm_document.configure_ssl[*].name)
-  schedule_expression = "cron(0 00 00 ? * * *)"
-  targets {
-    key    = "tag:Name"
-    values = [module.context.id]
-  }
-}
-
 
 #------------------------------------------------------------------------------
 # License Configuration
@@ -329,17 +318,6 @@ resource "aws_ssm_document" "configure_license" {
     keyname    = "OPENVPN_LICENSE"
     region     = try(data.aws_region.current[0].name, "")
   })
-}
-
-resource "aws_ssm_association" "configure_license" {
-  count               = module.configure_license_context.enabled ? 1 : 0
-  association_name    = module.configure_license_context.id
-  name                = one(aws_ssm_document.configure_license[*].name)
-  schedule_expression = "cron(0 00 00 ? * * *)"
-  targets {
-    key    = "tag:Name"
-    values = [module.context.id]
-  }
 }
 
 
