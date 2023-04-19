@@ -59,7 +59,7 @@ EOF
 
 variable "enable_custom_ssl" {
   type        = bool
-  default     = false
+  default     = true
   description = <<EOF
   When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
   use the Certificate instead of default OpenVPN Certificate.
@@ -68,7 +68,7 @@ EOF
 
 variable "enable_licensing" {
   type        = bool
-  default     = false
+  default     = true
   description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
 }
 
