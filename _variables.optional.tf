@@ -35,7 +35,7 @@ variable "create_nlb" {
 
 variable "create_openvpn_secret" {
   type    = bool
-  default = false
+  default = true
 }
 
 
