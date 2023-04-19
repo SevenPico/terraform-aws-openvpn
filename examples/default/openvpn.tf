@@ -194,15 +194,6 @@ module "openvpn" {
 
 }
 
-#------------------------------------------------------------------------------
-# OpenVPN Configuration Scripts
-#------------------------------------------------------------------------------
-locals {
-  nat_routing_script_name = "nat-routing.sh"
-  ssl_script_name         = "ssl-config.sh"
-}
-
-
 # Delays VPN initialization until all resources are in place
 resource "null_resource" "openvpn_set_autoscale_counts" {
   count = module.openvpn_context.enabled ? 1 : 0
