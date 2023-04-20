@@ -89,7 +89,7 @@ module "ec2_autoscale_group" {
   custom_alarms                           = {}
   default_alarms_enabled                  = true
   default_cooldown                        = 300
-  disable_api_termination                 = false
+  disable_api_termination                 = var.ec2_disable_api_termination
   ebs_optimized                           = false
   elastic_gpu_specifications              = null
   enable_monitoring                       = true

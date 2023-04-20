@@ -165,6 +165,12 @@ variable "ec2_additional_security_group_ids" {
   default = []
 }
 
+variable "ec2_disable_api_termination" {
+  type        = bool
+  description = "If `true`, enables EC2 Instance Termination Protection"
+  default     = false
+}
+
 variable "ec2_upgrade_schedule_expression" {
   type    = string
   default = "cron(15 13 ? * SUN *)"
@@ -308,11 +314,6 @@ variable "openvpn_daemon_udp_port" {
   default = 1194
 }
 
-variable "openvpn_enable_mfa_delete" {
-  type    = bool
-  default = false
-}
-
 variable "openvpn_s3_access_logs_prefix_override" {
   type    = string
   default = null
@@ -388,10 +389,10 @@ variable "openvpn_tls_version_min" {
   default = "1.2"
 }
 
-variable "openvpn_enable_server_nat" {
-  type    = bool
-  default = true
-}
+//variable "openvpn_enable_server_nat" {
+//  type    = bool
+//  default = true
+//}
 
 variable "openvpn_version" {
   type    = string

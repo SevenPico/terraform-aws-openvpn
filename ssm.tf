@@ -209,7 +209,6 @@ resource "aws_ssm_document" "configure_service" {
     password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
     tls_version_min            = var.openvpn_tls_version_min
-    enable_vpn_server_nat      = var.openvpn_enable_server_nat
   })
 }
 

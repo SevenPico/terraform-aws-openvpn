@@ -83,7 +83,7 @@ module "backups_bucket" {
   bucket_key_enabled            = false
   bucket_name                   = null
   cors_rule_inputs              = null
-  enable_mfa_delete             = var.openvpn_enable_mfa_delete
+  enable_mfa_delete             = false
   force_destroy                 = var.openvpn_s3_force_destroy
   grants                        = []
   ignore_public_acls            = true
