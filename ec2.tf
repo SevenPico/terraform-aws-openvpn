@@ -157,7 +157,7 @@ module "ec2_autoscale_group_sg" {
   context = module.context.self
 
   allow_all_egress              = var.ec2_security_group_allow_all_egress
-  create_before_destroy         = true
+  create_before_destroy         = false
   inline_rules_enabled          = false
   preserve_security_group_id    = true
   revoke_rules_on_delete        = false
