@@ -49,8 +49,8 @@ resource "aws_ssm_document" "composite_installer" {
 resource "aws_ssm_association" "composite_installer" {
   count               = module.composite_installer_context.enabled ? 1 : 0
   association_name    = module.composite_installer_context.id
-  name                = one(aws_ssm_document.composite_installer[*].name)
-  schedule_expression = var.ec2_initialization_schedule_expression
+  name                = try(aws_ssm_document.composite_installer[0].name, "")
+  schedule_expression = null
   targets {
     key    = "tag:Name"
     values = [module.context.id]
@@ -59,7 +59,7 @@ resource "aws_ssm_association" "composite_installer" {
     for_each = var.openvpn_ssm_association_output_bucket_name != null ? [1] : []
     content {
       s3_bucket_name = var.openvpn_ssm_association_output_bucket_name
-      s3_key_prefix  = one(aws_ssm_document.composite_installer[*].name)
+      s3_key_prefix  = try(aws_ssm_document.composite_installer[0].name, "")
     }
   }
 }

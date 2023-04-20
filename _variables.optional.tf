@@ -165,11 +165,6 @@ variable "ec2_additional_security_group_ids" {
   default = []
 }
 
-variable "ec2_initialization_schedule_expression" {
-  type    = string
-  default = null
-}
-
 variable "ec2_upgrade_schedule_expression" {
   type    = string
   default = "cron(15 13 ? * SUN *)"
