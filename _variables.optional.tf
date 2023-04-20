@@ -250,7 +250,7 @@ variable "nlb_tls_ssl_policy" {
 #------------------------------------------------------------------------------
 # S3 Inputs
 #------------------------------------------------------------------------------
-variable "s3_source_policy_document" {
+variable "s3_source_policy_documents" {
   type        = list(string)
   default     = []
   description = <<-EOT

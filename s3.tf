@@ -32,7 +32,7 @@ module "backups_bucket_context" {
 # ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "backups_bucket" {
   count = module.backups_bucket_context.enabled ? 1 : 0
-  source_policy_documents = var.s3_source_policy_document
+  source_policy_documents = var.s3_source_policy_documents
 
   statement {
     sid     = "ForceSSLOnlyAccess"
