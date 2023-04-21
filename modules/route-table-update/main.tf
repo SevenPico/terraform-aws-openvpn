@@ -154,18 +154,6 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 #------------------------------------------------------------------------------
-# Lambda Security Group
-#------------------------------------------------------------------------------
-resource "aws_security_group" "default" {
-  count       = module.context.enabled ? 1 : 0
-  name        = module.sg_context.id
-  description = "Security group rules for ${module.lambda_context.id}"
-  vpc_id      = var.vpc_id
-  tags        = module.sg_context.tags
-}
-
-
-#------------------------------------------------------------------------------
 # Lambda Function
 #------------------------------------------------------------------------------
 resource "aws_lambda_function" "this" {
@@ -194,11 +182,6 @@ resource "aws_lambda_function" "this" {
       var.lambda_environment_variables_map)
     }
   }
-
-  #  vpc_config {
-  #    subnet_ids         = var.subnet_ids
-  #    security_group_ids = [aws_security_group.default[0].id]
-  #  }
 }
 
 
