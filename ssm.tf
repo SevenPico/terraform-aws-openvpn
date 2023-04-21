@@ -19,6 +19,9 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ---------------------------------------------------------------------------
 
+locals {
+  enable_openvpn_backups = var.enable_openvpn_backups && !var.enable_mysql
+}
 #------------------------------------------------------------------------------
 # Composite Installer Script
 #------------------------------------------------------------------------------
@@ -43,7 +46,7 @@ resource "aws_ssm_document" "composite_installer" {
     configure_routing  = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
     configure_ssl      = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
     configure_license  = var.enable_licensing ? try(aws_ssm_document.configure_license[0].name, "") : ""
-    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
+#    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
   })
 }
 
@@ -328,7 +331,7 @@ module "vpn_backup_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = var.enable_openvpn_backups && module.context.enabled
+  enabled    = module.context.enabled && local.enable_openvpn_backups
   attributes = ["backup"]
 }
 
@@ -379,7 +382,7 @@ module "vpn_restore_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && var.enable_openvpn_backups
+  enabled    = module.context.enabled && local.enable_openvpn_backups
   attributes = ["restore"]
 }
 
@@ -402,37 +405,37 @@ resource "aws_ssm_document" "vpn_restore" {
 #------------------------------------------------------------------------------
 # SSM Document Mysql Configuration
 #------------------------------------------------------------------------------
-module "configure_mysql_context" {
-  source     = "SevenPico/context/null"
-  version    = "2.0.0"
-  context    = module.context.self
-  enabled    = module.context.enabled && var.enable_mysql
-  attributes = ["configure", "mysql"]
-}
-
-resource "aws_ssm_document" "configure_mysql" {
-  count           = module.context.enabled ? 1 : 0
-  name            = module.configure_mysql_context.id
-  document_format = "YAML"
-  document_type   = "Command"
-
-  tags = module.configure_mysql_context.tags
-  content = templatefile("${path.module}/templates/ssm-configure-mysql.tftpl", {
-    rds_host               = var.rds_mysql_instance_address,
-    rds_secret_arn         = var.rds_secret_arn
-    rds_admin_username_key = var.rds_secret_admin_username_keyname
-    rds_admin_password_key = var.rds_secret_admin_password_keyname
-    rds_port_key           = var.rds_secret_port_keyname
-    region                 = try(data.aws_region.current[0].name, "")
-  })
-}
-
-resource "aws_ssm_association" "configure_mysql" {
-  count            = module.context.enabled ? 1 : 0
-  association_name = module.configure_mysql_context.id
-  name             = one(aws_ssm_document.configure_mysql[*].name)
-  targets {
-    key    = "tag:Name"
-    values = [module.context.id]
-  }
-}
+#module "configure_mysql_context" {
+#  source     = "SevenPico/context/null"
+#  version    = "2.0.0"
+#  context    = module.context.self
+#  enabled    = module.context.enabled && var.enable_mysql
+#  attributes = ["configure","mysql"]
+#}
+#
+#resource "aws_ssm_document" "configure_mysql" {
+#  count           = module.context.enabled ? 1 : 0
+#  name            = module.configure_mysql_context.id
+#  document_format = "YAML"
+#  document_type   = "Command"
+#
+#  tags = module.configure_mysql_context.tags
+#  content = templatefile("${path.module}/templates/ssm-configure-mysql.tftpl", {
+#    rds_host               = var.rds_mysql_instance_address,
+#    rds_secret_arn         = var.rds_secret_arn
+#    rds_admin_username_key = var.rds_secret_admin_username_keyname
+#    rds_admin_password_key = var.rds_secret_admin_password_keyname
+#    rds_port_key           = var.rds_secret_port_keyname
+#    region                 = try(data.aws_region.current[0].name, "")
+#  })
+#}
+#
+#resource "aws_ssm_association" "configure_mysql" {
+#  count            = module.context.enabled ? 1 : 0
+#  association_name = module.configure_mysql_context.id
+#  name             = one(aws_ssm_document.configure_mysql[*].name)
+#  targets {
+#    key    = "tag:Name"
+#    values = [module.context.id]
+#  }
+#}
