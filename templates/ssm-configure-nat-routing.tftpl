@@ -11,7 +11,6 @@ mainSteps:
 
           echo "Configuring OpenVPN_AS VPN Settings For NAT Routing."
           cd /usr/local/openvpn_as/scripts
-          sudo ./sacli --key "vpn.server.nat" --value 'true' ConfigPut
           sudo ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
           sudo ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
           sudo ./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
