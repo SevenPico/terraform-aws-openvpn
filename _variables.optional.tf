@@ -49,7 +49,7 @@ variable "enable_efs" {
 
 variable "enable_nat" {
   type        = bool
-  default     = true
+  default     = false
   description = <<EOF
   When this is true network address translation is enabled. Clients will be able to reach endpoints in the VPC.
   When this is False reverse routing will be enabled and clients will be able to be access from endpoints in the VPC

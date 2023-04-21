@@ -78,7 +78,7 @@ module "openvpn" {
   enable_nat                 = var.enable_nat
   enable_custom_ssl          = var.enable_custom_ssl
   enable_licensing           = var.enable_licensing
-  enable_mysql               = var.enable_mysql
+#  enable_mysql               = var.enable_mysql
   enable_openvpn_backups     = var.enable_openvpn_backups
   enable_ec2_cloudwatch_logs = var.enable_ec2_cloudwatch_logs
 
@@ -102,7 +102,6 @@ module "openvpn" {
   ec2_autoscale_sns_topic_default_result    = var.ec2_autoscale_sns_topic_default_result
   ec2_autoscale_sns_topic_heartbeat_timeout = var.ec2_autoscale_sns_topic_heartbeat_timeout
   ec2_additional_security_group_ids         = var.ec2_additional_security_group_ids
-  ec2_initialization_schedule_expression    = var.ec2_initialization_schedule_expression
   ec2_upgrade_schedule_expression           = var.ec2_upgrade_schedule_expression
   ec2_security_group_allow_all_egress       = var.ec2_security_group_allow_all_egress
   ec2_security_group_rules = [
@@ -131,7 +130,7 @@ module "openvpn" {
   nlb_tls_ssl_policy              = var.nlb_tls_ssl_policy
 
   # S3
-  s3_source_policy_document = var.s3_source_policy_document
+  s3_source_policy_documents = var.s3_source_policy_documents
 
   # OpenVPN
   openvpn_backup_schedule_expression       = var.openvpn_backup_schedule_expression
@@ -144,7 +143,6 @@ module "openvpn" {
   openvpn_daemon_ingress_blocks            = var.openvpn_daemon_ingress_blocks
   openvpn_daemon_tcp_port                  = var.openvpn_daemon_tcp_port
   openvpn_daemon_udp_port                  = var.openvpn_daemon_udp_port
-  openvpn_enable_mfa_delete                = var.openvpn_enable_mfa_delete
   openvpn_s3_access_logs_prefix_override   = var.openvpn_s3_access_logs_prefix_override
   openvpn_s3_access_logs_s3_bucket_id      = var.openvpn_s3_access_logs_s3_bucket_id
   openvpn_s3_force_destroy                 = var.openvpn_s3_force_destroy
@@ -160,9 +158,7 @@ module "openvpn" {
   openvpn_web_server_name                  = var.openvpn_web_server_name
   openvpn_s3_object_ownership              = var.openvpn_s3_object_ownership
   openvpn_tls_version_min                  = var.openvpn_tls_version_min
-  openvpn_enable_server_nat                = var.openvpn_enable_server_nat
   openvpn_version                          = var.openvpn_version
-
 }
 
 # Delays VPN initialization until all resources are in place
