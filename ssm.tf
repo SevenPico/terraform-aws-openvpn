@@ -38,11 +38,12 @@ resource "aws_ssm_document" "composite_installer" {
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
     ec2_initialization = try(aws_ssm_document.ec2_initialization[0].name, "")
     ec2_upgrade        = try(aws_ssm_document.ec2_upgrade[0].name, "")
-    install_document   = try(!var.enable_efs ? aws_ssm_document.install_default[0].name  : aws_ssm_document.install_with_efs[0].name, "")
+    install_document   = try(!var.enable_efs ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name, "")
     configure_service  = try(aws_ssm_document.configure_service[0].name, "")
     configure_routing  = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
     configure_ssl      = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
     configure_license  = var.enable_licensing ? try(aws_ssm_document.configure_license[0].name, "") : ""
+    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
   })
 }
 
@@ -183,7 +184,7 @@ module "configure_openvpn_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && var.enable_nat
+  enabled    = module.context.enabled
   attributes = ["configuration"]
 }
 
@@ -209,7 +210,6 @@ resource "aws_ssm_document" "configure_service" {
     password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
     tls_version_min            = var.openvpn_tls_version_min
-    enable_vpn_server_nat      = var.enable_nat
   })
 }
 
@@ -396,4 +396,43 @@ resource "aws_ssm_document" "vpn_restore" {
     s3_backup_key     = "backups/openvpn_backup.tar.gz"
     backup_version_id = ""
   })
+}
+
+
+#------------------------------------------------------------------------------
+# SSM Document Mysql Configuration
+#------------------------------------------------------------------------------
+module "configure_mysql_context" {
+  source     = "SevenPico/context/null"
+  version    = "2.0.0"
+  context    = module.context.self
+  enabled    = module.context.enabled && var.enable_mysql
+  attributes = ["configure", "mysql"]
+}
+
+resource "aws_ssm_document" "configure_mysql" {
+  count           = module.context.enabled ? 1 : 0
+  name            = module.configure_mysql_context.id
+  document_format = "YAML"
+  document_type   = "Command"
+
+  tags = module.configure_mysql_context.tags
+  content = templatefile("${path.module}/templates/ssm-configure-mysql.tftpl", {
+    rds_host               = var.rds_mysql_instance_address,
+    rds_secret_arn         = var.rds_secret_arn
+    rds_admin_username_key = var.rds_secret_admin_username_keyname
+    rds_admin_password_key = var.rds_secret_admin_password_keyname
+    rds_port_key           = var.rds_secret_port_keyname
+    region                 = try(data.aws_region.current[0].name, "")
+  })
+}
+
+resource "aws_ssm_association" "configure_mysql" {
+  count            = module.context.enabled ? 1 : 0
+  association_name = module.configure_mysql_context.id
+  name             = one(aws_ssm_document.configure_mysql[*].name)
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
 }

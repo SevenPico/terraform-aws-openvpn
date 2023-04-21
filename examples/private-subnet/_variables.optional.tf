@@ -72,6 +72,12 @@ variable "enable_licensing" {
   description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
 }
 
+variable "enable_mysql" {
+  type        = bool
+  default     = false
+  description = "When this is true ``rds_mysql_instance_address`` ``rds_secret_arn`` ``rds_security_group_id`` ``rds_secret_kms_key_arn`` are required."
+}
+
 variable "enable_openvpn_backups" {
   type    = bool
   default = true

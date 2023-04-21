@@ -27,7 +27,6 @@ mainSteps:
           ./sacli --key 'vpn.daemon.0.client.netmask_bits' --value '${client_dhcp_network_mask}' ConfigPut
           ./sacli --key 'vpn.daemon.0.client.network' --value '${client_dhcp_network}' ConfigPut
           ./sacli --key 'cs.tls_version_min' --value '${tls_version_min}' ConfigPut
-          ./sacli --key "vpn.server.nat" --value '${enable_vpn_server_nat}' ConfigPut
 
           echo "Setting hostname."
           ./sacli --key 'host.name' --value '${hostname}' ConfigPut

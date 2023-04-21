@@ -78,6 +78,7 @@ module "openvpn" {
   enable_nat                 = var.enable_nat
   enable_custom_ssl          = var.enable_custom_ssl
   enable_licensing           = var.enable_licensing
+  enable_mysql               = var.enable_mysql
   enable_openvpn_backups     = var.enable_openvpn_backups
   enable_ec2_cloudwatch_logs = var.enable_ec2_cloudwatch_logs
 

@@ -52,12 +52,12 @@ mainSteps:
             ./dbcvt -t certs -s sqlite:////usr/local/openvpn_as/etc/db/certs.db -d mysql://${rds_host}/as_certs
             ./dbcvt -t user_prop -s sqlite:////usr/local/openvpn_as/etc/db/userprop.db -d mysql://${rds_host}/as_userprop
             ./dbcvt -t log -s sqlite:////usr/local/openvpn_as/etc/db/log.db -d mysql://${rds_host}/as_log
-         else
+          else
             echo "Skipping OpenVPN_AS Backend Migration to MySQL."
-         fi
+          fi
 
-         sed -i "s|\("^config_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_config|" /usr/local/openvpn_as/etc/as.conf
-         sed -i "s|\("^user_prop_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_userprop|" /usr/local/openvpn_as/etc/as.conf
-         sed -i "s|\("^log_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_log|" /usr/local/openvpn_as/etc/as.conf
-         sed -i "s|\("^certs_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_certs|" /usr/local/openvpn_as/etc/as.conf
-         sudo service openvpnas restart
+          sed -i "s|\("^config_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_config|" /usr/local/openvpn_as/etc/as.conf
+          sed -i "s|\("^user_prop_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_userprop|" /usr/local/openvpn_as/etc/as.conf
+          sed -i "s|\("^log_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_log|" /usr/local/openvpn_as/etc/as.conf
+          sed -i "s|\("^certs_db=" * *\).*|\1mysql:\/\/${rds_host}\/as_certs|" /usr/local/openvpn_as/etc/as.conf
+          sudo service openvpnas restart

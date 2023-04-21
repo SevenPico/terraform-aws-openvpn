@@ -72,6 +72,12 @@ variable "enable_licensing" {
   description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
 }
 
+variable "enable_mysql" {
+  type        = bool
+  default     = false
+  description = "When this is true ``rds_mysql_instance_address`` ``rds_secret_arn`` ``rds_security_group_id`` ``rds_secret_kms_key_arn`` are required."
+}
+
 variable "enable_openvpn_backups" {
   type    = bool
   default = true
@@ -402,4 +408,38 @@ variable "openvpn_version" {
 variable "openvpn_ssm_association_output_bucket_name" {
   type    = string
   default = null
+}
+
+
+#------------------------------------------------------------------------------
+# Mysql Configuration Inputs
+#------------------------------------------------------------------------------
+variable "rds_secret_admin_password_keyname" {
+  default = "ADMIN_PASSWORD"
+}
+
+variable "rds_secret_admin_username_keyname" {
+  default = "ADMIN_USERNAME"
+}
+
+variable "rds_secret_port_keyname" {
+  default = "PORT"
+}
+
+variable "rds_mysql_instance_address" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
+}
+
+variable "rds_secret_arn" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
+}
+
+variable "rds_secret_kms_key_arn" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
 }

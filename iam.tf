@@ -57,7 +57,7 @@ locals {
   #  secrets_arns_a = [one(data.aws_secretsmanager_secret.ssl.*.arn)]
   #  secrets_arns_b = [var.rds_secret_arn]
   current_region     = try(data.aws_region.current[0].name, "")
-  current_account_id = try(data.aws_caller_identity.current[0].account_id,"")
+  current_account_id = try(data.aws_caller_identity.current[0].account_id, "")
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
