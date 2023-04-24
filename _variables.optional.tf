@@ -59,7 +59,7 @@ EOF
 
 variable "enable_custom_ssl" {
   type        = bool
-  default     = true
+  default     = false
   description = <<EOF
   When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
   use the Certificate instead of default OpenVPN Certificate.
