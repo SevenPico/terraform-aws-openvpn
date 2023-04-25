@@ -177,6 +177,12 @@ variable "ec2_disable_api_termination" {
   default     = false
 }
 
+varlable "ec2_role_source_policy_documents" {
+  type = list(string)
+  default = []
+  description = "If necessary, provide additional JSON Policy Documents for the EC2 Instance."
+}
+
 variable "ec2_upgrade_schedule_expression" {
   type    = string
   default = "cron(15 13 ? * SUN *)"

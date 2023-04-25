@@ -63,6 +63,7 @@ locals {
 data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
   count   = module.context.enabled ? 1 : 0
   version = "2012-10-17"
+  source_policy_documents = var.ec2_role_source_policy_documents
 
   statement {
     actions = [
@@ -114,8 +115,7 @@ data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
     ]
     effect = "Allow"
     resources = compact([
-      "arn:aws:secretsmanager:${local.current_region}:${local.current_account_id}:secret:${module.context.id}*",
-      local.secret_arn,
+      local.secret_arn
     ])
   }
   statement {
