@@ -177,7 +177,7 @@ variable "ec2_disable_api_termination" {
   default     = false
 }
 
-varlable "ec2_role_source_policy_documents" {
+varlable "ec2_additional_role_source_policy_documents" {
   type = list(string)
   default = []
   description = "If necessary, provide additional JSON Policy Documents for the EC2 Instance."
@@ -195,11 +195,6 @@ variable "ec2_security_group_allow_all_egress" {
 
 variable "ec2_security_group_rules" {
   type    = list(any)
-  default = []
-}
-
-variable "ec2_additional_instance_role_policies" {
-  type    = any
   default = []
 }
 
