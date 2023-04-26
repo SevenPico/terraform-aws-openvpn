@@ -103,7 +103,6 @@ module "openvpn" {
   ec2_autoscale_sns_topic_default_result    = var.ec2_autoscale_sns_topic_default_result
   ec2_autoscale_sns_topic_heartbeat_timeout = var.ec2_autoscale_sns_topic_heartbeat_timeout
   ec2_additional_security_group_ids         = var.ec2_additional_security_group_ids
-  ec2_initialization_schedule_expression    = var.ec2_initialization_schedule_expression
   ec2_upgrade_schedule_expression           = var.ec2_upgrade_schedule_expression
   ec2_security_group_allow_all_egress       = var.ec2_security_group_allow_all_egress
   ec2_security_group_rules = [
@@ -121,7 +120,11 @@ module "openvpn" {
       description              = "Allow https egress to VPC."
     },
   ]
-  ec2_additional_instance_role_policies = try(data.aws_iam_policy_document.openvpn_ec2_policy_doc[*].json, [])
+
+  ec2_role_source_policy_documents = try(data.aws_iam_policy_document.openvpn_ec2_policy_doc[*].json, [])
+  ec2_disable_api_termination      = false
+  ec2_block_device_mappings        = []
+
 
   # NLB
   nlb_access_logs_prefix_override = var.nlb_access_logs_s3_bucket_id
@@ -132,7 +135,7 @@ module "openvpn" {
   nlb_tls_ssl_policy              = var.nlb_tls_ssl_policy
 
   # S3
-  s3_source_policy_document = var.s3_source_policy_document
+  s3_source_policy_documents = var.s3_source_policy_documents
 
   # OpenVPN
   openvpn_backup_schedule_expression       = var.openvpn_backup_schedule_expression
@@ -145,7 +148,6 @@ module "openvpn" {
   openvpn_daemon_ingress_blocks            = var.openvpn_daemon_ingress_blocks
   openvpn_daemon_tcp_port                  = var.openvpn_daemon_tcp_port
   openvpn_daemon_udp_port                  = var.openvpn_daemon_udp_port
-  openvpn_enable_mfa_delete                = var.openvpn_enable_mfa_delete
   openvpn_s3_access_logs_prefix_override   = var.openvpn_s3_access_logs_prefix_override
   openvpn_s3_access_logs_s3_bucket_id      = var.openvpn_s3_access_logs_s3_bucket_id
   openvpn_s3_force_destroy                 = var.openvpn_s3_force_destroy
@@ -161,7 +163,6 @@ module "openvpn" {
   openvpn_web_server_name                  = var.openvpn_web_server_name
   openvpn_s3_object_ownership              = var.openvpn_s3_object_ownership
   openvpn_tls_version_min                  = var.openvpn_tls_version_min
-  openvpn_enable_server_nat                = var.openvpn_enable_server_nat
   openvpn_version                          = var.openvpn_version
 
 }

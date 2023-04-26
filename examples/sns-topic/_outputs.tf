@@ -15,16 +15,32 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./examples/default/_variables.tf
+##  ./examples/default/_outputs.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "vpc_cidr_block" {
-  type = string
+output "autoscaling_group_arn" {
+  value = module.openvpn.autoscale_group_arn
 }
-variable "availability_zones" {
-  type = list(string)
+
+output "ec2_security_group_id" {
+  value = module.openvpn.security_group_id
 }
-variable "root_domain" {
-  type = string
+
+output "autoscaling_role_arn" {
+  value = module.openvpn.role_arn
 }
+
+output "autoscaling_lifecycle_role_arn" {
+  value = module.openvpn.lifecycle_role_arn
+}
+
+output "autoscaling_sns_role_arn" {
+  value = module.openvpn.sns_role_arn
+}
+
+output "openvpn_ui_url" {
+  value = "https://${module.openvpn.nlb_dns_name}:${module.openvpn.ui_https_port}"
+}
+
+

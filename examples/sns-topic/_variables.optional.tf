@@ -25,7 +25,7 @@
 #------------------------------------------------------------------------------
 variable "create_ec2_autoscale_sns_topic" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "create_nlb" {
@@ -49,7 +49,7 @@ variable "enable_efs" {
 
 variable "enable_nat" {
   type        = bool
-  default     = false
+  default     = true
   description = <<EOF
   When this is true network address translation is enabled. Clients will be able to reach endpoints in the VPC.
   When this is False reverse routing will be enabled and clients will be able to be access from endpoints in the VPC
@@ -59,7 +59,7 @@ EOF
 
 variable "enable_custom_ssl" {
   type        = bool
-  default     = false
+  default     = true
   description = <<EOF
   When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
   use the Certificate instead of default OpenVPN Certificate.
@@ -177,12 +177,6 @@ variable "ec2_disable_api_termination" {
   default     = false
 }
 
-variable "ec2_role_source_policy_documents" {
-  type        = list(string)
-  default     = []
-  description = "If necessary, provide additional JSON Policy Documents for the EC2 Instance."
-}
-
 variable "ec2_upgrade_schedule_expression" {
   type    = string
   default = "cron(15 13 ? * SUN *)"
@@ -195,6 +189,11 @@ variable "ec2_security_group_allow_all_egress" {
 
 variable "ec2_security_group_rules" {
   type    = list(any)
+  default = []
+}
+
+variable "ec2_additional_instance_role_policies" {
+  type    = any
   default = []
 }
 
@@ -320,6 +319,7 @@ variable "openvpn_daemon_udp_port" {
   type    = number
   default = 1194
 }
+
 
 variable "openvpn_s3_access_logs_prefix_override" {
   type    = string

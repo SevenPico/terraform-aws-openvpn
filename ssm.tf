@@ -207,13 +207,16 @@ resource "aws_ssm_document" "configure_service" {
     dhcp_option_domain         = var.openvpn_dhcp_option_domain,
     client_dhcp_network        = var.openvpn_client_dhcp_network
     client_dhcp_network_mask   = var.openvpn_client_dhcp_network_mask
+    client_static_network      = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network : ""
+    client_static_network_mask = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network_mask : ""
     openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
     vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
     password_secret_arn        = local.secret_arn
     password_secret_key        = var.openvpn_secret_admin_password_key
     region                     = local.current_region
     tls_version_min            = var.openvpn_tls_version_min
-    enable_vpn_server_nat      = var.enable_nat
+    enable_vpn_server_nat                = var.enable_nat
+    openvpn_client_static_addresses_enabled = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_addresses_enabled : ""
   })
 }
 
@@ -298,6 +301,15 @@ resource "aws_ssm_document" "configure_ssl" {
   })
 }
 
+resource "aws_ssm_association" "configure_ssl" {
+  count            = module.configure_ssl_context.enabled ? 1 : 0
+  association_name = module.configure_ssl_context.id
+  name             = one(aws_ssm_document.configure_ssl[*].name)
+  targets {
+    key    = "tag:Name"
+    values = [module.context.id]
+  }
+}
 
 #------------------------------------------------------------------------------
 # License Configuration

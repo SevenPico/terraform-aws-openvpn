@@ -20,11 +20,11 @@
 ## ----------------------------------------------------------------------------
 
 variable "vpc_cidr_block" {
-  type    = string
+  type = string
 }
 variable "availability_zones" {
-  type    = list(string)
+  type = list(string)
 }
 variable "root_domain" {
-  type    = string
+  type = string
 }
