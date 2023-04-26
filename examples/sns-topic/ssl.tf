@@ -41,7 +41,7 @@ module "ssl_certificate" {
   additional_dns_names              = []
   additional_secrets                = {}
   create_mode                       = "LetsEncrypt"
-  create_secret_update_sns          = false
+  create_secret_update_sns          = true
   import_filepath_certificate       = null
   import_filepath_certificate_chain = null
   import_filepath_private_key       = null
@@ -55,4 +55,11 @@ module "ssl_certificate" {
   secret_update_sns_pub_principals  = {}
   secret_update_sns_sub_principals  = {}
   zone_id                           = null
+}
+
+resource "aws_sns_topic_subscription" "ssl_secrets_sns_subscription" {
+  count     = module.ssl_certificate_context.enabled ? 1 : 0
+  topic_arn = module.ssl_certificate.sns_topic_arn
+  protocol  = "email"
+  endpoint  = "ahiwrale@sigmasolve.net"
 }
