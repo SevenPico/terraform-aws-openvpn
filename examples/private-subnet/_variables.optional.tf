@@ -30,7 +30,7 @@ variable "create_ec2_autoscale_sns_topic" {
 
 variable "create_nlb" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "create_openvpn_secret" {
@@ -49,7 +49,7 @@ variable "enable_efs" {
 
 variable "enable_nat" {
   type        = bool
-  default     = true
+  default     = false
   description = <<EOF
   When this is true network address translation is enabled. Clients will be able to reach endpoints in the VPC.
   When this is False reverse routing will be enabled and clients will be able to be access from endpoints in the VPC
@@ -59,7 +59,7 @@ EOF
 
 variable "enable_custom_ssl" {
   type        = bool
-  default     = true
+  default     = false
   description = <<EOF
   When this is true SSL values from the SSL SecretsManager document will be written to the EC2 Instance and OpenVPN will
   use the Certificate instead of default OpenVPN Certificate.
@@ -68,7 +68,7 @@ EOF
 
 variable "enable_licensing" {
   type        = bool
-  default     = false
+  default     = true
   description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
 }
 
@@ -128,7 +128,7 @@ variable "ssl_secret_certificate_private_key_keyname" {
 #------------------------------------------------------------------------------
 variable "ec2_associate_public_ip_address" {
   type    = bool
-  default = false
+  default = true
 }
 
 variable "ec2_ami_id" {
@@ -171,9 +171,16 @@ variable "ec2_additional_security_group_ids" {
   default = []
 }
 
-variable "ec2_initialization_schedule_expression" {
-  type    = string
-  default = null
+variable "ec2_disable_api_termination" {
+  type        = bool
+  description = "If `true`, enables EC2 Instance Termination Protection"
+  default     = false
+}
+
+variable "ec2_role_source_policy_documents" {
+  type = list(string)
+  default = []
+  description = "If necessary, provide additional JSON Policy Documents for the EC2 Instance."
 }
 
 variable "ec2_upgrade_schedule_expression" {
@@ -191,8 +198,23 @@ variable "ec2_security_group_rules" {
   default = []
 }
 
-variable "ec2_additional_instance_role_policies" {
-  type    = any
+variable "ec2_block_device_mappings" {
+  description = "Specify volumes to attach to the instance besides the volumes specified by the AMI"
+  type = list(object({
+    device_name  = string
+    no_device    = bool
+    virtual_name = string
+    ebs = object({
+      delete_on_termination = bool
+      encrypted             = bool
+      iops                  = number
+      kms_key_id            = string
+      snapshot_id           = string
+      volume_size           = number
+      volume_type           = string
+    })
+  }))
+
   default = []
 }
 
@@ -245,6 +267,36 @@ variable "s3_source_policy_documents" {
     EOT
 }
 
+variable "s3_access_logs_prefix_override" {
+  type    = string
+  default = null
+}
+
+variable "s3_access_logs_s3_bucket_id" {
+  type    = string
+  default = null
+}
+
+variable "s3_force_destroy" {
+  type    = bool
+  default = true
+}
+
+variable "s3_lifecycle_configuration_rules" {
+  type    = list(any)
+  default = []
+}
+
+variable "s3_versioning_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "s3_object_ownership" {
+  type    = string
+  default = "BucketOwnerEnforced"
+}
+
 
 #------------------------------------------------------------------------------
 # OpenVPN Configuration Inputs
@@ -291,42 +343,12 @@ variable "openvpn_daemon_ingress_blocks" {
 
 variable "openvpn_daemon_tcp_port" {
   type    = number
-  default = null
+  default = 443
 }
 
 variable "openvpn_daemon_udp_port" {
   type    = number
   default = 1194
-}
-
-variable "openvpn_enable_mfa_delete" {
-  type    = bool
-  default = false
-}
-
-variable "openvpn_s3_access_logs_prefix_override" {
-  type    = string
-  default = null
-}
-
-variable "openvpn_s3_access_logs_s3_bucket_id" {
-  type    = string
-  default = null
-}
-
-variable "openvpn_s3_force_destroy" {
-  type    = bool
-  default = true
-}
-
-variable "openvpn_s3_lifecycle_configuration_rules" {
-  type    = list(any)
-  default = []
-}
-
-variable "openvpn_s3_versioning_enabled" {
-  type    = bool
-  default = true
 }
 
 variable "openvpn_secret_admin_password_key" {
@@ -356,7 +378,7 @@ variable "openvpn_time_zone" {
 
 variable "openvpn_ui_https_port" {
   type    = number
-  default = 443
+  default = 943
 }
 
 variable "openvpn_ui_ingress_blocks" {
@@ -369,20 +391,15 @@ variable "openvpn_web_server_name" {
   default = "OpenVPN Server"
 }
 
-variable "openvpn_s3_object_ownership" {
-  type    = string
-  default = "BucketOwnerEnforced"
-}
-
 variable "openvpn_tls_version_min" {
   type    = string
   default = "1.2"
 }
 
-variable "openvpn_enable_server_nat" {
-  type    = bool
-  default = true
-}
+//variable "openvpn_enable_server_nat" {
+//  type    = bool
+//  default = true
+//}
 
 variable "openvpn_version" {
   type    = string
@@ -392,4 +409,38 @@ variable "openvpn_version" {
 variable "openvpn_ssm_association_output_bucket_name" {
   type    = string
   default = null
+}
+
+
+#------------------------------------------------------------------------------
+# Mysql Configuration Inputs
+#------------------------------------------------------------------------------
+variable "rds_secret_admin_password_keyname" {
+  default = "ADMIN_PASSWORD"
+}
+
+variable "rds_secret_admin_username_keyname" {
+  default = "ADMIN_USERNAME"
+}
+
+variable "rds_secret_port_keyname" {
+  default = "PORT"
+}
+
+variable "rds_mysql_instance_address" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
+}
+
+variable "rds_secret_arn" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
+}
+
+variable "rds_secret_kms_key_arn" {
+  type        = string
+  default     = ""
+  description = "Required when ``enable_mysql = true`"
 }

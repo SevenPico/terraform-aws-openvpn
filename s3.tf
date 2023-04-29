@@ -84,20 +84,20 @@ module "backups_bucket" {
   bucket_name                   = null
   cors_rule_inputs              = null
   enable_mfa_delete             = false
-  force_destroy                 = var.openvpn_s3_force_destroy
+  force_destroy                 = var.s3_force_destroy
   grants                        = []
   ignore_public_acls            = true
   kms_master_key_arn            = ""
-  lifecycle_configuration_rules = var.openvpn_s3_lifecycle_configuration_rules
-  logging = var.openvpn_s3_access_logs_s3_bucket_id != null ? {
-    bucket_name = var.openvpn_s3_access_logs_s3_bucket_id
-    prefix      = var.openvpn_s3_access_logs_prefix_override
+  lifecycle_configuration_rules = var.s3_lifecycle_configuration_rules
+  logging = var.s3_access_logs_s3_bucket_id != null ? {
+    bucket_name = var.s3_access_logs_s3_bucket_id
+    prefix      = var.s3_access_logs_prefix_override
   } : null
   object_lock_configuration     = null
   privileged_principal_actions  = []
   privileged_principal_arns     = []
   restrict_public_buckets       = true
-  s3_object_ownership           = var.openvpn_s3_object_ownership
+  s3_object_ownership           = var.s3_object_ownership
   s3_replica_bucket_arn         = ""
   s3_replication_enabled        = false
   s3_replication_rules          = null
@@ -106,7 +106,7 @@ module "backups_bucket" {
   sse_algorithm                 = "AES256"
   transfer_acceleration_enabled = false
   user_enabled                  = false
-  versioning_enabled            = var.openvpn_s3_versioning_enabled
+  versioning_enabled            = var.s3_versioning_enabled
   website_inputs                = null
   wait_time_seconds             = 120
 }

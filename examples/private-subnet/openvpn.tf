@@ -135,36 +135,35 @@ module "openvpn" {
   nlb_tls_ssl_policy              = var.nlb_tls_ssl_policy
 
   # S3
-  s3_source_policy_documents = var.s3_source_policy_documents
+  s3_access_logs_prefix_override          = var.s3_access_logs_prefix_override
+  s3_access_logs_s3_bucket_id             = var.s3_access_logs_s3_bucket_id
+  s3_force_destroy                        = var.s3_force_destroy
+  s3_lifecycle_configuration_rules        = var.s3_lifecycle_configuration_rules
+  s3_object_ownership                     = var.s3_object_ownership
+  s3_source_policy_document = var.s3_source_policy_documents
+  s3_versioning_enabled                   = var.s3_versioning_enabled
 
   # OpenVPN
-  openvpn_backup_schedule_expression       = var.openvpn_backup_schedule_expression
-  openvpn_client_cidr_blocks               = var.openvpn_client_cidr_blocks
-  openvpn_client_dhcp_network              = var.openvpn_client_dhcp_network
-  openvpn_client_dhcp_network_mask         = var.openvpn_client_dhcp_network_mask
-  openvpn_client_static_addresses_enabled  = var.openvpn_client_static_addresses_enabled
-  openvpn_client_static_network            = var.openvpn_client_static_network
-  openvpn_client_static_network_mask       = var.openvpn_client_static_network_mask
-  openvpn_daemon_ingress_blocks            = var.openvpn_daemon_ingress_blocks
-  openvpn_daemon_tcp_port                  = var.openvpn_daemon_tcp_port
-  openvpn_daemon_udp_port                  = var.openvpn_daemon_udp_port
-  openvpn_s3_access_logs_prefix_override   = var.openvpn_s3_access_logs_prefix_override
-  openvpn_s3_access_logs_s3_bucket_id      = var.openvpn_s3_access_logs_s3_bucket_id
-  openvpn_s3_force_destroy                 = var.openvpn_s3_force_destroy
-  openvpn_s3_lifecycle_configuration_rules = var.openvpn_s3_lifecycle_configuration_rules
-  openvpn_s3_versioning_enabled            = var.openvpn_s3_versioning_enabled
-  openvpn_secret_admin_password_key        = var.openvpn_secret_admin_password_key
-  openvpn_secret_arn                       = var.openvpn_secret_arn
-  openvpn_secret_enable_kms_key_rotation   = var.openvpn_secret_enable_kms_key_rotation
-  openvpn_secret_kms_key_arn               = var.openvpn_secret_kms_key_arn
-  openvpn_time_zone                        = var.openvpn_time_zone
-  openvpn_ui_https_port                    = var.openvpn_ui_https_port
-  openvpn_ui_ingress_blocks                = var.openvpn_ui_ingress_blocks
-  openvpn_web_server_name                  = var.openvpn_web_server_name
-  openvpn_s3_object_ownership              = var.openvpn_s3_object_ownership
-  openvpn_tls_version_min                  = var.openvpn_tls_version_min
-  openvpn_version                          = var.openvpn_version
-
+  openvpn_backup_schedule_expression      = var.openvpn_backup_schedule_expression
+  openvpn_client_cidr_blocks              = var.openvpn_client_cidr_blocks
+  openvpn_client_dhcp_network             = var.openvpn_client_dhcp_network
+  openvpn_client_dhcp_network_mask        = var.openvpn_client_dhcp_network_mask
+  openvpn_client_static_addresses_enabled = var.openvpn_client_static_addresses_enabled
+  openvpn_client_static_network           = var.openvpn_client_static_network
+  openvpn_client_static_network_mask      = var.openvpn_client_static_network_mask
+  openvpn_daemon_ingress_blocks           = var.openvpn_daemon_ingress_blocks
+  openvpn_daemon_tcp_port                 = var.openvpn_daemon_tcp_port
+  openvpn_daemon_udp_port                 = var.openvpn_daemon_udp_port
+  openvpn_secret_admin_password_key       = var.openvpn_secret_admin_password_key
+  openvpn_secret_arn                      = var.openvpn_secret_arn
+  openvpn_secret_enable_kms_key_rotation  = var.openvpn_secret_enable_kms_key_rotation
+  openvpn_secret_kms_key_arn              = var.openvpn_secret_kms_key_arn
+  openvpn_time_zone                       = var.openvpn_time_zone
+  openvpn_tls_version_min                 = var.openvpn_tls_version_min
+  openvpn_ui_https_port                   = var.openvpn_ui_https_port
+  openvpn_ui_ingress_blocks               = var.openvpn_ui_ingress_blocks
+  openvpn_version                         = var.openvpn_version
+  openvpn_web_server_name                 = var.openvpn_web_server_name
 }
 
 # Delays VPN initialization until all resources are in place
