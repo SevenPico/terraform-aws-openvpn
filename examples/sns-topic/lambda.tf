@@ -23,10 +23,6 @@ data "aws_iam_policy_document" "dns_updater_lambda" {
   count = module.ssl_updater_lambda_role_context.enabled ? 1 : 0
   statement {
     effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["sns.amazonaws.com"]
-    }
     actions = ["lambda:InvokeFunction"]
     resources = [
       "${module.ssl_updater_lambda_function.arn}"
@@ -128,7 +124,7 @@ resource "aws_lambda_permission" "ssl_certificate_updates" {
   source_arn    = module.ssl_certificate.sns_topic_arn
 }
 
-resource "aws_sns_topic_subscription" "openvpn_dns_updates" {
+resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
   count      = module.ssl_updater_lambda_context.enabled ? 1 : 0
   depends_on = [aws_lambda_permission.ssl_certificate_updates]
 
