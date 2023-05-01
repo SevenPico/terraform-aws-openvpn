@@ -1,5 +1,7 @@
 import boto3
 import os
+import json
+
 
 def lambda_handler(event, context):
     # Get the SNS message containing the tag key and value
@@ -11,7 +13,7 @@ def lambda_handler(event, context):
     ec2_client = boto3.client('ec2')
     response = ec2_client.describe_instances(
         Filters=[
-            {'Name': 'tag:'+tag_key, 'Values': [tag_value]}
+            {'Name': 'tag:' + tag_key, 'Values': [tag_value]}
         ]
     )
     instance_ids = []
