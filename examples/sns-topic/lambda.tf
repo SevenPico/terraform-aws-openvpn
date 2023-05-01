@@ -21,13 +21,20 @@ module "ssl_updater_lambda_role_context" {
 ##------------------------------------------------------------------------------
 data "aws_iam_policy_document" "dns_updater_lambda" {
   count = module.ssl_updater_lambda_role_context.enabled ? 1 : 0
+  
   statement {
-    sid    = "Permission to SSM Documents"
-    effect = "Allow"
-    actions = ["ssm:SendCommand"]
+    sid       = "Permission to SSM Documents"
+    effect    = "Allow"
+    actions   = ["ssm:SendCommand"]
     resources = [
       "${module.ssl_updater_lambda_function.arn}"
     ]
+  }
+  statement {
+    sid       = "DecryptSslKmsKey"
+    effect    = "Allow"
+    actions   = ["kms:Decrypt"]
+    resources = [module.ssl_certificate.kms_key_arn]
   }
 }
 
