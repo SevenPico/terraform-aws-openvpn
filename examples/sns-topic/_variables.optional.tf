@@ -266,6 +266,36 @@ variable "s3_source_policy_documents" {
     EOT
 }
 
+variable "s3_access_logs_prefix_override" {
+  type    = string
+  default = null
+}
+
+variable "s3_access_logs_s3_bucket_id" {
+  type    = string
+  default = null
+}
+
+variable "s3_force_destroy" {
+  type    = bool
+  default = true
+}
+
+variable "s3_lifecycle_configuration_rules" {
+  type    = list(any)
+  default = []
+}
+
+variable "s3_versioning_enabled" {
+  type    = bool
+  default = true
+}
+
+variable "s3_object_ownership" {
+  type    = string
+  default = "BucketOwnerEnforced"
+}
+
 
 #------------------------------------------------------------------------------
 # OpenVPN Configuration Inputs
@@ -318,32 +348,6 @@ variable "openvpn_daemon_tcp_port" {
 variable "openvpn_daemon_udp_port" {
   type    = number
   default = 1194
-}
-
-
-variable "openvpn_s3_access_logs_prefix_override" {
-  type    = string
-  default = null
-}
-
-variable "openvpn_s3_access_logs_s3_bucket_id" {
-  type    = string
-  default = null
-}
-
-variable "openvpn_s3_force_destroy" {
-  type    = bool
-  default = true
-}
-
-variable "openvpn_s3_lifecycle_configuration_rules" {
-  type    = list(any)
-  default = []
-}
-
-variable "openvpn_s3_versioning_enabled" {
-  type    = bool
-  default = true
 }
 
 variable "openvpn_secret_admin_password_key" {
