@@ -22,18 +22,12 @@ module "ssl_updater_lambda_role_context" {
 data "aws_iam_policy_document" "dns_updater_lambda" {
   count = module.ssl_updater_lambda_role_context.enabled ? 1 : 0
   statement {
+    sid    = "Permission to SSM Documents"
     effect = "Allow"
-    actions = ["lambda:InvokeFunction"]
+    actions = ["ssm:SendCommand"]
     resources = [
       "${module.ssl_updater_lambda_function.arn}"
     ]
-    condition {
-      test = "ArnLike"
-      variable = "AWS:SourceArn"
-      values = [
-        "${module.ssl_certificate.sns_topic_arn}"
-      ]
-    }
   }
 }
 
@@ -80,7 +74,7 @@ module "ssl_updater_lambda_function" {
   cloudwatch_lambda_insights_enabled  = false
   cloudwatch_log_subscription_filters = {}
   cloudwatch_logs_kms_key_arn         = null
-  description                         = "Update SSL Certificate for ${module.openvpn.autoscale_group_name}."
+  description                         = "Update SSL Certificate."
   event_source_mappings               = {}
   ignore_external_function_updates    = false
   image_config                        = {}

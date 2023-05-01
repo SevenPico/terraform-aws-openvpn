@@ -69,12 +69,13 @@ mainSteps:
             ./sacli --key 'vpn.server.daemon.protocols' --value 'udp' ConfigPut
           fi
 
-          #if [ -n "${openvpn_client_static_addresses_enabled}"]; then
-           # echo "Configuring OpenVPN_AS VPN Settings For Static IP Assignment."
-           # cd /usr/local/openvpn_as/scripts
-           # sudo ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
-           # sudo ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
-          #else "Not Configuring OpenVPN_AS VPN Settings For Static IP Assignment"
+          if [ -n "${openvpn_client_static_addresses_enabled}"]; then
+            echo "Configuring OpenVPN_AS VPN Settings For Static IP Assignment."
+            cd /usr/local/openvpn_as/scripts
+            sudo ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
+            sudo ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
+          else
+            echo "Skipping Configuring OpenVPN_AS VPN Settings For Static IP Assignment"
 
           echo "Enabling XML-RPC Interface."
           ./sacli --key "xmlrpc.relay_level" --value 2 ConfigPut
