@@ -21,13 +21,13 @@ module "ssl_updater_lambda_role_context" {
 ##------------------------------------------------------------------------------
 data "aws_iam_policy_document" "dns_updater_lambda" {
   count = module.ssl_updater_lambda_role_context.enabled ? 1 : 0
-  
   statement {
-    sid       = "Permission to SSM Documents"
+    sid       = "PermissionSSMDocuments"
     effect    = "Allow"
-    actions   = ["ssm:SendCommand"]
+    actions   = ["ssm:DescribeDocument",
+                "ssm:ExecuteDocument"]
     resources = [
-      "${module.ssl_updater_lambda_function.arn}"
+      "${module.openvpn.ssm_document_ssl_policy_arn}"
     ]
   }
   statement {
