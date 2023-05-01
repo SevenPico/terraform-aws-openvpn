@@ -22,7 +22,8 @@
 module "backups_bucket_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.context.self && var.enable_openvpn_backups
+  context    = module.context.self
+  enabled    = module.context.enabled && var.enable_openvpn_backups
   attributes = ["backups"]
 }
 
