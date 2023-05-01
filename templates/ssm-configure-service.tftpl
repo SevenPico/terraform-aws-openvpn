@@ -75,7 +75,7 @@ mainSteps:
             sudo ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
             sudo ./sacli --key 'vpn.server.static.0.network' --value '${client_static_network}' ConfigPut
           else
-            echo "Skipping Configuring OpenVPN_AS VPN Settings For Static IP Assignment"
+            echo "Skipping Configuration Of OpenVPN_AS VPN Settings For Static IP Assignment."
 
           echo "Enabling XML-RPC Interface."
           ./sacli --key "xmlrpc.relay_level" --value 2 ConfigPut
