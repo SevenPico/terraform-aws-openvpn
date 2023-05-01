@@ -22,7 +22,7 @@
 module "backups_bucket_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.context.self
+  context    = module.context.self && var.enable_openvpn_backups
   attributes = ["backups"]
 }
 
@@ -31,7 +31,7 @@ module "backups_bucket_context" {
 # Openvpn S3 Bucket Policy
 # ------------------------------------------------------------------------------
 data "aws_iam_policy_document" "backups_bucket" {
-  count                   = module.backups_bucket_context.enabled && var.enable_openvpn_backups ? 1 : 0
+  count                   = module.backups_bucket_context.enabled ? 1 : 0
   source_policy_documents = var.s3_source_policy_documents
 
   statement {

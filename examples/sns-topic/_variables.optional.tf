@@ -80,7 +80,7 @@ variable "enable_mysql" {
 
 variable "enable_openvpn_backups" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "enable_ec2_cloudwatch_logs" {
