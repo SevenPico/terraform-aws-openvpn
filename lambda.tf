@@ -126,9 +126,9 @@ resource "aws_lambda_permission" "ssl_certificate_updates" {
   source_arn    = var.ssl_sns_topic_arn
 }
 
-resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
-  count     = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
-  topic_arn = var.ssl_sns_topic_arn
-  protocol  = "lambda"
-  endpoint  = module.ssl_updater_lambda_function.arn
-}
+#resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
+#  count     = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
+#  topic_arn = var.ssl_sns_topic_arn
+#  protocol  = "lambda"
+#  endpoint  = module.ssl_updater_lambda_function.arn
+#}
