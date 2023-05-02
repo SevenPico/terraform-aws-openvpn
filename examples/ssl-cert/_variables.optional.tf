@@ -95,7 +95,7 @@ variable "cloudwatch_logs_expiration_days" {
 
 variable "enable_ssl_cert_updater" {
   type    = bool
-  default = true
+  default = false
 }
 
 
