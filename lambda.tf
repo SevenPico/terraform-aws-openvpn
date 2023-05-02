@@ -23,10 +23,10 @@ module "ssl_cert_updater_lambda_role_context" {
 data "aws_iam_policy_document" "ssl_cert_updater_lambda_policy" {
   count = module.ssl_cert_updater_lambda_role_context.enabled ? 1 : 0
   statement {
-    sid       = "PermissionSSMDocuments"
-    effect    = "Allow"
-    actions   = ["ssm:DescribeDocument",
-                "ssm:ExecuteDocument"]
+    sid    = "PermissionSSMDocuments"
+    effect = "Allow"
+    actions = ["ssm:DescribeDocument",
+    "ssm:ExecuteDocument"]
     resources = [
       aws_ssm_document.configure_ssl[0].arn
     ]
@@ -78,31 +78,31 @@ module "ssl_updater_lambda_function" {
 
   cloudwatch_logs_retention_in_days   = 30
   architectures                       = null
-  cloudwatch_event_rules              = {}
-  cloudwatch_lambda_insights_enabled  = false
-  cloudwatch_log_subscription_filters = {}
-  cloudwatch_logs_kms_key_arn         = null
-  description                         = "Update SSL Certificate."
-  event_source_mappings               = {
+  cloudwatch_event_rules              = {
     secrets_manager_rule = {
-      name          = "${module.ssl_cert_updater_lambda_context.id}-event-rule"
-      description   = "Trigger Lambda When a New Secret Value is Put or Updated in Secrets Manager"
+      name        = "${module.ssl_cert_updater_lambda_context.id}-event-rule"
+      description = "Trigger Lambda When a New Secret Value is Put or Updated in Secrets Manager"
       event_pattern = jsonencode({
-        "source": ["aws.secretsmanager"],
-        "detail-type": ["AWS API Call via CloudTrail"],
-        "detail": {
-          "eventSource": ["secretsmanager.amazonaws.com"],
-          "eventName": ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"],
-          "requestParameters": {
-            "name": [
-              { "prefix": "/" },
-              { "arn": var.ssl_secret_arn }
+        "source" : ["aws.secretsmanager"],
+        "detail-type" : ["AWS API Call via CloudTrail"],
+        "detail" : {
+          "eventSource" : ["secretsmanager.amazonaws.com"],
+          "eventName" : ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"],
+          "requestParameters" : {
+            "name" : [
+              { "prefix" : "/" },
+              { "arn" : var.ssl_secret_arn }
             ]
           }
         }
       })
     }
   }
+  cloudwatch_lambda_insights_enabled  = false
+  cloudwatch_log_subscription_filters = {}
+  cloudwatch_logs_kms_key_arn         = null
+  description                         = "Update SSL Certificate."
+  event_source_mappings = {}
   ignore_external_function_updates    = false
   image_config                        = {}
   image_uri                           = null
