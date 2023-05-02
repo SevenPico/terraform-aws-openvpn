@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "ssl_cert_updater_lambda_policy" {
 data "archive_file" "artifact" {
   count       = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
   type        = "zip"
-  source_dir  = "${path.module}/ssl-cert-updater/"
+  source_dir  = "${path.module}/ssl-cert-updater-lambda/"
   output_path = "${path.module}/temp/lambda.zip"
 }
 
