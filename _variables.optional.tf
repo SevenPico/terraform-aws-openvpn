@@ -93,6 +93,11 @@ variable "cloudwatch_logs_expiration_days" {
   default = 90
 }
 
+variable "enable_ssl_cert_updater" {
+  type = bool
+  default = false
+}
+
 
 #------------------------------------------------------------------------------
 # SSL Inputs
@@ -105,6 +110,12 @@ variable "ssl_secret_arn" {
 variable "ssl_secret_kms_key_arn" {
   type    = string
   default = ""
+}
+
+variable "ssl_certificate_sns_topic_arn" {
+  type = string
+  default = ""
+  description = "This is required when enable_ssl_cert_updater = true"
 }
 
 variable "ssl_secret_certificate_bundle_keyname" {

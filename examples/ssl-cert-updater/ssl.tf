@@ -56,10 +56,3 @@ module "ssl_certificate" {
   secret_update_sns_sub_principals  = {}
   zone_id                           = null
 }
-
-resource "aws_sns_topic_subscription" "ssl_secrets_sns_subscription" {
-  count     = module.ssl_certificate_context.enabled ? 1 : 0
-  topic_arn = module.ssl_certificate.sns_topic_arn
-  protocol  = "email"
-  endpoint  = "ahiwrale@sigmasolve.net"
-}

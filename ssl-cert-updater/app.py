@@ -1,17 +1,28 @@
 import boto3
-import os
 import json
+import os
+import logging
+
+ssm_client = boto3.client('ssm')
+ec2_client = boto3.client('ec2')
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event):
     # Get the SNS message containing the tag key and value
-    message = event['Records'][0]['Sns']['Message']
+    try:
+        message = json.loads(event['Records'][0]['Sns']['Message'])
+    except json.JSONDecodeError:
+        logger.error('Error parsing SNS message: invalid JSON format')
+        return
     tag_key = json.loads(message)['tag-key']
     tag_value = json.loads(message)['tag-value']
 
     # Get a list of EC2 instances that have the specified tag
-    ec2_client = boto3.client('ec2')
-    response = ec2_client.describe_instances(
+    ec2_instance = boto3.client('ec2')
+    response = ec2_instance.describe_instances(
         Filters=[
             {'Name': 'tag:' + tag_key, 'Values': [tag_value]}
         ]
@@ -22,9 +33,9 @@ def lambda_handler(event, context):
             instance_ids.append(instance['InstanceId'])
 
     # Run the SSM Document on the instances that match the specified tag
-    ssm_client = boto3.client('ssm')
+    ssm_document = boto3.client('ssm')
     document_hash = os.environ['SSM_DOCUMENT_HASH']
-    response = ssm_client.send_command(
+    response = ssm_document.send_command(
         InstanceIds=instance_ids,
         DocumentName='AWS-RunDocument',
         DocumentVersion='latest',

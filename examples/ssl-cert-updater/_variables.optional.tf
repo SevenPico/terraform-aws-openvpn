@@ -93,6 +93,11 @@ variable "cloudwatch_logs_expiration_days" {
   default = 90
 }
 
+variable "enable_ssl_cert_updater" {
+  type    = bool
+  default = true
+}
+
 
 #------------------------------------------------------------------------------
 # SSL Inputs

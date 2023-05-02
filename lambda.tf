@@ -1,17 +1,18 @@
 ##------------------------------------------------------------------------------
 ## Labels
 ##------------------------------------------------------------------------------
-module "ssl_updater_lambda_context" {
+module "ssl_cert_updater_lambda_context" {
   source     = "registry.terraform.io/SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
+  enabled    = module.context.enabled && var.enable_ssl_cert_updater
   attributes = ["lambda"]
 }
 
-module "ssl_updater_lambda_role_context" {
+module "ssl_cert_updater_lambda_role_context" {
   source     = "registry.terraform.io/SevenPico/context/null"
   version    = "2.0.0"
-  context    = module.ssl_updater_lambda_context.self
+  context    = module.ssl_cert_updater_lambda_context.self
   attributes = ["role"]
 }
 
@@ -19,22 +20,22 @@ module "ssl_updater_lambda_role_context" {
 ##------------------------------------------------------------------------------
 ## IAM Role
 ##------------------------------------------------------------------------------
-data "aws_iam_policy_document" "dns_updater_lambda" {
-  count = module.ssl_updater_lambda_role_context.enabled ? 1 : 0
+data "aws_iam_policy_document" "ssl_cert_updater_lambda_policy" {
+  count = module.ssl_cert_updater_lambda_role_context.enabled ? 1 : 0
   statement {
     sid       = "PermissionSSMDocuments"
     effect    = "Allow"
     actions   = ["ssm:DescribeDocument",
                 "ssm:ExecuteDocument"]
     resources = [
-      "${module.openvpn.ssm_document_ssl_policy_arn}"
+      aws_ssm_document.configure_ssl[0].arn
     ]
   }
   statement {
     sid       = "DecryptSslKmsKey"
     effect    = "Allow"
     actions   = ["kms:Decrypt"]
-    resources = [module.ssl_certificate.kms_key_arn]
+    resources = [var.ssl_secret_kms_key_arn]
   }
 }
 
@@ -43,9 +44,9 @@ data "aws_iam_policy_document" "dns_updater_lambda" {
 # Lambda Artifact
 #------------------------------------------------------------------------------
 data "archive_file" "artifact" {
-  count       = module.ssl_updater_lambda_context.enabled ? 1 : 0
+  count       = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
   type        = "zip"
-  source_dir  = "${path.module}/lambda/"
+  source_dir  = "${path.module}/ssl-cert-updater/"
   output_path = "${path.module}/temp/lambda.zip"
 }
 
@@ -53,9 +54,9 @@ data "archive_file" "artifact" {
 #------------------------------------------------------------------------------
 # Lambda Cloudwatch Log Group
 #------------------------------------------------------------------------------
-resource "aws_cloudwatch_log_group" "dns_updater_lambda" {
-  count             = module.ssl_updater_lambda_context.enabled ? 1 : 0
-  name              = "/aws/lambda/${module.ssl_updater_lambda_context.id}"
+resource "aws_cloudwatch_log_group" "ssl_cert_updater_lambda_log_group" {
+  count             = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
+  name              = "/aws/lambda/${module.ssl_cert_updater_lambda_context.id}"
   retention_in_days = 30
   tags              = module.context.tags
 }
@@ -66,14 +67,14 @@ resource "aws_cloudwatch_log_group" "dns_updater_lambda" {
 module "ssl_updater_lambda_function" {
   source  = "registry.terraform.io/SevenPicoForks/lambda-function/aws"
   version = "2.0.1"
-  context = module.ssl_updater_lambda_context.self
+  context = module.ssl_cert_updater_lambda_context.self
 
   filename         = try(data.archive_file.artifact[0].output_path, "")
   source_code_hash = try(data.archive_file.artifact[0].output_base64sha256, "")
-  function_name    = "${module.ssl_updater_lambda_context.id}-ssl-updater"
+  function_name    = "${module.ssl_cert_updater_lambda_context.id}-ssl-updater"
   handler          = "app.lambda_handler"
-  role_name        = "${module.ssl_updater_lambda_role_context.id}-ssl-updater"
-  runtime          = "python3.9"
+  role_name        = "${module.ssl_cert_updater_lambda_role_context.id}-ssl-updater"
+  runtime          = "python3.8"
 
   cloudwatch_logs_retention_in_days   = 30
   architectures                       = null
@@ -88,7 +89,7 @@ module "ssl_updater_lambda_function" {
   image_uri                           = null
   kms_key_arn                         = ""
   lambda_at_edge                      = false
-  lambda_role_source_policy_documents = data.aws_iam_policy_document.dns_updater_lambda[*].json
+  lambda_role_source_policy_documents = data.aws_iam_policy_document.ssl_cert_updater_lambda_policy[*].json
   layers                              = []
   memory_size                         = 128
   package_type                        = "Zip"
@@ -105,7 +106,7 @@ module "ssl_updater_lambda_function" {
 
   lambda_environment = {
     variables = {
-      SSM_DOCUMENT_HASH = module.openvpn.ssm_document_ssl_policy
+      SSM_DOCUMENT_HASH = try(aws_ssm_document.configure_ssl[0].name, "")
     }
   }
 }
@@ -115,21 +116,21 @@ module "ssl_updater_lambda_function" {
 # Lambda Function SSL Secrets Update Invocation Subscription
 #------------------------------------------------------------------------------
 resource "aws_lambda_permission" "ssl_certificate_updates" {
-  count      = module.ssl_updater_lambda_context.enabled ? 1 : 0
+  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
   depends_on = [module.ssl_updater_lambda_function]
 
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
   function_name = module.ssl_updater_lambda_function.function_name
   principal     = "sns.amazonaws.com"
-  source_arn    = module.ssl_certificate.sns_topic_arn
+  source_arn    = var.ssl_certificate_sns_topic_arn
 }
 
 resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
-  count      = module.ssl_updater_lambda_context.enabled ? 1 : 0
+  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
   depends_on = [aws_lambda_permission.ssl_certificate_updates]
 
-  topic_arn = module.ssl_certificate.sns_topic_arn
+  topic_arn = var.ssl_certificate_sns_topic_arn
   protocol  = "lambda"
   endpoint  = module.ssl_updater_lambda_function.arn
 }
