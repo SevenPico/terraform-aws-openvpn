@@ -85,7 +85,7 @@ module "ssl_updater_lambda_function" {
   description                         = "Update SSL Certificate."
   event_source_mappings               = {
     secrets_manager_rule = {
-      name          = "${module.ssl_cert_updater_lambda_context.self}-event-rule"
+      name          = "${module.ssl_cert_updater_lambda_context.id}-event-rule"
       description   = "Trigger Lambda When a New Secret Value is Put or Updated in Secrets Manager"
       event_pattern = jsonencode({
         "source": ["aws.secretsmanager"],
