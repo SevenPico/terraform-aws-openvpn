@@ -88,7 +88,7 @@ module "openvpn" {
   # SSL
   ssl_secret_arn                             = module.ssl_certificate.secret_arn
   ssl_secret_kms_key_arn                     = module.ssl_certificate.kms_key_arn
-  ssl_certificate_sns_topic_arn              = module.ssl_certificate.sns_topic_arn
+  ssl_sns_topic_arn                          = module.ssl_certificate.sns_topic_arn
   ssl_secret_certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname
   ssl_secret_certificate_keyname             = var.ssl_secret_certificate_keyname
   ssl_secret_certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname

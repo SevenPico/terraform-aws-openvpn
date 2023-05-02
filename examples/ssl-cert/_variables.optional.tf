@@ -127,6 +127,11 @@ variable "ssl_secret_certificate_private_key_keyname" {
   default = "CERTIFICATE_PRIVATE_KEY"
 }
 
+variable "ssl_sns_topic_arn" {
+  type    = string
+  default = ""
+}
+
 
 #------------------------------------------------------------------------------
 # EC2 Inputs

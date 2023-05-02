@@ -112,7 +112,7 @@ variable "ssl_secret_kms_key_arn" {
   default = ""
 }
 
-variable "ssl_certificate_sns_topic_arn" {
+variable "ssl_sns_topic_arn" {
   type = string
   default = ""
   description = "This is required when enable_ssl_cert_updater = true"
