@@ -83,7 +83,26 @@ module "ssl_updater_lambda_function" {
   cloudwatch_log_subscription_filters = {}
   cloudwatch_logs_kms_key_arn         = null
   description                         = "Update SSL Certificate."
-  event_source_mappings               = {}
+  event_source_mappings               = {
+    secrets_manager_rule = {
+      name          = "${module.ssl_cert_updater_lambda_context.self}-event-rule"
+      description   = "Trigger Lambda When a New Secret Value is Put or Updated in Secrets Manager"
+      event_pattern = jsonencode({
+        "source": ["aws.secretsmanager"],
+        "detail-type": ["AWS API Call via CloudTrail"],
+        "detail": {
+          "eventSource": ["secretsmanager.amazonaws.com"],
+          "eventName": ["CreateSecret", "UpdateSecret"],
+          "requestParameters": {
+            "name": [
+              { "prefix": "/" },
+              { "arn": var.ssl_secret_arn }
+            ]
+          }
+        }
+      })
+    }
+  }
   ignore_external_function_updates    = false
   image_config                        = {}
   image_uri                           = null
@@ -115,22 +134,22 @@ module "ssl_updater_lambda_function" {
 #------------------------------------------------------------------------------
 # Lambda Function SSL Secrets Update Invocation Subscription
 #------------------------------------------------------------------------------
-resource "aws_lambda_permission" "ssl_certificate_updates" {
-  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
-  depends_on = [module.ssl_updater_lambda_function]
-
-  statement_id  = "AllowExecutionFromSNS"
-  action        = "lambda:InvokeFunction"
-  function_name = module.ssl_updater_lambda_function.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = var.ssl_certificate_sns_topic_arn
-}
-
-resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
-  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
-  depends_on = [aws_lambda_permission.ssl_certificate_updates]
-
-  topic_arn = var.ssl_certificate_sns_topic_arn
-  protocol  = "lambda"
-  endpoint  = module.ssl_updater_lambda_function.arn
-}
+#resource "aws_lambda_permission" "ssl_certificate_updates" {
+#  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
+#  depends_on = [module.ssl_updater_lambda_function]
+#
+#  statement_id  = "AllowExecutionFromSNS"
+#  action        = "lambda:InvokeFunction"
+#  function_name = module.ssl_updater_lambda_function.function_name
+#  principal     = "sns.amazonaws.com"
+#  source_arn    = var.ssl_certificate_sns_topic_arn
+#}
+#
+#resource "aws_sns_topic_subscription" "ssl_updater_lambda_subscription" {
+#  count      = module.ssl_cert_updater_lambda_context.enabled ? 1 : 0
+#  depends_on = [aws_lambda_permission.ssl_certificate_updates]
+#
+#  topic_arn = var.ssl_certificate_sns_topic_arn
+#  protocol  = "lambda"
+#  endpoint  = module.ssl_updater_lambda_function.arn
+#}
