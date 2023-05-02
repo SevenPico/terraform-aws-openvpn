@@ -92,7 +92,7 @@ module "ssl_updater_lambda_function" {
         "detail-type": ["AWS API Call via CloudTrail"],
         "detail": {
           "eventSource": ["secretsmanager.amazonaws.com"],
-          "eventName": ["CreateSecret", "UpdateSecret"],
+          "eventName": ["PutSecretValue", "UpdateSecret", "UpdateSecretVersionStage"],
           "requestParameters": {
             "name": [
               { "prefix": "/" },
