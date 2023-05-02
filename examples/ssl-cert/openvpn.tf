@@ -93,6 +93,7 @@ module "openvpn" {
   ssl_secret_certificate_keyname             = var.ssl_secret_certificate_keyname
   ssl_secret_certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
 
+
   # EC2
   ec2_associate_public_ip_address           = var.ec2_associate_public_ip_address
   ec2_ami_id                                = var.ec2_ami_id
