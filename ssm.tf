@@ -53,6 +53,7 @@ resource "aws_ssm_document" "composite_installer" {
 resource "aws_ssm_association" "composite_installer" {
   count               = module.composite_installer_context.enabled ? 1 : 0
   association_name    = module.composite_installer_context.id
+  compliance_severity = "CRITICAL"
   name                = try(aws_ssm_document.composite_installer[0].name, "")
   schedule_expression = null
   targets {
