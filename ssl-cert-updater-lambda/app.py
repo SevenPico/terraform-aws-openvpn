@@ -10,7 +10,9 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def lambda_handler(event):
+def lambda_handler(event, context):
+    logger.info(f"Received Event: {event}")
+
     # Get the SNS message containing the tag key and value
     try:
         message = json.loads(event['Records'][0]['Sns']['Message'])
@@ -34,7 +36,7 @@ def lambda_handler(event):
 
     # Run the SSM Document on the instances that match the specified tag
     ssm_document = boto3.client('ssm')
-    document_hash = os.environ['SSM_DOCUMENT_HASH']
+    document_hash = os.environ['SSM_DOCUMENT_NAME']
     response = ssm_document.send_command(
         InstanceIds=instance_ids,
         DocumentName='AWS-RunDocument',

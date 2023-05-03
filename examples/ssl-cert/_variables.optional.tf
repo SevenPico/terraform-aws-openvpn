@@ -458,3 +458,11 @@ variable "rds_secret_kms_key_arn" {
   default     = ""
   description = "Required when ``enable_mysql = true`"
 }
+
+#------------------------------------------------------------------------------
+# Cloudtrail Configuration Inputs
+#------------------------------------------------------------------------------
+variable "cloudtrail_log_storage_lifecycle_rules" {
+  type = list(any)
+  default = []
+}
