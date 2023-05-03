@@ -12,11 +12,11 @@ mainSteps:
           RDS_HOST=${rds_host}
           # DEBIAN_FRONTEND=noninteractive
 
-          # sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
-          # sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
-          # sudo apt-get update -y -q > /dev/null 2>&1
-          # sudo apt-get install libmariadb3 -y -q > /dev/null 2>&1
-          # sudo apt-get install mariadb-client-core-10.1 -y -q > /dev/null 2>&1
+          # sudo rm /var/lib/dpkg/lock &> /dev/null
+          # sudo rm /var/lib/dpkg/lock-frontend &> /dev/null
+          # sudo apt-get update -y -q &> /dev/null
+          # sudo apt-get install libmariadb3 -y -q &> /dev/null
+          # sudo apt-get install mariadb-client-core-10.1 -y -q &> /dev/null
 
           apt -y install mariadb-server
 

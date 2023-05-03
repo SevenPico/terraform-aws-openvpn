@@ -12,10 +12,10 @@ mainSteps:
           #!/bin/bash
           echo "Upgrading Ubuntu"
           export DEBIAN_FRONTEND=noninteractive
-          sudo dpkg-reconfigure --frontend noninteractive tzdata > /dev/null 2>&1
-          sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
-          sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
-          sudo apt-get update > /dev/null 2>&1
+          sudo dpkg-reconfigure --frontend noninteractive tzdata &> /dev/null
+          sudo rm /var/lib/dpkg/lock &> /dev/null
+          sudo rm /var/lib/dpkg/lock-frontend &> /dev/null
+          sudo apt-get update &> /dev/null
           echo "Excluding OpenVPN package for Upgrade"
-          sudo apt-mark hold openvpn-as > /dev/null 2>&1
-          sudo apt-get upgrade -y > /dev/null 2>&1
+          sudo apt-mark hold openvpn-as &> /dev/null
+          sudo apt-get upgrade -y &> /dev/null
