@@ -5,6 +5,7 @@ mainSteps:
   - action: aws:runShellScript
     name: ssl
     inputs:
+      timeoutSeconds: '300'
       runCommand:
         - |
           #!/bin/bash

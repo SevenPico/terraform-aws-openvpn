@@ -5,6 +5,7 @@ mainSteps:
   - action: aws:runShellScript
     name: reverseRouting
     inputs:
+      timeoutSeconds: '300'
       runCommand:
         - |
           #!/bin/bash

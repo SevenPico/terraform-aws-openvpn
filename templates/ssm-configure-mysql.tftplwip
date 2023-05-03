@@ -5,6 +5,7 @@ mainSteps:
   - action: aws:runShellScript
     name: mysqlConfiguration
     inputs:
+      timeoutSeconds: '300'
       runCommand:
         - |
           #!/bin/bash

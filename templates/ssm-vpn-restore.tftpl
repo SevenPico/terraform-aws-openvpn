@@ -18,6 +18,7 @@ mainSteps:
   - action: aws:runShellScript
     name: VpnBackupRestore
     inputs:
+      timeoutSeconds: '3600'
       runCommand:
         - |
           #!/bin/bash

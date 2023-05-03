@@ -6,6 +6,7 @@ mainSteps:
   - action: aws:runShellScript
     name: upgradingInstances
     inputs:
+      timeoutSeconds: '300'
       runCommand:
         - |
           #!/bin/bash

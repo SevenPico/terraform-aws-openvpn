@@ -5,6 +5,7 @@ mainSteps:
   - action: aws:runShellScript
     name: mountingEfs
     inputs:
+      timeoutSeconds: '300'
       runCommand:
         - |
           #!/bin/bash
