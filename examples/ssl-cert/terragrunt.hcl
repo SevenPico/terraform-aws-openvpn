@@ -58,29 +58,20 @@ inputs = {
 
   cloudtrail_log_storage_lifecycle_rules = [
     {
-      enabled                                = true
-      id                                     = "log-retention-policy-with-expiration"
-      abort_incomplete_multipart_upload_days = 1
+      enabled                                = true # bool
+      id                                     = "temp-log-retention-policy-with-expiration"
+      abort_incomplete_multipart_upload_days = 1 # number
       filter_and                             = null
-      expiration = {
-        days                         = 60
+      expiration                             = {
+        days                         = 1 # integer > 0
         expired_object_delete_marker = false
+
       }
       noncurrent_version_expiration = {
-        noncurrent_days = 90
+        noncurrent_days = 1
       }
-      transition = [
-        {
-          days          = 30
-          storage_class = "STANDARD"
-        },
-      ]
-      noncurrent_version_transition = [
-        {
-          days          = 30
-          storage_class = "STANDARD"
-        },
-      ]
+      transition                    = []
+      noncurrent_version_transition = []
     }
   ]
 
