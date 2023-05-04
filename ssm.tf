@@ -36,7 +36,7 @@ resource "aws_ssm_document" "composite_installer" {
   count           = module.composite_installer_context.enabled ? 1 : 0
   name            = module.composite_installer_context.id
   document_format = "YAML"
-  document_type   = "Automation"
+  document_type   = "Command"
   tags            = module.composite_installer_context.tags
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
     ec2_initialization = try(aws_ssm_document.ec2_initialization[0].name, "")
