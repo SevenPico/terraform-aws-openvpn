@@ -70,7 +70,7 @@ mainSteps:
             ./sacli --key 'vpn.server.daemon.protocols' --value 'udp' ConfigPut
           fi
 
-          if [ "${openvpn_client_static_addresses_enabled}" == true ]; then
+          if [ "${openvpn_client_static_addresses_enabled}" = true ]; then
             echo "Configuring OpenVPN_AS VPN Settings For Static IP Assignment."
             cd /usr/local/openvpn_as/scripts
             sudo ./sacli --key 'vpn.server.static.0.netmask_bits' --value '${client_static_network_mask}' ConfigPut
