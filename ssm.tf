@@ -283,7 +283,7 @@ module "configure_ssl_context" {
   version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled && var.enable_custom_ssl
-  attributes = ["ssl", "policy"]
+  attributes = ["configure","ssl"]
 }
 
 resource "aws_ssm_document" "configure_ssl" {
