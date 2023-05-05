@@ -73,6 +73,10 @@ resource "aws_secretsmanager_secret" "this" {
   }
 }
 
+locals {
+  license_key = var.enable_licensing ? {"${var.ssl_license_key_keyname}" :""} : {}
+}
+
 resource "aws_secretsmanager_secret_version" "this" {
   count     = module.secret_context.enabled ? 1 : 0
   secret_id = one(aws_secretsmanager_secret.this[*].id)
@@ -84,7 +88,9 @@ resource "aws_secretsmanager_secret_version" "this" {
     {
       ADMIN_USERNAME                             = "openvpn"
       "${var.openvpn_secret_admin_password_key}" = one(random_password.admin[*].result)
-  }))
+    },
+    local.license_key
+  ))
 }
 
 resource "random_password" "admin" {

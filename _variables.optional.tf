@@ -133,6 +133,11 @@ variable "ssl_secret_certificate_private_key_keyname" {
   default = "CERTIFICATE_PRIVATE_KEY"
 }
 
+variable "ssl_license_key_keyname" {
+  type    = string
+  default = "OPENVPN_LICENSE"
+}
+
 
 #------------------------------------------------------------------------------
 # EC2 Inputs

@@ -302,16 +302,6 @@ resource "aws_ssm_document" "configure_ssl" {
   })
 }
 
-resource "aws_ssm_association" "configure_ssl" {
-  count            = module.configure_ssl_context.enabled ? 1 : 0
-  association_name = module.configure_ssl_context.id
-  name             = one(aws_ssm_document.configure_ssl[*].name)
-  schedule_expression = null
-  targets {
-    key    = "tag:Name"
-    values = [module.context.id]
-  }
-}
 
 #------------------------------------------------------------------------------
 # License Configuration
@@ -333,7 +323,7 @@ resource "aws_ssm_document" "configure_license" {
   tags = module.configure_license_context.tags
   content = templatefile("${path.module}/templates/ssm-configure-license.tftpl", {
     secret_arn = var.openvpn_secret_arn
-    keyname    = "OPENVPN_LICENSE"
+    keyname    = var.ssl_license_key_keyname
     region     = try(data.aws_region.current[0].name, "")
   })
 }
