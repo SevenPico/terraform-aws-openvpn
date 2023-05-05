@@ -62,9 +62,8 @@ data "aws_iam_policy_document" "backups_bucket" {
 # VPN ASG Scripts Bucket
 #------------------------------------------------------------------------------
 module "backups_bucket" {
-  source = "git::https://github.com/SevenPicoForks/terraform-aws-s3-bucket.git?ref=master"
-#  source  = "SevenPicoForks/s3-bucket/aws"
-#  version = "4.0.0"
+  source  = "SevenPicoForks/s3-bucket/aws"
+  version = "4.0.4"
   context = module.backups_bucket_context.self
 
   acl                          = "private"
