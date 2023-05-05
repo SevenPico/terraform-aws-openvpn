@@ -43,7 +43,7 @@ mainSteps:
           sudo echo "SHELL=/bin/bash" >> /etc/crontab
 
           # Add the cronjob line to remove old log files
-          sudo echo "0 4 * * * /bin/rm /var/log/openvpnas.log.{15..1000} >/dev/null 2>&1" >> /etc/crontab
+          sudo echo "0 0 * * * /bin/rm /var/log/openvpnas.log.{15..1000} >/dev/null 2>&1" >> /etc/crontab
 
           # Print a message to confirm that the cronjob was added
           sudo echo "Cronjob added successfully!"
