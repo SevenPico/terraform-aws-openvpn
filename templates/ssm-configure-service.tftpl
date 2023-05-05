@@ -33,7 +33,7 @@ mainSteps:
           echo "Setting hostname."
           ./sacli --key 'host.name' --value '${hostname}' ConfigPut
 
-          if [ -z "${password_secret_arn}" ]; then
+          if [ -n "${password_secret_arn}" ]; then
             echo "Setting Admin Password."
             pass=$(aws secretsmanager get-secret-value --secret-id ${password_secret_arn} --region ${region}\
                 | jq -r ".SecretString"\
@@ -43,7 +43,7 @@ mainSteps:
             #echo "openvpn:$pass" | sudo chpasswd
           fi
 
-          if [ -z "${ui_https_port}" ]; then
+          if [ -n "${ui_https_port}" ]; then
             echo "Setting Admin UI Port."
             ./sacli --key 'admin_ui.https.port' --value '${ui_https_port}' ConfigPut
             ./sacli --key "admin_ui.https.ip_address" --value 'all' ConfigPut
@@ -55,16 +55,16 @@ mainSteps:
 
           fi
 
-          if [ -z "${daemon_tcp_port}" && -z "${daemon_udp_port}" ]; then
+          if [ -n "${daemon_tcp_port}" && -n "${daemon_udp_port}" ]; then
             echo "Setting Daemon TCP and UDP Ports."
             ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
             ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
             ./sacli --key 'vpn.server.daemon.protocols' --value 'both' ConfigPut
-          elif [ -z "${daemon_tcp_port}" ]; then
+          elif [ -n "${daemon_tcp_port}" ]; then
             echo "Setting Daemon TCP Port"
             ./sacli --key 'vpn.server.daemon.tcp.port' --value '${daemon_tcp_port}' ConfigPut
             ./sacli --key 'vpn.server.daemon.protocols' --value 'tcp' ConfigPut
-          elif [ -z "${daemon_udp_port}" ]; then
+          elif [ -n "${daemon_udp_port}" ]; then
             echo "Setting Daemon UDP Port."
             ./sacli --key 'vpn.server.daemon.udp.port' --value '${daemon_udp_port}' ConfigPut
             ./sacli --key 'vpn.server.daemon.protocols' --value 'udp' ConfigPut
