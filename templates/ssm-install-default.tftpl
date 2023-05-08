@@ -18,18 +18,18 @@ mainSteps:
             echo "OpenVPN Installation detected and running. Skipping (re)install."
           else
             apt update
-            apt -y install ntp
-            apt -y install curl
-            apt -y install jq
-            apt -y install passwd
-            apt -y install awscli
-            apt -y install sqlite3
-            apt -y install systemctl
-            apt -y install wget
-            apt -y install ca-certificates
-            apt -y install net-tools
-            apt -y install gnupg
-            apt -y install nfs-common
+            apt -y install -q ntp
+            apt -y install -q curl
+            apt -y install -q jq
+            apt -y install -q passwd
+            apt -y install -q awscli
+            apt -y install -q sqlite3
+            apt -y install -q systemctl
+            apt -y install -q wget
+            apt -y install -q ca-certificates
+            apt -y install -q net-tools
+            apt -y install -q gnupg
+            apt -y install -q nfs-common
 
             wget https://as-repository.openvpn.net/as-repo-public.asc -qO /etc/apt/trusted.gpg.d/as-repository.asc
             echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/as-repository.asc] http://as-repository.openvpn.net/as/debian jammy main">/etc/apt/sources.list.d/openvpn-as-repo.list
@@ -41,7 +41,7 @@ mainSteps:
             fi
 
             echo "Installing OpenVPN"
-            apt-get update && apt-get install -y openvpn-as=${openvpnas_version}
+            apt-get update -q && apt-get install -y -q openvpn-as=${openvpnas_version}
           fi
 
           shopt -u extglob
