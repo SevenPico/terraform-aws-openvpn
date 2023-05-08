@@ -111,6 +111,6 @@ output "ssm_document_vpn_restore" {
   value = try(aws_ssm_document.vpn_restore[0].name, "")
 }
 
-output "ssm_document_ssl_policy" {
+output "ssm_document_ssl_configure" {
   value = try(aws_ssm_document.configure_ssl[0].name, "")
 }
