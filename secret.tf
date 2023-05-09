@@ -74,7 +74,7 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 locals {
-  license_key = var.enable_licensing ? {"${var.ssl_license_key_keyname}" :""} : {}
+  license_key = var.enable_licensing ? { "${var.ssl_license_key_keyname}" : "" } : {}
 }
 
 resource "aws_secretsmanager_secret_version" "this" {

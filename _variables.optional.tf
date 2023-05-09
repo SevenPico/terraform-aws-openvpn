@@ -94,7 +94,7 @@ variable "cloudwatch_logs_expiration_days" {
 }
 
 variable "enable_ssl_cert_updater" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -113,8 +113,8 @@ variable "ssl_secret_kms_key_arn" {
 }
 
 variable "ssl_sns_topic_arn" {
-  type = string
-  default = ""
+  type        = string
+  default     = ""
   description = "This is required when enable_ssl_cert_updater = true"
 }
 

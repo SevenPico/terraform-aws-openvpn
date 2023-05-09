@@ -46,7 +46,7 @@ resource "aws_ssm_document" "composite_installer" {
     configure_routing  = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
     configure_ssl      = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
     configure_license  = var.enable_licensing ? try(aws_ssm_document.configure_license[0].name, "") : ""
-#    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
+    #    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
   })
 }
 
@@ -200,23 +200,23 @@ resource "aws_ssm_document" "configure_service" {
 
   tags = module.configure_openvpn_context.tags
   content = templatefile("${path.module}/templates/ssm-configure-service.tftpl", {
-    hostname                   = var.openvpn_hostname
-    webserver_name             = var.openvpn_web_server_name,
-    ui_https_port              = var.openvpn_ui_https_port == null ? "" : var.openvpn_ui_https_port
-    daemon_udp_port            = var.openvpn_daemon_udp_port == null ? "" : var.openvpn_daemon_udp_port
-    daemon_tcp_port            = var.openvpn_daemon_tcp_port == null ? "" : var.openvpn_daemon_tcp_port
-    dhcp_option_domain         = var.openvpn_dhcp_option_domain,
-    client_dhcp_network        = var.openvpn_client_dhcp_network
-    client_dhcp_network_mask   = var.openvpn_client_dhcp_network_mask
-    client_static_network      = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network : ""
-    client_static_network_mask = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network_mask : ""
-    openvpn_client_cidr_blocks = join(" ", var.openvpn_client_cidr_blocks),
-    vpc_cidr_blocks            = join(" ", var.vpc_cidr_blocks)
-    password_secret_arn        = local.secret_arn
-    password_secret_key        = var.openvpn_secret_admin_password_key
-    region                     = local.current_region
-    tls_version_min            = var.openvpn_tls_version_min
-    enable_vpn_server_nat                = var.enable_nat
+    hostname                                = var.openvpn_hostname
+    webserver_name                          = var.openvpn_web_server_name,
+    ui_https_port                           = var.openvpn_ui_https_port == null ? "" : var.openvpn_ui_https_port
+    daemon_udp_port                         = var.openvpn_daemon_udp_port == null ? "" : var.openvpn_daemon_udp_port
+    daemon_tcp_port                         = var.openvpn_daemon_tcp_port == null ? "" : var.openvpn_daemon_tcp_port
+    dhcp_option_domain                      = var.openvpn_dhcp_option_domain,
+    client_dhcp_network                     = var.openvpn_client_dhcp_network
+    client_dhcp_network_mask                = var.openvpn_client_dhcp_network_mask
+    client_static_network                   = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network : ""
+    client_static_network_mask              = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_network_mask : ""
+    openvpn_client_cidr_blocks              = join(" ", var.openvpn_client_cidr_blocks),
+    vpc_cidr_blocks                         = join(" ", var.vpc_cidr_blocks)
+    password_secret_arn                     = local.secret_arn
+    password_secret_key                     = var.openvpn_secret_admin_password_key
+    region                                  = local.current_region
+    tls_version_min                         = var.openvpn_tls_version_min
+    enable_vpn_server_nat                   = var.enable_nat
     openvpn_client_static_addresses_enabled = var.openvpn_client_static_addresses_enabled ? var.openvpn_client_static_addresses_enabled : ""
   })
 }
@@ -283,7 +283,7 @@ module "configure_ssl_context" {
   version    = "2.0.0"
   context    = module.context.self
   enabled    = module.context.enabled && var.enable_custom_ssl
-  attributes = ["configure","ssl"]
+  attributes = ["configure", "ssl"]
 }
 
 resource "aws_ssm_document" "configure_ssl" {
