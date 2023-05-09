@@ -19,6 +19,12 @@
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-variable "vpc_cidr_block" { default = "10.10.0.0/16" }
-variable "availability_zones" { default = ["us-east-1a", "us-east-1b", "us-east-1c"] }
-variable "root_domain" { default = "7pi.io" }
+variable "vpc_cidr_block" {
+  type = string
+}
+variable "availability_zones" {
+  type = list(string)
+}
+variable "root_domain" {
+  type = string
+}
