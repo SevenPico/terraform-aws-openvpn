@@ -39,6 +39,6 @@ mainSteps:
           fi
 
           # Add the cronjob line to remove old Openvpn log files
-          (crontab -l ; echo "0 0 * * * /bin/rm /var/log/openvpnas.log.{15..1000}") | crontab - > /dev/null 2>&1
+          (crontab -l ; echo "0 0 * * * /bin/rm /var/log/openvpnas.log.{15..1000} > /dev/null 2>&1") | crontab - > /dev/null 2>&1
           # Print a message to confirm that the cronjob was added
           sudo echo "Cronjob added successfully!"
