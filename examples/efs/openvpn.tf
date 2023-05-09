@@ -46,7 +46,7 @@ module "openvpn" {
   vpc_id                     = module.vpc.vpc_id
 
   # Optional
-  enable_efs                     = true
+  enable_efs                      = true
   create_openvpn_secret           = true
   nlb_acm_certificate_arn         = module.ssl_certificate.acm_certificate_arn
   nlb_deletion_protection_enabled = false

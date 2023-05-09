@@ -178,8 +178,8 @@ variable "ec2_disable_api_termination" {
 }
 
 variable "ec2_role_source_policy_documents" {
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
   description = "If necessary, provide additional JSON Policy Documents for the EC2 Instance."
 }
 

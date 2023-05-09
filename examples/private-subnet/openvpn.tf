@@ -135,13 +135,13 @@ module "openvpn" {
   nlb_tls_ssl_policy              = var.nlb_tls_ssl_policy
 
   # S3
-  s3_access_logs_prefix_override          = var.s3_access_logs_prefix_override
-  s3_access_logs_s3_bucket_id             = var.s3_access_logs_s3_bucket_id
-  s3_force_destroy                        = var.s3_force_destroy
-  s3_lifecycle_configuration_rules        = var.s3_lifecycle_configuration_rules
-  s3_object_ownership                     = var.s3_object_ownership
-  s3_source_policy_document = var.s3_source_policy_documents
-  s3_versioning_enabled                   = var.s3_versioning_enabled
+  s3_access_logs_prefix_override   = var.s3_access_logs_prefix_override
+  s3_access_logs_s3_bucket_id      = var.s3_access_logs_s3_bucket_id
+  s3_force_destroy                 = var.s3_force_destroy
+  s3_lifecycle_configuration_rules = var.s3_lifecycle_configuration_rules
+  s3_object_ownership              = var.s3_object_ownership
+  s3_source_policy_document        = var.s3_source_policy_documents
+  s3_versioning_enabled            = var.s3_versioning_enabled
 
   # OpenVPN
   openvpn_backup_schedule_expression      = var.openvpn_backup_schedule_expression
