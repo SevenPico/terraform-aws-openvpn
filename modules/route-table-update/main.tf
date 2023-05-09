@@ -167,7 +167,7 @@ resource "aws_lambda_function" "this" {
   handler          = "app.lambda_handler"
   source_code_hash = data.archive_file.artifact[0].output_base64sha256
   tags             = module.lambda_context.tags
-  layers           = [
+  layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:19"
   ]
 
