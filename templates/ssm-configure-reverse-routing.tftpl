@@ -1,0 +1,32 @@
+---
+schemaVersion: "2.2"
+description: Reverse Routing.
+mainSteps:
+  - action: aws:runShellScript
+    name: reverseRouting
+    inputs:
+      timeoutSeconds: '300'
+      runCommand:
+        - |
+          #!/bin/bash
+
+          echo "Configuring OpenVPN_AS VPN Settings For Reverse Routing."
+          cd /usr/local/openvpn_as/scripts
+          sudo ./sacli --key 'vpn.client.routing.inter_client' --value 'true' ConfigPut
+          sudo ./sacli --key 'vpn.client.routing.reroute_dns' --value 'true' ConfigPut
+          sudo ./sacli --key 'vpn.client.routing.reroute_gw' --value 'false' ConfigPut
+          sudo ./sacli --key 'vpn.daemon.0.listen.ip_address' --value 'all' ConfigPut
+          sudo ./sacli --key 'vpn.daemon.0.server.ip_address' --value 'all' ConfigPut
+          sudo ./sacli --key 'vpn.server.routing.private_access' --value 'route' ConfigPut
+
+          COUNTER=0
+          for block in '${vpc_cidr_blocks}'; do
+           ./sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+          COUNTER=$[$COUNTER +1]
+          done
+          for block in '${openvpn_client_cidr_blocks}'; do
+            ./sacli --key "vpn.server.routing.private_network.$COUNTER" --value "$block" ConfigPut
+          COUNTER=$[$COUNTER +1]
+          done
+          ./sacli --key 'vpn.routing.allow_mcast' --value 'true' ConfigPut
+          sudo ./sacli start

@@ -1,0 +1,50 @@
+---
+schemaVersion: '2.2'
+description: Installs and configures OpenVPN on an EC2 Instance.
+mainSteps:
+  - action: aws:runDocument
+    name: ec2_initialization
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${ec2_initialization}"
+      timeoutSeconds: '300'
+  - action: aws:runDocument
+    name: ec2_upgrade
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${ec2_upgrade}"
+      timeoutSeconds: '300'
+  - action: aws:runDocument
+    name: install_openvpn
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${install_document}"
+      timeoutSeconds: '300'
+  - action: aws:runDocument
+    name: configure_service
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_service}"
+      timeoutSeconds: '300'
+  - action: aws:runDocument
+    name: configure_routing
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_routing}"
+      timeoutSeconds: '300'
+%{ if configure_ssl != "" }
+  - action: aws:runDocument
+    name: configure_ssl
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_ssl}"
+      timeoutSeconds: '300'
+%{ endif }
+%{ if configure_license != "" }
+  - action: aws:runDocument
+    name: configure_license
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${configure_license}"
+      timeoutSeconds: '300'
+%{ endif }

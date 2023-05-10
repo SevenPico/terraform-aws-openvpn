@@ -1,0 +1,44 @@
+---
+schemaVersion: "2.2"
+description: Init Script.
+parameters:
+mainSteps:
+  - action: aws:runShellScript
+    name: installingDependencies
+    inputs:
+      timeoutSeconds: '300'
+      runCommand:
+        - |
+          #!/bin/bash
+          echo "Upgrading Ubuntu"
+          export DEBIAN_FRONTEND=noninteractive
+          sudo ln -fs /usr/share/zoneinfo/${time_zone} /etc/localtime
+          sudo dpkg-reconfigure --frontend noninteractive tzdata > /dev/null 2>&1
+          sudo rm /var/lib/dpkg/lock > /dev/null 2>&1
+          sudo rm /var/lib/dpkg/lock-frontend > /dev/null 2>&1
+          sudo apt-get update -q > /dev/null 2>&1
+          sudo apt-get upgrade -y -q > /dev/null 2>&1
+          sudo apt-get install ntp -y -q > /dev/null 2>&1
+          sudo apt-get install jq -y -q > /dev/null 2>&1
+          sudo apt-get install awscli -y -q > /dev/null 2>&1
+          PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
+          # Set Hostname
+          sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
+          sudo hostnamectl set-hostname ${hostname}
+          sudo hostname ${hostname}
+          # Install and configure Cloudwatch
+          echo "Installing Cloudwatch Agent"
+          STATUS="$(systemctl is-active amazon-cloudwatch-agent)"
+          if [ "$${STATUS}" = "active" ]; then
+            echo "Cloudwatch Agent already running"
+          else
+            echo "Installing and configuring Cloudwatch Agent"
+            wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb > /dev/null 2>&1
+            sudo dpkg -i -E ./amazon-cloudwatch-agent.deb > /dev/null 2>&1
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/root/scripts/cloudwatch-config.json > /dev/null 2>&1
+          fi
+
+          # Add the cronjob line to remove old Openvpn log files
+          (crontab -l ; echo "0 0 * * * /bin/rm /var/log/openvpnas.log.{15..1000} > /dev/null 2>&1") | crontab - > /dev/null 2>&1
+          # Print a message to confirm that the cronjob was added
+          sudo echo "Cronjob added successfully!"
