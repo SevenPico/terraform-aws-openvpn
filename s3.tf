@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "deployer_artifacts_bucket" {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group_scripts_bucket" {
   source  = "app.terraform.io/SevenPico/s3-bucket/aws"
-  version = "3.1.8"
+  version = "4.0.4"
   context = module.ec2_autoscale_group_scripts_bucket_context.self
 
   acl                          = "private"
