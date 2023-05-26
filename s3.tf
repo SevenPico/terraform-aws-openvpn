@@ -156,7 +156,7 @@ resource "aws_s3_object" "install_with_efs_sh" {
 #    efs_mount_target_dns_name = module.efs.mount_target_dns_names[0],
     openvpnas_version         = var.openvpn_version,
     efs_mount_target_dns_name = module.efs.mount_target_dns_names[0],
-    s3_backup_bucket          = module.ec2_autoscale_group_scripts_bucket.id,
+    s3_backup_bucket          = module.ec2_autoscale_group_scripts_bucket.bucket_id,
     s3_backup_key             = "backups/openvpn_backup_pre_install.tar.gz"
   })
   depends_on = [module.ec2_autoscale_group_scripts_bucket]
