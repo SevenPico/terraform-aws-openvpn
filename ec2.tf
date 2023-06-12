@@ -63,9 +63,8 @@ resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
-  #source  = "registry.terraform.io/SevenPicoForks/ec2-autoscale-group/aws"
-  #version = "2.0.0"
-  source = "git::https://github.com/SevenPicoForks/terraform-aws-ec2-autoscale-group.git?ref=hotfix/2.0.6"
+  source  = "registry.terraform.io/SevenPicoForks/ec2-autoscale-group/aws"
+  version = "2.0.6"
   context = module.context.self
 
   instance_type    = var.ec2_autoscale_instance_type
