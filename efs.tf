@@ -53,7 +53,7 @@ module "efs" {
   mount_target_ip_address              = null
   performance_mode                     = "generalPurpose"
   provisioned_throughput_in_mibps      = 0
-  region                               = try(data.aws_region.current[0].name, "")
+  region                               = local.region
   security_group_create_before_destroy = true
   security_group_create_timeout        = "10m"
   security_group_delete_timeout        = "15m"

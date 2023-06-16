@@ -90,7 +90,7 @@ resource "aws_ssm_document" "ec2_initialization" {
   content = templatefile("${path.module}/templates/ssm-ec2-initialization.tftpl", {
     hostname  = var.openvpn_hostname
     time_zone = var.openvpn_time_zone
-    region    = try(data.aws_region.current[0].name, "")
+    region    = local.region
   })
 }
 
@@ -295,7 +295,7 @@ resource "aws_ssm_document" "configure_ssl" {
   tags = module.configure_ssl_context.tags
   content = templatefile("${path.module}/templates/ssm-configure-ssl.tftpl", {
     secret_arn                      = var.ssl_secret_arn,
-    region                          = try(data.aws_region.current[0].name, ""),
+    region                          = local.region,
     certificate_keyname             = var.ssl_secret_certificate_keyname,
     certificate_bundle_keyname      = var.ssl_secret_certificate_bundle_keyname,
     certificate_private_key_keyname = var.ssl_secret_certificate_private_key_keyname
@@ -324,7 +324,7 @@ resource "aws_ssm_document" "configure_license" {
   content = templatefile("${path.module}/templates/ssm-configure-license.tftpl", {
     secret_arn = var.openvpn_secret_arn
     keyname    = var.ssl_license_key_keyname
-    region     = try(data.aws_region.current[0].name, "")
+    region     = local.region
   })
 }
 
@@ -348,7 +348,7 @@ resource "aws_ssm_document" "vpn_backup" {
 
   tags = module.vpn_backup_context.tags
   content = templatefile("${path.module}/templates/ssm-vpn-backup.tftpl", {
-    region        = try(data.aws_region.current[0].name, "")
+    region        = local.region
     s3_bucket     = module.backups_bucket.bucket_id
     s3_backup_key = "backups/openvpn_backup.tar.gz"
   })
@@ -399,7 +399,7 @@ resource "aws_ssm_document" "vpn_restore" {
 
   tags = module.vpn_restore_context.tags
   content = templatefile("${path.module}/templates/ssm-vpn-restore.tftpl", {
-    region            = one(data.aws_region.current[*].name)
+    region            = local.region
     s3_bucket         = module.backups_bucket.bucket_id
     s3_backup_key     = "backups/openvpn_backup.tar.gz"
     backup_version_id = ""
@@ -431,7 +431,7 @@ resource "aws_ssm_document" "vpn_restore" {
 #    rds_admin_username_key = var.rds_secret_admin_username_keyname
 #    rds_admin_password_key = var.rds_secret_admin_password_keyname
 #    rds_port_key           = var.rds_secret_port_keyname
-#    region                 = try(data.aws_region.current[0].name, "")
+#    region                 = local.region
 #  })
 #}
 #
