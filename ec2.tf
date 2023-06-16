@@ -64,7 +64,7 @@ resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
   source  = "registry.terraform.io/SevenPicoForks/ec2-autoscale-group/aws"
-  version = "2.0.0"
+  version = "2.0.6"
   context = module.context.self
 
   instance_type    = var.ec2_autoscale_instance_type

@@ -140,7 +140,7 @@ module "openvpn" {
   s3_force_destroy                 = var.s3_force_destroy
   s3_lifecycle_configuration_rules = var.s3_lifecycle_configuration_rules
   s3_object_ownership              = var.s3_object_ownership
-  s3_source_policy_documents        = var.s3_source_policy_documents
+  s3_source_policy_documents       = var.s3_source_policy_documents
   s3_versioning_enabled            = var.s3_versioning_enabled
 
   # OpenVPN
