@@ -44,45 +44,28 @@ locals {
 
 
 #------------------------------------------------------------------------------
-# EC2 VPN Auto Scale Group Meta
-#------------------------------------------------------------------------------
-module "ec2_autoscale_group_context" {
-  source     = "SevenPico/context/null"
-  version    = "2.0.0"
-  context    = module.context.self
-  attributes = ["ec2"]
-}
-
-module "ec2_autoscale_group_sg_context" {
-  source  = "SevenPico/context/null"
-  version = "2.0.0"
-  context = module.ec2_autoscale_group_context.self
-}
-
-
-#------------------------------------------------------------------------------
 # EC2 Cloudwatch Log Group
 #------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "ec2_autoscale_group" {
-  count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
-  name              = "/aws/ec2/${module.ec2_autoscale_group_context.id}"
-  retention_in_days = var.cloudwatch_logs_expiration_days
-}
-
-resource "aws_cloudwatch_log_group" "ec2_logs_group" {
-  count             = module.ec2_autoscale_group_context.enabled && var.cloudwatch_enabled ? 1 : 0
+  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
   name              = "/aws/ec2/${module.context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
 }
+
+#resource "aws_cloudwatch_log_group" "ec2_logs_group" { #FIXME creating log group for second time deployment fails saying log group exist.
+#  count             = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
+#  name              = "/aws/ec2/${module.context.id}"
+#  retention_in_days = var.cloudwatch_logs_expiration_days
+#}
 
 
 #------------------------------------------------------------------------------
 # EC2 VPN Auto Scale Group
 #------------------------------------------------------------------------------
 module "ec2_autoscale_group" {
-  source  = "SevenPicoForks/ec2-autoscale-group/aws"
-  version = "2.0.0"
-  context = module.ec2_autoscale_group_context.self
+  source  = "registry.terraform.io/SevenPicoForks/ec2-autoscale-group/aws"
+  version = "2.0.6"
+  context = module.context.self
 
   instance_type    = var.ec2_autoscale_instance_type
   max_size         = var.ec2_autoscale_max_count
@@ -106,7 +89,7 @@ module "ec2_autoscale_group" {
   custom_alarms                           = {}
   default_alarms_enabled                  = true
   default_cooldown                        = 300
-  disable_api_termination                 = false
+  disable_api_termination                 = var.ec2_disable_api_termination
   ebs_optimized                           = false
   elastic_gpu_specifications              = null
   enable_monitoring                       = true
@@ -128,7 +111,7 @@ module "ec2_autoscale_group" {
   instance_initiated_shutdown_behavior = "terminate"
   instance_market_options              = null
   instance_refresh                     = null
-  key_name                             = var.ec2_key_name
+  key_name                             = ""
   launch_template_version              = "$Latest"
   load_balancers                       = []
   max_instance_lifetime                = null
@@ -158,7 +141,7 @@ module "ec2_autoscale_group" {
   ]
   target_group_arns         = var.create_nlb ? compact(aws_lb_target_group.nlb.*.arn) : []
   termination_policies      = ["Default"]
-  user_data_base64          = base64encode(var.ec2_user_data)
+  user_data_base64          = base64encode("")
   wait_for_capacity_timeout = "10m"
   wait_for_elb_capacity     = 0
   warm_pool                 = null
@@ -171,26 +154,40 @@ module "ec2_autoscale_group" {
 module "ec2_autoscale_group_sg" {
   source  = "registry.terraform.io/SevenPicoForks/security-group/aws"
   version = "3.0.0"
-  context = module.ec2_autoscale_group_sg_context.self
+  context = module.context.self
 
   allow_all_egress              = var.ec2_security_group_allow_all_egress
-  create_before_destroy         = true
+  create_before_destroy         = false
   inline_rules_enabled          = false
+  preserve_security_group_id    = true
+  revoke_rules_on_delete        = false
+  rule_matrix                   = []
+  rules                         = var.ec2_security_group_rules
+  rules_map                     = {}
   security_group_create_timeout = "10m"
   security_group_delete_timeout = "15m"
-  security_group_description    = "Allows access to and from ${module.ec2_autoscale_group_context.id}"
+  security_group_description    = "Allows access to and from ${module.context.id}"
   security_group_name           = []
   target_security_group_id      = []
   vpc_id                        = var.vpc_id
-  preserve_security_group_id    = var.ec2_preserve_security_group_id
-
-  rules_map   = {}
-  rule_matrix = []
-  rules       = var.ec2_security_group_rules
 }
 
+# FIXME We need to add conditionally if egress is false.
+#   {
+#      key                      = 2
+#      type                     = "egress"
+#      from_port                = 443
+#      to_port                  = 443
+#      protocol                 = "tcp"
+#      cidr_blocks              = local.cloudflare_cidrs
+#      ipv6_cidr_blocks         = []
+#      source_security_group_id = null
+#      self                     = null
+#      description              = "Allow https egress to Cloudflare."
+#    }
+
 resource "aws_security_group_rule" "ui_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_ui_https_port != null ? 1 : 0
+  count             = module.context.enabled && var.openvpn_ui_https_port != null ? 1 : 0
   from_port         = var.openvpn_ui_https_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -201,7 +198,7 @@ resource "aws_security_group_rule" "ui_port" {
 }
 
 resource "aws_security_group_rule" "daemon_tcp_port" {
-  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_tcp_port != null ? 1 : 0
+  count             = module.context.enabled && var.openvpn_daemon_tcp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_tcp_port
   protocol          = "tcp"
   security_group_id = module.ec2_autoscale_group_sg.id
@@ -212,7 +209,7 @@ resource "aws_security_group_rule" "daemon_tcp_port" {
 }
 
 resource "aws_security_group_rule" "daemon_udp" {
-  count             = module.ec2_autoscale_group_sg_context.enabled && var.openvpn_daemon_udp_port != null ? 1 : 0
+  count             = module.context.enabled && var.openvpn_daemon_udp_port != null ? 1 : 0
   from_port         = var.openvpn_daemon_udp_port
   protocol          = "udp"
   security_group_id = module.ec2_autoscale_group_sg.id

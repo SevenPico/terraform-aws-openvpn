@@ -60,11 +60,11 @@ output "sns_role_arn" {
 }
 
 output "ssm_script_bucket_arn" {
-  value = module.ec2_autoscale_group_scripts_bucket.bucket_arn
+  value = module.backups_bucket.bucket_arn
 }
 
 output "ssm_script_bucket_id" {
-  value = module.ec2_autoscale_group_scripts_bucket.bucket_id
+  value = module.backups_bucket.bucket_id
 }
 
 output "nlb_dns_name" {
@@ -84,9 +84,33 @@ output "secret_kms_key_arn" {
 }
 
 output "instance_name" {
-  value = module.ec2_autoscale_group_context.id
+  value = module.context.id
 }
 
 output "ui_https_port" {
   value = var.openvpn_ui_https_port
+}
+
+output "ssm_document_init_ec2" {
+  value = try(aws_ssm_document.ec2_initialization[0].name, "")
+}
+
+output "ssm_document_install" {
+  value = !var.enable_efs ? try(aws_ssm_document.install_default[0].name, "") : try(aws_ssm_document.install_with_efs[0].name, "")
+}
+
+output "ssm_document_configure_service" {
+  value = try(aws_ssm_document.configure_service[0].name, "")
+}
+
+output "ssm_document_vpn_backup" {
+  value = try(aws_ssm_document.vpn_backup[0].name, "")
+}
+
+output "ssm_document_vpn_restore" {
+  value = try(aws_ssm_document.vpn_restore[0].name, "")
+}
+
+output "ssm_document_ssl_configure" {
+  value = try(aws_ssm_document.configure_ssl[0].name, "")
 }

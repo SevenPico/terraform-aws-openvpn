@@ -15,29 +15,32 @@
 ## ----------------------------------------------------------------------------
 
 ## ----------------------------------------------------------------------------
-##  ./_data.tf
+##  ./examples/default/_outputs.tf
 ##  This file contains code written by SevenPico, Inc.
 ## ----------------------------------------------------------------------------
 
-# The AWS region currently being used.
-data "aws_region" "current" {
-  count = module.context.enabled ? 1 : 0
+output "autoscaling_group_arn" {
+  value = module.openvpn.autoscale_group_arn
 }
 
-# The AWS account id
-data "aws_caller_identity" "current" {
-  count = module.context.enabled ? 1 : 0
+output "ec2_security_group_id" {
+  value = module.openvpn.security_group_id
 }
 
-# The AWS partition (commercial or govcloud)
-data "aws_partition" "current" {
-  count = module.context.enabled ? 1 : 0
+output "autoscaling_role_arn" {
+  value = module.openvpn.role_arn
 }
 
-locals {
-  arn_prefix = "arn:${try(data.aws_partition.current[0].partition, "")}"
-  account_id = try(data.aws_caller_identity.current[0].account_id, "")
-  region     = try(data.aws_region.current[0].name, "")
+output "autoscaling_lifecycle_role_arn" {
+  value = module.openvpn.lifecycle_role_arn
+}
+
+output "autoscaling_sns_role_arn" {
+  value = module.openvpn.sns_role_arn
+}
+
+output "openvpn_ui_url" {
+  value = "https://${module.openvpn.nlb_dns_name}:${module.openvpn.ui_https_port}"
 }
 
 

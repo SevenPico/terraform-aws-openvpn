@@ -6,7 +6,7 @@ locals {
   root_domain = "modules.thebrim.io"
 
   namespace   = "brim"
-  project     = "openvpn" //replace(basename(get_repo_root()), "teraform-", "")
+  project     = "aws-openvpn" //replace(basename(get_repo_root()), "teraform-", "")
   environment = ""
   stage       = basename(get_terragrunt_dir()) //
   domain_name = "${local.stage}.${local.project}.${local.root_domain}"
@@ -47,14 +47,8 @@ inputs = {
   dns_name_format     = local.dns_name_format
 
   # Module / Example Specific
-  vpc_cidr_block     = "10.10.0.0/16"
-  availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-  openvpn_dhcp_option_domain = ""
-  vpc_cidr_blocks            = [""]
-  vpc_id                     = ""
-  subnet_ids                 = [""]
-  openvpn_hostname           = ""
+
 }
 
 remote_state {
