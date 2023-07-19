@@ -50,7 +50,7 @@ mainSteps:
 %{ endif }
 %{ for document in additional_ssm_documents }
   - action: aws:runDocument
-    name : ${document.replaceAll('-', '').replaceAll('-(.)', { m -> m[1].toUpperCase() })}
+    name : "${document.replaceAll('-', '').replaceAll('-(.)', { m -> m[1].toUpperCase() })}"
     inputs:
       documentType: SSMDocument
       documentPath: "${document}"
