@@ -39,14 +39,15 @@ resource "aws_ssm_document" "composite_installer" {
   document_type   = "Command"
   tags            = module.composite_installer_context.tags
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
-    ec2_initialization = try(aws_ssm_document.ec2_initialization[0].name, "")
-    ec2_upgrade        = try(aws_ssm_document.ec2_upgrade[0].name, "")
-    install_document   = try(!var.enable_efs ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name, "")
-    configure_service  = try(aws_ssm_document.configure_service[0].name, "")
-    configure_routing  = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
-    configure_ssl      = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
-    configure_license  = var.enable_licensing ? try(aws_ssm_document.configure_license[0].name, "") : ""
-    #    configure_mysql    = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
+    additional_ssm_documents = var.openvpn_additional_ssm_documents
+    ec2_initialization       = try(aws_ssm_document.ec2_initialization[0].name, "")
+    ec2_upgrade              = try(aws_ssm_document.ec2_upgrade[0].name, "")
+    install_document         = try(!var.enable_efs ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name, "")
+    configure_service        = try(aws_ssm_document.configure_service[0].name, "")
+    configure_routing        = try(var.enable_nat ? aws_ssm_document.configure_nat_routing[0].name : aws_ssm_document.configure_reverse_routing[0].name, "")
+    configure_ssl            = var.enable_custom_ssl ? try(aws_ssm_document.configure_ssl[0].name, "") : ""
+    configure_license        = var.enable_licensing ? try(aws_ssm_document.configure_license[0].name, "") : ""
+    #configure_mysql         = var.enable_mysql ? try(aws_ssm_document.configure_mysql[0].name, "") : ""
   })
 }
 

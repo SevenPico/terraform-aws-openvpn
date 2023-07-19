@@ -48,3 +48,11 @@ mainSteps:
       documentPath: "${configure_license}"
       timeoutSeconds: '300'
 %{ endif }
+%{ for document in additional_ssm_documents }
+  - action: aws:runDocument
+    name: ${document}
+    inputs:
+      documentType: SSMDocument
+      documentPath: "${document}"
+      timeoutSeconds: '300'
+%{ endfor }
