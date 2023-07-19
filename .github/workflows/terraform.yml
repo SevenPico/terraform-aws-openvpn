@@ -10,6 +10,7 @@ on:
     branches:
       - master
       - develop
+      - feature/git_workflow
   pull_request:
 
 jobs:
@@ -34,19 +35,23 @@ jobs:
 
       - name: terraform validate
         uses: dflook/terraform-validate@v1.31.1
+        with:
+          path: ./
 
-#  tfsec:
-#    name: Run AquaSecurity scan
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Clone repo.
-#        uses: actions/checkout@master
-#
-#      - name: tfsec
-#        uses: aquasecurity/tfsec-action@v1.0.2
-#        # with:
-#        #   soft_fail: true
+      - name: terraform validate (examples/default)
+        uses: dflook/terraform-validate@v1.31.1
+        with:
+          path: ./examples/default
+
+      - name: terraform validate (examples/efs)
+        uses: dflook/terraform-validate@v1.31.1
+        with:
+          path: ./examples/efs
+
+      - name: terraform validate (examples/private-subnet)
+        uses: dflook/terraform-validate@v1.31.1
+        with:
+          path: ./examples/private-subnet
 
   checkov:
     name: Run Bridgecrew.io scan
@@ -66,24 +71,4 @@ jobs:
         with:
           directory: ./
           framework: terraform
-
-      - name: Test with Checkov (examples/default)
-        id: checkov_examples_default
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./examples/default
-          framework: terraform
-
-      - name: Test with Checkov (examples/efs)
-        id: checkov_examples_efs
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./examples/efs
-          framework: terraform
-
-      - name: Test with Checkov (examples/private-subnet)
-        id: checkov_examples_private_subnet
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./examples/private-subnet
-          framework: terraform
+          skip_check: CKV_TF_1

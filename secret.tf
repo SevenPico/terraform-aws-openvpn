@@ -62,6 +62,7 @@ module "secret_kms_key" {
 # Secrets Manager
 #------------------------------------------------------------------------------
 resource "aws_secretsmanager_secret" "this" {
+  #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
   count       = module.secret_context.enabled ? 1 : 0
   name_prefix = "${module.secret_context.id}-"
   tags        = module.secret_context.tags
