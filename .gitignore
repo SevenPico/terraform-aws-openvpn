@@ -29,5 +29,5 @@ override.tf.json
 # example: *tfplan*
 .terraform.lock.hcl
 /.terraform/
-/examples/default/.terraform/
+/examples/complete/.terraform/
 /cw-config-notes.json

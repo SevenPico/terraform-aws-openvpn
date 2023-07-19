@@ -67,11 +67,11 @@ jobs:
           directory: ./
           framework: terraform
 
-      - name: Test with Checkov (examples/default)
-        id: checkov_examples_default
+      - name: Test with Checkov (examples/complete)
+        id: checkov_examples_complete
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: ./examples/default
+          directory: ./examples/complete
           framework: terraform
 
       - name: Test with Checkov (examples/efs)
