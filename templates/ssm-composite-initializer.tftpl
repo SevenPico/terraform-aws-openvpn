@@ -50,7 +50,7 @@ mainSteps:
 %{ endif }
 %{ for document in additional_ssm_documents }
   - action: aws:runDocument
-    name : join("",title(replace("${document}","-", " ")))
+    name : "${title(replace("${document}","-", " ")))}"
     inputs:
       documentType: SSMDocument
       documentPath: "${document}"
