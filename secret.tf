@@ -56,15 +56,15 @@ module "secret" {
   kms_key_multi_region            = false
   secret_ignore_changes           = false
   secret_read_principals          = {}
-  secret_string                   = jsonencode(merge(
+  secret_string = jsonencode(merge(
     {
       ADMIN_USERNAME                             = "openvpn"
       "${var.openvpn_secret_admin_password_key}" = one(random_password.admin[*].result)
     },
     local.license_key
   ))
-  sns_pub_principals              = {}
-  sns_sub_principals              = {}
+  sns_pub_principals = {}
+  sns_sub_principals = {}
 }
 
 resource "random_password" "admin" {
