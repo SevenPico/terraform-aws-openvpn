@@ -416,6 +416,12 @@ variable "openvpn_ssm_association_output_bucket_name" {
   default = null
 }
 
+variable "openvpn_secret_kms_key_deletion_window_in_days" {
+  description = "Deletion window for KMS Keys created in this module."
+  type        = number
+  default     = 30
+}
+
 
 #------------------------------------------------------------------------------
 # Mysql Configuration Inputs

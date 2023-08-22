@@ -154,6 +154,7 @@ module "openvpn" {
   openvpn_secret_admin_password_key       = var.openvpn_secret_admin_password_key
   openvpn_secret_arn                      = var.openvpn_secret_arn
   openvpn_secret_enable_kms_key_rotation  = var.openvpn_secret_enable_kms_key_rotation
+  openvpn_secret_kms_key_deletion_window_in_days = var.openvpn_secret_kms_key_deletion_window_in_days
   openvpn_secret_kms_key_arn              = var.openvpn_secret_kms_key_arn
   openvpn_time_zone                       = var.openvpn_time_zone
   openvpn_ui_https_port                   = var.openvpn_ui_https_port

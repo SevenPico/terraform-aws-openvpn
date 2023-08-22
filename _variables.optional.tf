@@ -392,6 +392,12 @@ variable "openvpn_secret_kms_key_arn" {
   default = null
 }
 
+variable "openvpn_secret_kms_key_deletion_window_in_days" {
+  description = "Deletion window for KMS Keys created in this module."
+  type        = number
+  default     = 30
+}
+
 variable "openvpn_time_zone" {
   type    = string
   default = "America/Chicago"
