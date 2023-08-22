@@ -42,6 +42,11 @@ variable "create_openvpn_secret" {
 #------------------------------------------------------------------------------
 # Enablements
 #------------------------------------------------------------------------------
+variable "preserve_if_disabled" {
+  type = bool
+  default = true
+}
+
 variable "enable_efs" {
   type    = bool
   default = false

@@ -26,7 +26,7 @@ module "secret_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && var.create_openvpn_secret
+  enabled    = module.context.enabled && var.create_openvpn_secret || var.preserve_if_disabled
   attributes = ["secret"]
 }
 
@@ -63,7 +63,7 @@ module "secret_kms_key" {
 #------------------------------------------------------------------------------
 resource "aws_secretsmanager_secret" "this" {
   #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
-  count       = module.secret_context.enabled ? 1 : 0
+  count       = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
   name_prefix = "${module.secret_context.id}-"
   tags        = module.secret_context.tags
   kms_key_id  = module.secret_kms_key.key_id
@@ -79,7 +79,7 @@ locals {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  count     = module.secret_context.enabled ? 1 : 0
+  count     = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
   secret_id = one(aws_secretsmanager_secret.this[*].id)
   lifecycle {
     ignore_changes  = [secret_string, secret_binary]
@@ -95,7 +95,7 @@ resource "aws_secretsmanager_secret_version" "this" {
 }
 
 resource "random_password" "admin" {
-  count   = module.secret_context.enabled ? 1 : 0
+  count   = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
   length  = 32
   special = false
 }
