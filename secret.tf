@@ -32,7 +32,7 @@ module "secret_context" {
 
 locals {
   secret_arn         = module.secret_context.enabled || var.preserve_if_disabled ? module.secret.arn : var.openvpn_secret_arn
-  secret_kms_key_arn = module.secret_context.enabled || var.preserve_if_disabled ? module.secret.key_arn : var.openvpn_secret_kms_key_arn
+  secret_kms_key_arn = module.secret_context.enabled || var.preserve_if_disabled ? module.secret.kms_key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
