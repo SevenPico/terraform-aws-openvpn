@@ -42,6 +42,11 @@ variable "create_openvpn_secret" {
 #------------------------------------------------------------------------------
 # Enablements
 #------------------------------------------------------------------------------
+variable "preserve_if_disabled" {
+  type    = bool
+  default = true
+}
+
 variable "enable_efs" {
   type    = bool
   default = false
@@ -409,6 +414,12 @@ variable "openvpn_version" {
 variable "openvpn_ssm_association_output_bucket_name" {
   type    = string
   default = null
+}
+
+variable "openvpn_secret_kms_key_deletion_window_in_days" {
+  description = "Deletion window for KMS Keys created in this module."
+  type        = number
+  default     = 30
 }
 
 

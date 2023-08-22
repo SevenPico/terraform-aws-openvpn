@@ -30,61 +30,32 @@ module "secret_context" {
   attributes = ["secret"]
 }
 
-module "secret_kms_context" {
-  source  = "SevenPico/context/null"
-  version = "2.0.0"
-  context = module.secret_context.self
-}
-
 locals {
-  secret_arn         = module.secret_context.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
-  secret_kms_key_arn = module.secret_context.enabled ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
-}
-
-
-#------------------------------------------------------------------------------
-# Secrets Manager KMS Key
-#------------------------------------------------------------------------------
-module "secret_kms_key" {
-  source  = "cloudposse/kms-key/aws"
-  version = "0.12.1"
-  context = module.secret_kms_context.legacy
-
-  customer_master_key_spec = "SYMMETRIC_DEFAULT"
-  deletion_window_in_days  = 30
-  description              = "KMS key for ${module.secret_context.id}"
-  enable_key_rotation      = var.openvpn_secret_enable_kms_key_rotation
-  key_usage                = "ENCRYPT_DECRYPT"
+  secret_arn         = module.secret_context.enabled || var.preserve_if_disabled ? module.secret.arn : var.openvpn_secret_arn
+  secret_kms_key_arn = module.secret_context.enabled || var.preserve_if_disabled ? module.secret.kms_key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
 #------------------------------------------------------------------------------
 # Secrets Manager
 #------------------------------------------------------------------------------
-resource "aws_secretsmanager_secret" "this" {
-  #checkov:skip=CKV2_AWS_57:skipping 'Ensure Secrets Manager secrets should have automatic rotation enabled'
-  count       = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
-  name_prefix = "${module.secret_context.id}-"
-  tags        = module.secret_context.tags
-  kms_key_id  = module.secret_kms_key.key_id
-  description = "Secrets and environment variables for ${module.context.id}"
-  lifecycle {
-    ignore_changes  = [name, description, tags]
-    prevent_destroy = false
-  }
-}
-
 locals {
   license_key = var.enable_licensing ? { "${var.ssl_license_key_keyname}" : "" } : {}
 }
 
-resource "aws_secretsmanager_secret_version" "this" {
-  count     = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
-  secret_id = one(aws_secretsmanager_secret.this[*].id)
-  lifecycle {
-    ignore_changes  = [secret_string, secret_binary]
-    prevent_destroy = false
-  }
+module "secret" {
+  source  = "registry.terraform.io/SevenPico/secret/aws"
+  version = "3.2.7"
+  context = module.secret_context.self
+  enabled = module.secret_context.enabled || var.preserve_if_disabled
+
+  create_sns                      = false
+  description                     = "Openvpn Username, Password and License Key"
+  kms_key_deletion_window_in_days = var.openvpn_secret_kms_key_deletion_window_in_days
+  kms_key_enable_key_rotation     = var.openvpn_secret_enable_kms_key_rotation
+  kms_key_multi_region            = false
+  secret_ignore_changes           = false
+  secret_read_principals          = {}
   secret_string = jsonencode(merge(
     {
       ADMIN_USERNAME                             = "openvpn"
@@ -92,6 +63,8 @@ resource "aws_secretsmanager_secret_version" "this" {
     },
     local.license_key
   ))
+  sns_pub_principals = {}
+  sns_sub_principals = {}
 }
 
 resource "random_password" "admin" {

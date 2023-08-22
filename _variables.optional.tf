@@ -43,7 +43,7 @@ variable "create_openvpn_secret" {
 # Enablements
 #------------------------------------------------------------------------------
 variable "preserve_if_disabled" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -390,6 +390,12 @@ variable "openvpn_secret_enable_kms_key_rotation" {
 variable "openvpn_secret_kms_key_arn" {
   type    = string
   default = null
+}
+
+variable "openvpn_secret_kms_key_deletion_window_in_days" {
+  description = "Deletion window for KMS Keys created in this module."
+  type        = number
+  default     = 30
 }
 
 variable "openvpn_time_zone" {
