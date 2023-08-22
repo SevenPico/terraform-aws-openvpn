@@ -38,7 +38,7 @@ module "secret_kms_context" {
 
 locals {
   secret_arn         = module.secret_context.enabled ? one(aws_secretsmanager_secret.this[*].arn) : var.openvpn_secret_arn
-  secret_kms_key_arn = module.secret_context.enabled ? module.secret_kms_key.key_arn : var.openvpn_secret_kms_key_arn
+  secret_kms_key_arn = module.secret_context.enabled ? module.secret_kms_key[0].key_arn : var.openvpn_secret_kms_key_arn
 }
 
 
@@ -46,6 +46,7 @@ locals {
 # Secrets Manager KMS Key
 #------------------------------------------------------------------------------
 module "secret_kms_key" {
+  count   = module.secret_kms_context.enabled || var.preserve_if_disabled ? 1 : 0
   source  = "cloudposse/kms-key/aws"
   version = "0.12.1"
   context = module.secret_kms_context.legacy
@@ -66,7 +67,7 @@ resource "aws_secretsmanager_secret" "this" {
   count       = module.secret_context.enabled || var.preserve_if_disabled ? 1 : 0
   name_prefix = "${module.secret_context.id}-"
   tags        = module.secret_context.tags
-  kms_key_id  = module.secret_kms_key.key_id
+  kms_key_id  = module.secret_kms_key[0].key_id
   description = "Secrets and environment variables for ${module.context.id}"
   lifecycle {
     ignore_changes  = [name, description, tags]

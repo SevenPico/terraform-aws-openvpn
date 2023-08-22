@@ -43,7 +43,7 @@ variable "create_openvpn_secret" {
 # Enablements
 #------------------------------------------------------------------------------
 variable "preserve_if_disabled" {
-  type = bool
+  type    = bool
   default = true
 }
 

@@ -55,8 +55,9 @@ data "aws_iam_policy_document" "openvpn_ec2_policy_doc" {
 # OpenVPN
 #------------------------------------------------------------------------------
 module "openvpn" {
-  source  = "../.."
-  context = module.openvpn_context.self
+  source               = "../.."
+  context              = module.openvpn_context.self
+  preserve_if_disabled = var.preserve_if_disabled
 
 
   # REQUIRED
