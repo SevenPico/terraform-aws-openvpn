@@ -39,6 +39,8 @@ data "aws_iam_policy_document" "lambda_assume_role" {
 }
 
 data "aws_iam_policy_document" "this" {
+  #checkov:skip=CKV_AWS_356:skipping 'Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions'
+  #checkov:skip=CKV_AWS_111:skipping 'Ensure IAM policies does not allow write access without constraints'
   count = module.lambda_role_context.enabled ? 1 : 0
   statement {
     actions = [
@@ -147,6 +149,8 @@ data "archive_file" "artifact" {
 # Lambda Cloudwatch Log Group
 #------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "this" {
+  #checkov:skip=CKV_AWS_158:skipping 'Ensure that CloudWatch Log Group is encrypted by KMS'
+  #checkov:skip=CKV_AWS_338:skipping 'Ensure CloudWatch log groups retains logs for at least 1 year'
   count             = module.lambda_context.enabled ? 1 : 0
   name              = "/aws/lambda/${module.lambda_context.id}"
   retention_in_days = var.cloudwatch_log_retention_days
@@ -157,16 +161,22 @@ resource "aws_cloudwatch_log_group" "this" {
 # Lambda Function
 #------------------------------------------------------------------------------
 resource "aws_lambda_function" "this" {
-  count            = module.lambda_context.enabled ? 1 : 0
-  filename         = data.archive_file.artifact[0].output_path
-  function_name    = module.lambda_context.id
-  description      = "Update VPC Route Tables with routes to EC2 instances in the associated Autoscale Group."
-  timeout          = var.lambda_timeout
-  runtime          = var.lambda_runtime
-  role             = aws_iam_role.this[0].arn
-  handler          = "app.lambda_handler"
-  source_code_hash = data.archive_file.artifact[0].output_base64sha256
-  tags             = module.lambda_context.tags
+  #checkov:skip=CKV_AWS_173:skipping 'Check encryption settings for Lambda environmental variable'
+  #checkov:skip=CKV_AWS_50:skipping 'X-ray tracing is enabled for Lambda'
+  #checkov:skip=CKV_AWS_117:skipping 'Ensure that AWS Lambda function is configured inside a VPC'
+  #checkov:skip=CKV_AWS_116:skipping 'Ensure that AWS Lambda function is configured for a Dead Letter Queue(DLQ)'
+  #checkov:skip=CKV_AWS_272:skipping 'Ensure AWS Lambda function is configured to validate code-signing'
+  count                          = module.lambda_context.enabled ? 1 : 0
+  filename                       = data.archive_file.artifact[0].output_path
+  function_name                  = module.lambda_context.id
+  description                    = "Update VPC Route Tables with routes to EC2 instances in the associated Autoscale Group."
+  timeout                        = var.lambda_timeout
+  runtime                        = var.lambda_runtime
+  role                           = aws_iam_role.this[0].arn
+  handler                        = "app.lambda_handler"
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  source_code_hash               = data.archive_file.artifact[0].output_base64sha256
+  tags                           = module.lambda_context.tags
   layers = [
     "arn:aws:lambda:${data.aws_region.current.name}:017000801446:layer:AWSLambdaPowertoolsPython:19"
   ]

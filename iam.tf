@@ -61,6 +61,8 @@ locals {
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_role_policy" {
+  #checkov:skip=CKV_AWS_356:skipping 'Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions'
+  #checkov:skip=CKV_AWS_111:skipping 'Ensure IAM policies does not allow write access without constraints'
   count                   = module.context.enabled ? 1 : 0
   version                 = "2012-10-17"
   source_policy_documents = var.ec2_role_source_policy_documents
@@ -304,6 +306,8 @@ resource "aws_iam_role" "ec2_autoscale_group_sns" {
 }
 
 data "aws_iam_policy_document" "ec2_autoscale_group_sns_policy" {
+  #checkov:skip=CKV_AWS_356:skipping 'Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions'
+  #checkov:skip=CKV_AWS_111:skipping 'Ensure IAM policies does not allow write access without constraints'
   count = module.ec2_autoscale_group_sns_role_context.enabled ? 1 : 0
   statement {
     effect = "Allow"

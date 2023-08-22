@@ -23,7 +23,7 @@ module "backups_bucket_context" {
   source     = "SevenPico/context/null"
   version    = "2.0.0"
   context    = module.context.self
-  enabled    = module.context.enabled && var.enable_openvpn_backups
+  enabled    = module.context.enabled && var.enable_openvpn_backups || var.preserve_if_disabled
   attributes = ["backups"]
 }
 
@@ -63,10 +63,9 @@ data "aws_iam_policy_document" "backups_bucket" {
 #------------------------------------------------------------------------------
 module "backups_bucket" {
   source  = "SevenPicoForks/s3-bucket/aws"
-  version = "4.0.4"
+  version = "4.0.6"
   context = module.backups_bucket_context.self
 
-  acl                          = "private"
   allow_encrypted_uploads_only = false
   allow_ssl_requests_only      = false
   allowed_bucket_actions = [

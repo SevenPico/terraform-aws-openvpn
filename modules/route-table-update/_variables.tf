@@ -96,3 +96,9 @@ variable "events_bucket_id" {
   description = "The S3 Bucket where events will be saved."
   default     = ""
 }
+
+variable "reserved_concurrent_executions" {
+  type        = number
+  description = "The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda from being triggered and -1 removes any concurrency limitations."
+  default     = -1
+}

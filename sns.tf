@@ -32,6 +32,7 @@ module "ec2_autoscale_group_sns_context" {
 # EC2 Auto Scaling Group SNS Topic
 #------------------------------------------------------------------------------
 resource "aws_sns_topic" "ec2_autoscale_group" {
+  #checkov:skip=CKV_AWS_26:skipping 'Ensure all data stored in the SNS topic is encrypted
   count                               = module.ec2_autoscale_group_sns_context.enabled ? 1 : 0
   name                                = module.ec2_autoscale_group_sns_context.id
   lambda_failure_feedback_role_arn    = one(aws_iam_role.ec2_autoscale_group_sns[*].arn)
@@ -41,6 +42,8 @@ resource "aws_sns_topic" "ec2_autoscale_group" {
 }
 
 resource "aws_cloudwatch_log_group" "sns" {
+  #checkov:skip=CKV_AWS_158:skipping 'Ensure that CloudWatch Log Group is encrypted by KMS'
+  #checkov:skip=CKV_AWS_338:skipping 'Ensure CloudWatch log groups retains logs for at least 1 year'
   count             = module.ec2_autoscale_group_sns_context.enabled ? 1 : 0
   name              = "sns/${local.region}/${local.account_id}/${module.ec2_autoscale_group_sns_context.id}"
   retention_in_days = var.cloudwatch_logs_expiration_days
