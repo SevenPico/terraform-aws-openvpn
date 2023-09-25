@@ -40,7 +40,7 @@ locals {
 # Secrets Manager
 #------------------------------------------------------------------------------
 locals {
-  license_key = var.enable_licensing ? { "${var.ssl_license_key_keyname}" : "" } : {}
+  license_key = var.enable_licensing ? { var.ssl_license_key_keyname : "" } : {}
 }
 
 module "secret" {
