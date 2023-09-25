@@ -324,7 +324,7 @@ resource "aws_ssm_document" "configure_license" {
   tags = module.configure_license_context.tags
   content = templatefile("${path.module}/templates/ssm-configure-license.tftpl", {
     secret_arn = var.openvpn_secret_arn == "" ? module.secret.arn : var.openvpn_secret_arn
-    keyname    = var.ssl_license_key_keyname
+    keyname    = var.openvpn_license_key_keyname
     region     = local.region
   })
 }
