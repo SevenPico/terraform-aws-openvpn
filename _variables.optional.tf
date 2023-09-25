@@ -77,6 +77,12 @@ variable "enable_licensing" {
   description = "When this is true the openvpn license will be retrieve from OpenPVN SecretsManager Document."
 }
 
+variable "openvpn_license_key" {
+  type        = string
+  default     = ""
+  description = "Openvpn License Key."
+}
+
 variable "enable_mysql" {
   type        = bool
   default     = false
@@ -138,7 +144,7 @@ variable "ssl_secret_certificate_private_key_keyname" {
   default = "CERTIFICATE_PRIVATE_KEY"
 }
 
-variable "ssl_license_key_keyname" {
+variable "openvpn_license_key_keyname" {
   type    = string
   default = "OPENVPN_LICENSE"
 }
