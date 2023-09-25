@@ -40,7 +40,7 @@ locals {
 # Secrets Manager
 #------------------------------------------------------------------------------
 locals {
-  license_key = var.enable_licensing ? { var.openvpn_license_key_keyname : var.openvpn_license_key } : {}
+  license_key = var.enable_licensing ? { "${var.openvpn_license_key_keyname}" : "${var.openvpn_license_key}" } : {}
 }
 
 module "secret" {
