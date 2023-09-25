@@ -71,4 +71,25 @@ jobs:
         with:
           directory: ./
           framework: terraform
+
+      - name: Test with Checkov (examples/complete)
+        id: checkov_examples_complete
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./examples/complete
+          framework: terraform
+
+      - name: Test with Checkov (examples/efs)
+        id: checkov_examples_efs
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./examples/efs
+          framework: terraform
+
+      - name: Test with Checkov (examples/private-subnet)
+        id: checkov_examples_private_subnet
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./examples/private-subnet
+          framework: terraform
           skip_check: CKV_TF_1

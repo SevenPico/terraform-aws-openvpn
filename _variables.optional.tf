@@ -438,6 +438,11 @@ variable "openvpn_ssm_association_output_bucket_name" {
   default = null
 }
 
+variable "openvpn_additional_ssm_documents" {
+  type    = list(string)
+  default = []
+}
+
 
 #------------------------------------------------------------------------------
 # Mysql Configuration Inputs
