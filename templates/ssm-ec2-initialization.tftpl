@@ -36,7 +36,7 @@ mainSteps:
             echo "Installing and configuring Cloudwatch Agent"
             wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb > /dev/null 2>&1
             sudo dpkg -i -E ./amazon-cloudwatch-agent.deb > /dev/null 2>&1
-            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/root/scripts/cloudwatch-config.json > /dev/null 2>&1
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c ssm:${cloudwatch_config} > /dev/null 2>&1
           fi
 
           # Add the cronjob line to remove old Openvpn log files
