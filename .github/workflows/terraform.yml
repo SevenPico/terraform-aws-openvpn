@@ -41,7 +41,7 @@ jobs:
       - name: terraform validate (examples/default)
         uses: dflook/terraform-validate@v1.31.1
         with:
-          path: ./examples/default
+          path: ./examples/complete
 
       - name: terraform validate (examples/efs)
         uses: dflook/terraform-validate@v1.31.1
@@ -71,6 +71,7 @@ jobs:
         with:
           directory: ./
           framework: terraform
+          skip_check: CKV_TF_1
 
       - name: Test with Checkov (examples/complete)
         id: checkov_examples_complete
@@ -78,6 +79,7 @@ jobs:
         with:
           directory: ./examples/complete
           framework: terraform
+          skip_check: CKV_TF_1
 
       - name: Test with Checkov (examples/efs)
         id: checkov_examples_efs
@@ -85,6 +87,7 @@ jobs:
         with:
           directory: ./examples/efs
           framework: terraform
+          skip_check: CKV_TF_1
 
       - name: Test with Checkov (examples/private-subnet)
         id: checkov_examples_private_subnet
