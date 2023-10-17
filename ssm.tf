@@ -89,9 +89,10 @@ resource "aws_ssm_document" "ec2_initialization" {
 
   tags = module.ec2_initialization_context.tags
   content = templatefile("${path.module}/templates/ssm-ec2-initialization.tftpl", {
-    hostname  = var.openvpn_hostname
-    time_zone = var.openvpn_time_zone
-    region    = local.region
+    cloudwatch_config = aws_ssm_parameter.cloudwatch_config[0].name
+    hostname          = var.openvpn_hostname
+    time_zone         = var.openvpn_time_zone
+    region            = local.region
   })
 }
 
@@ -404,6 +405,21 @@ resource "aws_ssm_document" "vpn_restore" {
     s3_bucket         = module.backups_bucket.bucket_id
     s3_backup_key     = "backups/openvpn_backup.tar.gz"
     backup_version_id = ""
+  })
+}
+
+
+#------------------------------------------------------------------------------
+# Cloudwatch Configuration
+#------------------------------------------------------------------------------
+resource "aws_ssm_parameter" "cloudwatch_config" {
+  #checkov:skip=CKV_AWS_337:skipping 'Ensure SSM parameters are using KMS CMK'
+  count       = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
+  description = "Cloudwatch agent config to configure custom log"
+  name        = "/content/${module.context.id}-cloudwatch-agent/config"
+  type        = "SecureString"
+  value = templatefile("${path.module}/templates/cloudwatch-config.json.tftpl", {
+    log_group_name = aws_cloudwatch_log_group.ec2_autoscale_group[0].name
   })
 }
 

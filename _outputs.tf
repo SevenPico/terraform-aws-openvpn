@@ -114,3 +114,7 @@ output "ssm_document_vpn_restore" {
 output "ssm_document_ssl_configure" {
   value = try(aws_ssm_document.configure_ssl[0].name, "")
 }
+
+output "cloudwatch_log_group" {
+  value = try(aws_cloudwatch_log_group.ec2_autoscale_group[0].name, "")
+}
