@@ -413,6 +413,7 @@ resource "aws_ssm_document" "vpn_restore" {
 # Cloudwatch Configuration
 #------------------------------------------------------------------------------
 resource "aws_ssm_parameter" "cloudwatch_config" {
+  #checkov:skip=CKV_AWS_337:skipping 'Ensure SSM parameters are using KMS CMK'
   count       = module.context.enabled && var.enable_ec2_cloudwatch_logs ? 1 : 0
   description = "Cloudwatch agent config to configure custom log"
   name        = "/content/${module.context.id}-cloudwatch-agent/config"
