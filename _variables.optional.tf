@@ -279,6 +279,14 @@ variable "nlb_tls_ssl_policy" {
   default = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 }
 
+variable "nlb_tags" {
+  type        = map(string)
+  default     = {}
+  description = <<-EOT
+    Additional tags (e.g. `{'BusinessUnit': 'XYZ'}`).
+    Neither the tag keys nor the tag values will be modified by this module.
+    EOT
+}
 
 
 #------------------------------------------------------------------------------
