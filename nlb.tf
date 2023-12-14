@@ -70,6 +70,7 @@ module "nlb" {
   source  = "SevenPicoForks/nlb/aws"
   version = "2.0.0"
   context = module.nlb_context.self
+  tags    = var.nlb_tags
 
   access_logs_enabled               = var.nlb_access_logs_s3_bucket_id != null
   access_logs_prefix                = var.nlb_access_logs_prefix_override == null ? module.nlb_context.id : var.nlb_access_logs_prefix_override
