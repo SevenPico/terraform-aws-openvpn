@@ -160,7 +160,7 @@ variable "ec2_associate_public_ip_address" {
 
 variable "ec2_ami_id" {
   type    = string
-  default = "ami-0574da719dca65348"
+  default = "ami-04a81a99f5ec58529"
 }
 
 variable "ec2_autoscale_desired_count" {
