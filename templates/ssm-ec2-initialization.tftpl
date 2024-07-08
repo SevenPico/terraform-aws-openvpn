@@ -21,7 +21,7 @@ mainSteps:
           sudo apt autoremove -y -q > /dev/null 2>&1
           sudo apt install ntp -y -q > /dev/null 2>&1
           sudo apt install jq -y -q > /dev/null 2>&1
-          sudo apt install awscli -y -q > /dev/null 2>&1
+          sudo snap install aws-cli --classic > /dev/null 2>&1
           PUBLIC_IP=$(curl -s http://checkip.amazonaws.com)
           # Set Hostname
           sudo echo '127.0.0.1 localhost ${hostname}' > /etc/hosts
