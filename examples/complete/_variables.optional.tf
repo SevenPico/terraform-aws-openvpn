@@ -138,7 +138,7 @@ variable "ec2_associate_public_ip_address" {
 
 variable "ec2_ami_id" {
   type    = string
-  default = "ami-0574da719dca65348"
+  default = "ami-04a81a99f5ec58529"
 }
 
 variable "ec2_autoscale_desired_count" {
@@ -408,7 +408,7 @@ variable "openvpn_tls_version_min" {
 
 variable "openvpn_version" {
   type    = string
-  default = "2.11.1-f4027f58-Ubuntu22"
+  default = "2.14.0-b90cb316-Ubuntu24"
 }
 
 variable "openvpn_ssm_association_output_bucket_name" {
