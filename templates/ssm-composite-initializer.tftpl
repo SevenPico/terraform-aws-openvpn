@@ -50,7 +50,7 @@ mainSteps:
 %{ endif }
 %{ for document in additional_ssm_documents }
   - action: aws:runDocument
-    name : "${replace(document, "-", "_")}"
+    name : "%{ if contains(document, ":") }${replace(split("/", document)[length(split("/", document)) - 1], "-", "_")}%{ else }${replace(document, "-", "_")}%{ endif }"
     inputs:
       documentType: SSMDocument
       documentPath: "${document}"
