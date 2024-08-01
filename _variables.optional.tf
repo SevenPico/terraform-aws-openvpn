@@ -453,8 +453,9 @@ variable "openvpn_ssm_association_output_bucket_name" {
 }
 
 variable "openvpn_additional_ssm_documents" {
-  type    = list(string)
-  default = []
+  description = "A list of AWS Systems Manager (SSM) document identifiers that are required to be executed as part of the composite SSM document. Each identifier can be either the name of an SSM document within the same account or the full ARN of an SSM document from another account."
+  type        = list(string)
+  default     = []
 }
 
 
