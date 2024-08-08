@@ -59,7 +59,7 @@ mainSteps:
 
 %{ for document in additional_shared_ssm_documents }
   - action: aws:runDocument
-    name : "${replace(document.name, "-", "_"}"
+    name : "${replace(document.name, "-", "_")}"
     inputs:
       documentType: SSMDocument
       documentPath: "${document.arn}"
