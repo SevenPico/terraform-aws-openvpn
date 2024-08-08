@@ -40,7 +40,7 @@ resource "aws_ssm_document" "composite_installer" {
   tags            = module.composite_installer_context.tags
   content = templatefile("${path.module}/templates/ssm-composite-initializer.tftpl", {
     additional_ssm_documents        = var.openvpn_additional_ssm_documents
-    additional_shared_ssm_documents = var.openvpn_shared_additional_ssm_documents
+    additional_shared_ssm_documents = var.openvpn_additional_shared_ssm_documents
     ec2_initialization              = try(aws_ssm_document.ec2_initialization[0].name, "")
     ec2_upgrade                     = try(aws_ssm_document.ec2_upgrade[0].name, "")
     install_document                = try(!var.enable_efs ? aws_ssm_document.install_default[0].name : aws_ssm_document.install_with_efs[0].name, "")

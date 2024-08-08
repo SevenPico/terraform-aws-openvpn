@@ -458,7 +458,7 @@ variable "openvpn_additional_ssm_documents" {
   description = "List of SSM document names within the same AWS account. These documents are referenced by their name in the documentPath as they are readily accessible within the same account."
 }
 
-variable "openvpn_shared_additional_ssm_documents" {
+variable "openvpn_additional_shared_ssm_documents" {
   type = list(object({
     name = string
     arn  = string
