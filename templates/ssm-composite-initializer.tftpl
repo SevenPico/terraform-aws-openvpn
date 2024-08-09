@@ -56,7 +56,6 @@ mainSteps:
       documentPath: "${document}"
       timeoutSeconds: '300'
 %{ endfor }
-
 %{ for document in additional_shared_ssm_documents }
   - action: aws:runDocument
     name : "${replace(document.name, "-", "_")}"
