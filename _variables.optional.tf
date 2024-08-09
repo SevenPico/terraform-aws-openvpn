@@ -453,8 +453,18 @@ variable "openvpn_ssm_association_output_bucket_name" {
 }
 
 variable "openvpn_additional_ssm_documents" {
-  type    = list(string)
-  default = []
+  type        = list(string)
+  default     = []
+  description = "List of SSM document names within the same AWS account. These documents are referenced by their name in the documentPath as they are readily accessible within the same account."
+}
+
+variable "openvpn_additional_shared_ssm_documents" {
+  type = list(object({
+    name = string
+    arn  = string
+  }))
+  default     = []
+  description = "List of SSM documents shared across different AWS accounts. Each object contains the document's name and its ARN, with the ARN being used in the documentPath for cross-account reference."
 }
 
 
