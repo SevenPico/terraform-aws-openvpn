@@ -32,27 +32,35 @@ mainSteps:
       documentType: SSMDocument
       documentPath: "${configure_routing}"
       timeoutSeconds: '300'
-%{ if configure_ssl != "" } - action: aws:runDocument
+%{ if configure_ssl != "" }
+  - action: aws:runDocument
     name: configure_ssl
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_ssl}"
-      timeoutSeconds: '300' %{ endif }
-%{ if configure_license != "" } - action: aws:runDocument
+      timeoutSeconds: '300'
+%{ endif }
+%{ if configure_license != "" }
+  - action: aws:runDocument
     name: configure_license
     inputs:
       documentType: SSMDocument
       documentPath: "${configure_license}"
-      timeoutSeconds: '300' %{ endif }
-%{ for document in additional_ssm_documents } - action: aws:runDocument
+      timeoutSeconds: '300'
+%{ endif }
+%{ for document in additional_ssm_documents }
+  - action: aws:runDocument
     name : "${replace(document, "-", "_")}"
     inputs:
       documentType: SSMDocument
       documentPath: "${document}"
-      timeoutSeconds: '300' %{ endfor }
-%{ for document in additional_shared_ssm_documents } - action: aws:runDocument
+      timeoutSeconds: '300'
+%{ endfor }
+%{ for document in additional_shared_ssm_documents }
+  - action: aws:runDocument
     name : "${replace(document.name, "-", "_")}"
     inputs:
       documentType: SSMDocument
       documentPath: "${document.arn}"
-      timeoutSeconds: '300' %{ endfor }
+      timeoutSeconds: '300'
+%{ endfor }
